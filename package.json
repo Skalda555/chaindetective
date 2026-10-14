@@ -1,0 +1,14 @@
+{
+  "name": "chaindetective",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Onchain research workspace for Ethereum and L2 token holders",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "check": "node --check dist/app.js && node --check dist/data.js",
+    "test": "node tests/app-regression.mjs && node tests/data-regression.mjs",
+    "bundle": "node scripts/bundle.mjs"
+  }
+}

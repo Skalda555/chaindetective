@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c0f12">
+  <meta name="description" content="ChainDetective — pracovní prostor pro průzkum držitelů tokenů a portfolií peněženek na Ethereum a L2 sítích.">
+  <title>ChainDetective · Onchain intelligence</title>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iMTEiIGZpbGw9IiNjM2YyNmIiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMxNzIyMGEiIHN0cm9rZS13aWR0aD0iMi40Ij48cGF0aCBkPSJNMjkgMTJhMTIgMTIgMCAxIDAgMSAxMU0yMCA4djEybDktOU0yMCAyMGwxMyAxMyIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjQiIGZpbGw9IiMxNzIyMGEiLz48L2c+PC9zdmc+Cg==" type="image/svg+xml">
+  <style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{color-scheme:dark;--bg:#0c0f12;--panel:#13171b;--panel2:#191d22;--border:#282d33;--text:#ecf0ed;--muted:#828b94;--lime:#c3f26b;--mono:'IBM Plex Mono',Consolas,monospace;--sidebar:222px;font-family:'DM Sans','Segoe UI',sans-serif;font-size:13px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button,a,input,textarea,select{-webkit-tap-highlight-color:transparent}button{cursor:pointer;color:inherit}button{border:0;background:none}a{color:inherit;text-decoration:none}button:disabled{cursor:not-allowed;opacity:.35}button:focus-visible,a:focus-visible{outline:2px solid var(--lime);outline-offset:4px}input:focus,textarea:focus,select:focus{outline:1px solid #839c58;outline-offset:0}button,select{transition:background .15s,color .15s,border-color .15s}svg{display:block;width:18px;height:18px;stroke-width:1.6;flex:none}[data-icon]{display:inline-flex;align-items:center;justify-content:center;flex:none}[hidden]{display:none!important}.sidebar{width:var(--sidebar);position:fixed;inset:0 auto 0 0;background:#101316;border-right:1px solid var(--border);padding:29px 16px 0;z-index:20;display:flex;flex-direction:column}.brand{display:flex;gap:9px;align-items:center;padding:0 5px;font-size:19px;letter-spacing:-.9px;font-weight:700;white-space:nowrap}.brand-mark{width:32px;height:36px;color:var(--lime)}.brand-mark svg{width:32px;height:32px}.brand-light{font-weight:450;color:#d7ddd7}.brand small{display:block;font:8px var(--mono);letter-spacing:1.9px;color:#858e86;margin-top:5px}.workspace{margin:32px 0 27px;border:1px solid var(--border);background:#181c20;border-radius:7px;padding:10px;display:flex;align-items:center;gap:9px;text-align:left;font-size:11px;font-weight:550}.workspace-icon{background:#2c3431;width:26px;height:27px;display:grid;place-items:center;border:1px solid #414d40;border-radius:5px;color:#c5d5c2;font-size:14px}.workspace small,.profile small{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:3px}.workspace-dots{margin-left:auto;color:#858e94;font-size:16px}.nav-label{font-size:9px;letter-spacing:1.65px;color:#69737b;font-weight:600;padding:0 12px;margin-bottom:10px}.nav-item{display:flex;align-items:center;gap:11px;min-height:43px;width:100%;text-align:left;padding:11px 12px;border-radius:5px;color:#9da5ac;font-size:12px;margin-bottom:5px}.nav-item svg{width:17px;height:17px}.nav-item:hover{background:#1a2024;color:#e5e9e5}.nav-item.active{color:var(--lime);background:#222b1b}.nav-active-dot{width:5px;height:5px;background:var(--lime);border-radius:50%;margin-left:auto}.nav-item:not(.active) .nav-active-dot{display:none}.nav-count{font:10px var(--mono);margin-left:auto;color:#9ba58d}.future-label{margin-top:32px}.nav-item.future{color:#747e86;font-size:12px}.soon{font:7px var(--mono);letter-spacing:.3px;color:#77806d;border:1px solid #30382e;border-radius:3px;padding:3px 4px;margin-left:auto}.sidebar-bottom{margin-top:auto;padding-top:40px}.research-card{padding:14px 13px 11px;background:radial-gradient(ellipse at 10% 0%,#2c382250,transparent 75%),#171d17;border:1px solid #303b2a;border-radius:7px}.small-orbit{color:var(--lime);font-size:26px;display:block;line-height:1;margin-bottom:13px}.research-card strong{font-size:11px;font-weight:550}.research-card p{font-size:10px;line-height:1.7;color:#8f9a8b;margin:8px 0 13px}.research-card button{color:#c8d4bc;font-size:10px;padding:10px 0 0;width:100%;border-top:1px solid #303a2b;text-align:left}.research-card button span{float:right}.sidebar-help{display:flex;gap:9px;color:#929c9f;font-size:11px;padding:22px 7px}.sidebar-help svg{width:15px}.sidebar-help>span:last-child{margin-left:12px}.profile{display:flex;align-items:center;gap:9px;padding:15px 0;border-top:1px solid var(--border);font-size:10px}.avatar{display:grid;place-items:center;width:31px;height:31px;border-radius:50%;background:#353b30;color:#d0d9c2;font:11px var(--mono);border:1px solid #46503b}.profile-dot{width:5px;height:5px;border-radius:100%;background:#a5bd83;margin-left:auto}.app-shell{margin-left:var(--sidebar);min-height:100vh}.topbar{height:65px;padding:0 34px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#101316}.breadcrumb{display:flex;align-items:center;gap:11px;font-size:11px;color:#858e95}.breadcrumb svg{width:15px;color:#9ba491}.breadcrumb strong{font-weight:450;color:#d1d7d4}.slash{color:#485159;margin:0 3px}.topbar-right{display:flex;align-items:center;gap:19px}.network-status{font:10px var(--mono);color:#a3aea6;display:flex;align-items:center;gap:8px}.network-status i{width:5px;height:5px;border-radius:50%;background:#9cc55d}.top-divider{width:1px;height:18px;background:var(--border)}.icon-button{height:30px;width:30px;display:inline-flex;align-items:center;justify-content:center;color:#8e999f;border-radius:5px;font-size:24px}.icon-button:hover{background:#252c30;color:var(--text)}.icon-button svg{width:17px;height:17px}.avatar.tiny{width:27px;height:27px;font-size:9px}.mobile-menu{display:none}main{max-width:1660px;margin:auto;padding:34px 34px 0}.page-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:25px}.eyebrow{font:9px var(--mono);letter-spacing:1.6px;color:#9ca991;display:flex;align-items:center;gap:7px}.eyebrow>span{width:5px;height:5px;background:var(--lime);border-radius:1px}h1{font-size:33px;font-weight:550;letter-spacing:-1.25px;margin:9px 0 8px;line-height:1.25}h1>span{color:var(--lime)}.page-heading p{font-size:12px;color:#929ca3;margin:0;line-height:1.6}.heading-actions{display:flex;align-items:center;gap:17px;padding-top:15px}.subtle-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--border);border-radius:5px;padding:9px 11px;color:#b7bec1;white-space:nowrap;font-size:11px;min-height:33px;background:#171c20}.subtle-button:hover{background:#252c30;border-color:#464f54}.subtle-button svg{width:14px;height:14px}.heading-actions>.subtle-button{border:none;background:none;color:#8b959c;padding:0}.source-toggle{display:flex;padding:3px;border:1px solid var(--border);background:#13171a;border-radius:6px}.source-toggle button{font-size:10px;color:#818c92;padding:7px 9px;display:flex;align-items:center;gap:5px;border-radius:4px;white-space:nowrap}.source-toggle button.active{color:#dce6d2;background:#2b3525;box-shadow:0 0 0 1px #414c35}.source-toggle button i{width:5px;height:5px;background:#bcd880;border-radius:50%}.source-toggle button:last-child.active{color:#c3f26b}.source-toggle button span{font-size:11px;color:#8d9c82}.source-banner{font-size:10px;line-height:1.6;display:flex;gap:9px;align-items:center;padding:10px 13px;background:#191c16;border:1px solid #30372a;border-radius:5px;color:#919b88;margin-bottom:20px}.source-banner strong{color:#bec9b3;font-weight:500}.source-banner>span:first-child{color:#b0c18f}.source-banner svg{width:15px;height:15px}.source-banner button{margin-left:auto;color:#89977d}.source-banner.live-banner{background:#14201f;border-color:#2b4540;color:#87a9a0}.panel{border:1px solid var(--border);border-radius:8px;background:var(--panel);overflow:hidden}.query-panel{margin-bottom:20px}.query-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding:0 21px}.mode-tabs{display:flex;gap:23px}.mode-tabs button{display:flex;align-items:center;gap:8px;padding:16px 0 14px;font-size:11px;color:#8c969e;border-bottom:2px solid transparent;margin-bottom:-1px}.mode-tabs button.active{color:var(--lime);border-color:var(--lime)}.mode-tabs svg{width:15px;height:15px}.step-label{font:9px var(--mono);color:#a2af98}.step-label span{font-size:8px;letter-spacing:.9px;color:#5e6b74;margin-left:7px}#token-query,#wallet-query{padding:20px 21px}.field-label{display:flex;justify-content:space-between;margin-bottom:10px;align-items:center;font-size:10px}.field-label label{color:#bbc3c5}.field-label label span{font:9px var(--mono);color:#68747d;margin-left:7px}.text-button{padding:0;color:#8e9d83;font-size:10px;display:inline-flex;align-items:center;gap:6px}.text-button:hover{color:var(--lime)}.token-input{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-height:63px;border:1px solid #30373c;border-radius:6px;background:#0f1316;padding:10px 12px}#selected-tokens{display:contents}.token-chip{display:flex;gap:8px;align-items:center;padding:7px 9px;background:#21272c;border:1px solid #3a4248;border-radius:5px;max-width:100%}.token-chip>span:not(.coin-icon){font-size:11px;font-weight:600}.token-chip small{font-size:9px;font-weight:400;color:#8e9ba4;display:block;margin-top:2px}.token-chip button{padding:2px;font-size:16px;color:#6c7b86;margin-left:7px;line-height:1}.token-chip button:hover{color:#fff}.coin-icon{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:50%;font:600 11px var(--mono);color:white;background:var(--coin,#527fc4);flex:none;border:1px solid #ffffff12;position:relative}.coin-icon.eth{background:#383c50;color:#b8c3e1;font-size:19px}.coin-icon.usdc{background:#2775c9}.coin-icon.arb{background:#1f334a;border:1px solid #4496d3;color:#b8defc;font-size:15px}.coin-icon.op{background:#ed3446;font-style:italic;font-family:'DM Sans',sans-serif;font-size:11px}.coin-icon.dai{background:#c79836}.coin-icon.uni{background:#8d2863}.coin-icon.small{height:23px;width:23px;font-size:9px}.coin-icon.small.eth{font-size:15px}.coin-icon.micro{height:21px;width:21px;font-size:8px;border:2px solid #13171b;margin-left:-4px}.add-token{font-size:11px;color:#78868f;display:flex;gap:8px;align-items:center;padding:8px;white-space:nowrap}.add-token>span{font-size:18px;color:#aab4b7}.add-token:hover{color:#c6d3bb}.query-bottom{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:18px}.match-control{display:flex;align-items:center;gap:12px;color:#8a969e;font-size:10px}.segmented{display:flex;background:#0e1215;border:1px solid #2b3338;border-radius:5px;padding:3px}.segmented button{font-size:10px;display:flex;gap:7px;align-items:center;color:#76838d;padding:7px 9px;border-radius:3px;white-space:nowrap}.segmented button.active{color:#d9dfd4;background:#2a3226;box-shadow:0 0 0 1px #3b4533}.segmented button span{font:8px var(--mono);color:#647454}.segmented button.active span{color:#b2c78f}.primary-button{background:var(--lime);color:#1b2511;border:1px solid var(--lime);padding:11px 15px;border-radius:5px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;min-height:39px;box-shadow:0 0 20px #c3f26b06}.primary-button:hover{background:#d3ff86}.primary-button:disabled{opacity:.6}.primary-button svg{width:15px;height:15px;stroke-width:2}.button-arrow{margin-left:14px;font-size:16px}.chain-row{border-top:1px solid var(--border);padding:13px 21px;background:#111519;display:flex;align-items:center;gap:15px}.chain-label{display:flex;align-items:center;gap:7px;font-size:10px;color:#7a8891}.chain-label svg{width:14px;height:14px}#chain-filters{display:flex;gap:7px;flex-wrap:wrap;flex:1}.chain-chip{border:1px solid transparent;color:#66737d;display:flex;align-items:center;gap:5px;font-size:9px;padding:5px 7px;border-radius:4px;white-space:nowrap}.chain-chip.active{border-color:#303b41;background:#20272c;color:#b9c4cb}.chain-chip:hover{border-color:#65725a}.chain-logo{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;color:white;font-size:7px;font-weight:700;background:var(--chain,#707a89);font-family:var(--mono);flex:none}.chain-logo.ethereum{color:#b2bed8;background:none;font-size:15px}.chain-logo.arbitrum{background:#2d71aa;color:#dbedfa}.chain-logo.base{background:#1457ff;color:#fff;font-size:14px;font-weight:400}.chain-logo.optimism{background:#e63143;font-size:6px}.chain-logo.zksync{background:#292e6a;font-size:9px}.chain-logo.scroll{background:#cda47b;color:#32261d}.chain-logo.linea{background:#d4dedc;color:#162426}.chain-row>.text-button{font-size:9px}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:24px}.stat-card{border:1px solid var(--border);border-radius:7px;background:linear-gradient(130deg,#181e2040,#13171b);padding:17px 17px 14px;min-height:114px;position:relative}.stat-top{display:flex;justify-content:space-between;color:#8e9ba3;font-size:10px;align-items:center;gap:5px}.stat-top>span{color:#63716f}.stat-top svg{width:15px;height:15px}.stat-value{font-size:25px;letter-spacing:-.8px;font-weight:500;margin:13px 0 5px;line-height:1.2}.stat-card:first-child .stat-value{color:#d0f39a}.stat-foot{font-size:9px;color:#667781;display:flex;align-items:center;gap:5px}.stat-foot .accent{color:#a8bd8b}.stat-card:last-child .stat-value{display:flex;align-items:center;gap:9px}.stat-chains{display:flex;gap:4px}.stat-chains .chain-logo{width:18px;height:18px;font-size:9px}.results-layout{display:grid;grid-template-columns:minmax(0,1fr) 238px;gap:18px;align-items:start}.results-panel{min-width:0}.results-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:20px 18px 15px}h2{font-size:14px;letter-spacing:-.1px;font-weight:550;margin:0}.results-title-row h2{display:flex;align-items:center;gap:9px}.count-badge{font:9px var(--mono);color:#a9bc91;background:#293320;padding:3px 6px;border-radius:4px;line-height:1.2}.results-title-row p{font-size:9px;color:#6d7c86;margin:6px 0 0}.results-actions{display:flex;gap:7px}.results-actions .subtle-button{font-size:9px;padding:7px 8px;min-height:29px}.results-actions svg{width:12px;height:12px}.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 18px 15px}.table-search{display:flex;align-items:center;gap:7px;min-width:100px;flex:1}.table-search svg{width:13px;height:13px;color:#65747e}.table-search input{width:100%;min-width:80px;background:none;border:none;padding:7px 0;font-size:9px;color:#c7cfd1;outline:none}.table-search input::placeholder{color:#65737d}.table-filters{display:flex;gap:6px}.table-filters select{border:1px solid var(--border);background:#171d21;color:#99a7ae;border-radius:4px;font-size:9px;padding:6px 4px;max-width:142px}.minimum-filter{display:flex;align-items:center;font-size:9px;gap:6px;color:#71818a;border:1px solid var(--border);border-radius:4px;padding:5px 7px;white-space:nowrap}.minimum-filter span{color:#abb6a2;margin-left:4px}.minimum-filter input{width:44px;padding:0;background:none;border:none;font:9px var(--mono);color:#b6c4a7;outline:none;-moz-appearance:textfield}.minimum-filter input::-webkit-inner-spin-button{appearance:none}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;white-space:nowrap;text-align:left}thead{background:#181e23;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}th{font-size:8px;font-weight:400;letter-spacing:.45px;color:#798892;padding:11px 9px}th:first-child,td:first-child{padding-left:18px;width:27px}th:last-child,td:last-child{padding-right:16px;width:30px}td{padding:13px 9px;border-bottom:1px solid #242b30;font-size:10px}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#1a2024}input[type=checkbox]{appearance:none;display:inline-block;width:12px;height:12px;vertical-align:middle;margin:0;background:#12171a;border:1px solid #3a464e;border-radius:3px;cursor:pointer}input[type=checkbox]:checked{background:var(--lime);border-color:var(--lime)}input[type=checkbox]:checked:after{content:'✓';display:block;text-align:center;color:#172113;font-size:10px;line-height:10px}.wallet-identity{display:flex;align-items:center;gap:9px}.identicon{width:27px;height:27px;border-radius:7px;display:grid;place-items:center;color:var(--ident,#a4bb7c);background:color-mix(in srgb,var(--ident,#a4bb7c) 12%,#171c20);border:1px solid color-mix(in srgb,var(--ident,#a4bb7c) 23%,#20282b);flex:none}.identicon svg{width:16px;height:16px;stroke-width:1.4}.address-button{font:10px var(--mono);color:#c7d1d5;padding:0;text-align:left}.address-button:hover{color:var(--lime)}.wallet-name{font-size:8px;color:#6e8088;margin-top:4px;display:flex;align-items:center;gap:4px}.wallet-name i{width:3px;height:3px;border-radius:50%;background:#849d66}.row-networks{display:flex;align-items:center;gap:3px}.row-networks .chain-logo{width:16px;height:16px;font-size:8px}.match-tokens{display:flex;align-items:center;padding-left:4px}.match-total{font:8px var(--mono);color:#6f818a;margin-left:5px}.value-cell{font:10px var(--mono);text-align:right;color:#e3e9df}.value-cell small{display:block;font:8px var(--mono);color:#668071;margin-top:5px}.th-value{text-align:right}.allocation{width:63px;display:flex;gap:2px;height:5px}.allocation span{border-radius:2px;background:#bde981;min-width:2px}.allocation span:nth-child(2){background:#7e9f5f}.allocation span:nth-child(3){background:#3d5143}.row-actions{display:flex;gap:5px}.bookmark-button{padding:3px;color:#576a76}.bookmark-button svg{width:13px;height:13px}.bookmark-button:hover,.bookmark-button.saved{color:var(--lime)}.bookmark-button.saved svg{fill:#c3f26b30}.open-detail{font-size:16px;color:#64757d;padding:3px}.open-detail:hover{color:var(--lime)}.table-footer{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-top:1px solid var(--border);font-size:9px;color:#6d7f88}.pagination{display:flex;gap:5px;align-items:center}.pagination .icon-button{width:24px;height:24px;font-size:18px}.pagination>span{color:#a7c98a;background:#253020;border:1px solid #374a2a;border-radius:4px;font:9px var(--mono);padding:5px 8px}.insight-panel{padding:19px 17px;background:radial-gradient(ellipse at 50% 15%,#25332140,transparent 45%),var(--panel)}.insight-label{display:flex;align-items:center;gap:7px;font-size:10px;color:#b4c4aa}.insight-label svg{width:14px;height:14px;color:#a7c47d}.insight-panel>p{font-size:10px;line-height:1.7;color:#7d8d94}.venn-diagram{height:145px;position:relative;display:flex;align-items:center;justify-content:center;margin:13px 0}.venn-circle{position:absolute;width:115px;height:115px;border-radius:50%;border:1px solid #7c9f4b69;background:radial-gradient(ellipse,#bfe7750a,#bfe77502);left:5px;display:flex;align-items:center;padding:18px;font:9px var(--mono);color:#93b36f}.venn-circle.second{left:auto;right:5px;border-color:#74a88956;background:#98d6b007;justify-content:flex-end;color:#82a497}.venn-value{position:relative;text-align:center;margin-top:3px}.venn-value strong{display:block;font:500 30px var(--mono);color:#cbed9e;letter-spacing:-1.5px}.venn-value small{font-size:8px;color:#9cba8b}.insight-divider{height:1px;background:var(--border);margin:16px 0}.insight-pair{display:flex;justify-content:space-between;font-size:10px;margin:13px 0;color:#8b9a9e}.insight-pair>strong{color:#c7d3c2;font-weight:450}.mini-distribution{display:flex;gap:3px;height:5px;margin:13px 0}.mini-distribution>span{border-radius:2px;min-width:4px}.insight-note{display:flex;gap:8px;background:#1d251b;border:1px solid #303d28;border-radius:5px;padding:10px;margin-top:19px;color:#99ac89;font-size:9px;line-height:1.7}.insight-note svg{width:13px;height:13px;margin-top:1px;flex:none}.insight-link{font-size:10px;width:100%;display:flex;justify-content:space-between;color:#acc68d;margin-top:17px;padding:0}.coverage-footer{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:17px 0 30px;font-size:8px;color:#62757e}.coverage-footer>span{display:flex;align-items:center;gap:6px}.coverage-footer i{width:4px;height:4px;background:#788d62;border-radius:50%;flex:none}.coverage-footer .text-button{font-size:8px}.app-footer{border-top:1px solid #1e272d;display:flex;justify-content:space-between;gap:20px;padding:20px 34px;color:#4c616a;font-size:8px;letter-spacing:1.1px;max-width:1660px;margin:auto}.footer-version{font:8px var(--mono);color:#718171;letter-spacing:0;margin-left:4px}.app-footer>span:last-child{letter-spacing:.3px}textarea{width:100%;padding:13px;background:#0e1316;color:#becacf;border:1px solid #303b43;border-radius:5px;font:11px/1.7 var(--mono);resize:vertical;min-height:91px}textarea::placeholder{color:#566b77;font-size:10px}.field-hint{font-size:10px;color:#7b8f99}.query-error{border-top:1px solid #634337;background:#301d17;padding:12px 20px;color:#edb4a0;font-size:11px;line-height:1.6}.bulk-bar{display:flex;align-items:center;gap:17px;background:#252e20;padding:10px 18px;border-top:1px solid #445a32;color:#bdd4a2;font-size:10px}.bulk-bar>.text-button:last-child{margin-left:auto}.empty-state{text-align:center;padding:52px 25px;color:#8fa08b;font-size:12px;line-height:1.8;min-height:250px}.empty-state svg{width:32px;height:32px;margin:0 auto 18px;color:#7c906b}.empty-state p{font-size:10px;color:#72848b;max-width:370px;margin:10px auto}.empty-state button{margin-top:13px}.modal{color:var(--text);background:#161d21;border:1px solid #3c4b4d;border-radius:12px;padding:24px;width:min(540px,calc(100vw - 30px));max-height:85vh;box-shadow:0 30px 100px #0009}.modal::backdrop{background:#05090bd6;backdrop-filter:blur(6px)}.modal-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.modal-heading h2{font-size:23px;margin:9px 0 0;letter-spacing:-.6px}.modal-heading .eyebrow{font-size:8px}.modal-search{display:flex;align-items:center;gap:10px;padding:13px;background:#0e1417;border:1px solid #384849;border-radius:6px}.modal-search input{background:none;border:none;font-size:12px;flex:1;color:var(--text);min-width:0;outline:none}.modal-search svg{width:16px;color:#b5cd92}.list-label{font:8px var(--mono);color:#829680;letter-spacing:.9px;display:flex;justify-content:space-between;margin:24px 0 11px}.list-label>span{font-size:8px;letter-spacing:0;color:#687d86}.token-options{max-height:345px;overflow-y:auto}.token-option{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 8px;border-bottom:1px solid #293438}.token-option:hover{background:#242e29}.token-option>span:nth-child(2){font-size:12px;font-weight:500}.token-option small{display:block;font:9px var(--mono);color:#738993;margin-top:5px}.token-option .option-network{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:10px;color:#91a4a4}.token-option .added{color:#b7da91}.modal-footnote{font-size:10px;line-height:1.8;color:#768d94;margin:20px 0 0}.custom-token-fields{margin-top:13px;display:flex;align-items:center;gap:10px;font-size:10px}.custom-token-fields select{max-width:150px;background:#1f2a2a;border:1px solid #3c4e48;border-radius:4px;padding:8px}.custom-token-fields .primary-button{font-size:10px;padding:8px;min-height:33px;margin-left:auto}.info-modal p,.info-modal li{font-size:12px;line-height:1.9;color:#a1b2b5}.info-modal strong{font-weight:550;color:#dae4d4}.info-modal h3{font-size:13px;font-weight:500;margin:23px 0 7px;color:#bfd699}.info-modal a{color:var(--lime);text-decoration:underline;text-underline-offset:3px}.info-modal ul{padding-left:19px}.saved-query{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #2d3b40;padding:14px 0}.saved-query .text-button{font-size:11px}.saved-query small{display:block;color:#728c95;font:9px var(--mono);margin-top:6px}.saved-query>button{color:#8da274}.drawer-backdrop{position:fixed;inset:0;background:#02070a88;backdrop-filter:blur(2px);z-index:49}.wallet-drawer{position:fixed;inset:0 0 0 auto;width:min(450px,100vw);background:#141b1f;border-left:1px solid #3b4a4d;padding:25px;z-index:50;overflow-y:auto;box-shadow:-30px 0 90px #0006}.drawer-header{display:flex;justify-content:space-between;align-items:center;font:9px var(--mono);color:#8ea082;letter-spacing:1px}.drawer-identity{margin-top:27px}.drawer-identity .identicon{width:49px;height:49px;border-radius:12px;margin-bottom:18px}.drawer-identity .identicon svg{width:28px;height:28px}.drawer-identity h2{font-size:21px;margin-bottom:8px}.full-address{font:10px/1.9 var(--mono);word-break:break-all;color:#8da1a8}.drawer-tools{display:flex;gap:8px;margin:19px 0 26px;flex-wrap:wrap}.drawer-stat{border-top:1px solid #2c393e;padding:23px 0}.drawer-stat>span{color:#81949a;font-size:11px}.drawer-stat>strong{display:block;font-size:31px;font-weight:450;letter-spacing:-.8px;margin-top:10px}.drawer-holding{display:flex;align-items:center;gap:10px;padding:15px 0;border-bottom:1px solid #28363a}.drawer-holding>span:nth-child(2){font-size:11px}.drawer-holding small{font-size:9px;display:block;color:#738e98;margin-top:5px}.drawer-holding>span:last-child{margin-left:auto;font:11px var(--mono);text-align:right}.drawer-footnote{font-size:10px;line-height:1.8;color:#738e98;margin-top:21px}.toast{position:fixed;left:calc(50% + 80px);bottom:28px;transform:translateX(-50%);background:#2c3c27;border:1px solid #607c45;color:#d8eac8;padding:13px 22px;border-radius:7px;font-size:12px;box-shadow:0 6px 35px #0008;z-index:100}.holder-share{display:flex;align-items:center;gap:8px;font:10px var(--mono);color:#afc891}.share-track{width:50px;height:4px;border-radius:3px;background:#2c3935}.share-track>i{display:block;height:4px;background:#a9ca83;border-radius:3px}.spinner{display:inline-block;width:14px;height:14px;border:1.5px solid #6f8b4c;border-top-color:#17230b;border-radius:50%;animation:spin .7s linear infinite}.loading-row{padding:55px;text-align:center;color:#9bad93;font-size:12px}.loading-row .spinner{margin-right:10px;border-top-color:#c3f26b}.pending-dot{color:#7d9294;font-size:10px}.watchlist-note{color:#8ca0a6;font-size:10px}.stats-spark{position:absolute;right:14px;bottom:18px;opacity:.65;width:61px;height:22px}.stats-spark svg{width:61px;height:22px}.coverage-detail{font:9px/1.8 var(--mono);border:1px solid #32413c;border-radius:5px;padding:12px;color:#90ab9b;background:#111a18;white-space:pre-wrap}.chain-logo.large{width:19px;height:19px;font-size:9px}@keyframes spin{to{transform:rotate(360deg)}}
+@media(min-width:1600px){:root{--sidebar:244px;font-size:14px}.sidebar{padding-left:21px;padding-right:21px}.brand{font-size:21px}main{padding:41px 43px 0}.topbar{padding:0 43px}.results-layout{grid-template-columns:minmax(0,1fr) 285px}.insight-panel{padding:23px}.venn-circle{width:130px;height:130px;left:15px}.venn-circle.second{right:15px}.venn-diagram{height:163px}td{padding-top:16px;padding-bottom:16px;font-size:11px}th{font-size:9px}.address-button{font-size:11px}.wallet-name{font-size:9px}.table-search input,.table-filters select,.minimum-filter{font-size:10px}.stat-card{min-height:125px;padding:20px}.stat-value{font-size:28px}.nav-item{font-size:13px}.page-heading p{font-size:13px}.table-toolbar{margin-bottom:20px}.results-title-row{padding:23px 22px 19px}.query-top{padding:0 25px}#token-query,#wallet-query{padding:22px 25px}.chain-row{padding:14px 25px}}
+@media(max-width:1180px){:root{--sidebar:205px}.sidebar{padding-left:12px;padding-right:12px}.brand{font-size:17px;gap:6px}.brand small{font-size:7px}main{padding:27px 24px 0}.topbar{padding:0 24px}.results-layout{grid-template-columns:minmax(0,1fr)}.insight-panel{display:none}.chain-row{gap:9px}#chain-filters{gap:2px}.chain-chip{padding:5px}.heading-actions{gap:12px}.heading-actions>.subtle-button{font-size:10px}.match-control{gap:8px}.segmented button{padding:7px}.stats-grid{gap:10px}.stat-card{padding:15px 13px}.stat-top{font-size:9px}.step-label{display:none}.sidebar-help{font-size:10px}}
+@media(max-width:900px){.heading-actions{align-self:flex-start;padding-top:10px}.heading-actions>.subtle-button{display:none}.page-heading{gap:10px}h1{font-size:28px}.page-heading p{font-size:11px}.match-control>span{display:none}.source-banner{font-size:9px}.stats-grid{grid-template-columns:repeat(2,1fr)}.stats-grid .stat-card{min-height:105px}.chain-row{align-items:flex-start}.chain-label{padding-top:5px}.chain-row>.text-button{padding-top:7px;white-space:nowrap}.query-bottom{gap:8px}.primary-button{padding:11px}.button-arrow{margin-left:5px}.table-toolbar{gap:6px}.table-filters{gap:4px}.minimum-filter{font-size:8px;padding:5px}.table-filters select{max-width:130px;font-size:8px}.coverage-footer{font-size:7px}.coverage-footer>.text-button{font-size:8px}.app-footer{padding:20px 24px}.research-card{padding:12px 9px}.table-toolbar input{font-size:9px}}
+@media(max-width:700px){:root{--sidebar:0px}.sidebar{width:222px;transform:translateX(-100%);transition:transform .2s;box-shadow:10px 0 60px #0008}.sidebar.open{transform:none}.mobile-menu{display:inline-flex}.topbar{height:55px;padding:0 17px}.breadcrumb{gap:8px;font-size:10px}.breadcrumb>[data-icon]{display:none}.topbar-right{gap:11px}.network-status{font-size:8px}.top-divider{display:none}.topbar-right>.avatar{display:none}main{padding:24px 17px 0}.eyebrow{font-size:8px;letter-spacing:1.1px}.page-heading{flex-wrap:wrap;margin-bottom:18px;position:relative}.heading-actions{padding:0;position:absolute;right:0;top:0}.page-heading h1{font-size:28px;margin-top:16px}.page-heading p{font-size:10px}.source-toggle button{font-size:8px;padding:6px}.source-banner{line-height:1.6;padding:10px;margin-bottom:16px;align-items:flex-start}.source-banner>span:first-child{margin-top:2px}.source-banner button{display:none}.query-top{padding:0 14px}.mode-tabs{gap:19px}.mode-tabs button{font-size:10px;gap:5px}.mode-tabs svg{width:13px}#token-query,#wallet-query{padding:16px 14px}.token-input{gap:7px;padding:8px}.add-token{font-size:10px;padding:5px}.token-chip{padding:5px 7px}.coin-icon{width:25px;height:25px}.token-chip small{font-size:8px}.token-chip>span:not(.coin-icon){font-size:10px}.query-bottom{flex-wrap:wrap;margin-top:14px}.segmented button{font-size:9px}.primary-button{font-size:10px;padding:10px}.button-arrow{margin-left:3px}.chain-row{padding:12px 14px;gap:7px}.chain-chip{font-size:8px}.chain-label{font-size:9px}.chain-row>.text-button{font-size:8px}.stats-grid{margin-bottom:18px;gap:9px}.stat-value{font-size:24px}.stat-top{font-size:9px}.stat-foot{font-size:8px}.stats-spark{right:10px;width:45px;opacity:.3}.results-title-row{padding:17px 13px 14px}.results-title-row h2{font-size:12px;gap:6px}.results-title-row p{font-size:8px;max-width:230px;line-height:1.6}.results-actions{gap:4px}.results-actions .subtle-button{padding:7px}.results-actions .subtle-button span:not([data-icon]){display:none}.table-toolbar{margin:0 13px 13px;flex-wrap:wrap;gap:8px}.table-search{flex:1;min-width:150px}.table-filters{margin-left:auto}.minimum-filter input{width:40px}td{font-size:9px}th{font-size:7px;padding:10px 7px}td{padding:12px 7px}td:first-child,th:first-child{padding-left:12px}td:last-child,th:last-child{padding-right:10px}.identicon{width:22px;height:24px}.wallet-identity{gap:7px}.address-button{font-size:9px}.allocation{width:45px}.value-cell{font-size:9px}.table-footer{padding:11px 13px}.coverage-footer{align-items:flex-start;line-height:1.7;margin-bottom:23px}.coverage-footer>span{align-items:flex-start;max-width:65%}.coverage-footer i{margin-top:5px}.coverage-footer>.text-button{white-space:nowrap;font-size:7px}.app-footer{padding:16px 17px;font-size:7px}.app-footer>span:last-child{font-size:7px;letter-spacing:0}.toast{left:50%;font-size:11px;max-width:90vw;white-space:nowrap}.field-hint{font-size:9px}.custom-token-fields{flex-wrap:wrap}.list-label>span{display:none}.option-network{font-size:9px!important}.token-option{gap:9px;padding:12px 2px}.modal{padding:20px}.wallet-drawer{padding:22px}.workspace{margin-top:30px}.brand{font-size:18px}.sidebar-bottom{padding-top:20px}}
+.scan-notice{display:flex;align-items:center;gap:9px;border:1px solid #665035;background:#282217;color:#c4ae8a;border-radius:5px;padding:12px 14px;margin:0 0 19px;font-size:10px;line-height:1.7}.scan-notice>svg{width:15px;height:15px}.scan-notice strong{font-weight:550;color:#e2c79c}.scan-notice .text-button{margin-left:auto;color:#d0b784;white-space:nowrap}.demo-only{font:6px var(--mono);color:#a39878;border-left:1px solid #605a4433;padding-left:4px}.stat-value{overflow-wrap:anywhere}.stat-value:has(.stat-chains){overflow-wrap:normal}
+@media(max-width:700px){.sidebar{visibility:hidden}.sidebar.open{visibility:visible}.scan-notice{flex-wrap:wrap;font-size:9px}.scan-notice .text-button{margin-left:24px}}
+@media(max-height:830px){.research-card{display:none}.sidebar-bottom{padding-top:18px}.future-label{margin-top:24px}.workspace{margin-top:25px;margin-bottom:22px}.sidebar{padding-top:24px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="./" aria-label="ChainDetective domů"><span class="brand-mark"><svg viewBox="0 0 32 32" fill="none"><path d="M24.2 9.3a11 11 0 1 0 1.4 10.1M16 5v11l7.8-7.8M16 16l11 11" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="3.8" fill="currentColor"/></svg></span><span>chain<span class="brand-light">detective</span><small>ONCHAIN INTELLIGENCE</small></span></a>
+    <button class="workspace" id="workspace-info"><span class="workspace-icon">C</span><span>Osobní workspace<small>Research lab</small></span><span class="workspace-dots">⌘</span></button>
+    <div class="nav-label">PRŮZKUM</div>
+    <nav aria-label="Hlavní navigace">
+      <button class="nav-item active" data-view="screener"><span data-icon="scan"></span>Token screener<span class="nav-active-dot"></span></button>
+      <button class="nav-item" data-view="wallets"><span data-icon="wallet"></span>Analýza peněženek</button>
+      <button class="nav-item" data-view="watchlist"><span data-icon="star"></span>Watchlist<span class="nav-count" id="watch-count">0</span></button>
+    </nav>
+    <div class="nav-label future-label">DALŠÍ NA ŘADĚ</div>
+    <nav aria-label="Plánované funkce">
+      <button class="nav-item future" data-roadmap="Smart money"><span data-icon="spark"></span>Smart money<span class="soon">BRZY</span></button>
+      <button class="nav-item future" data-roadmap="Toky kapitálu"><span data-icon="flow"></span>Toky kapitálu<span class="soon">BRZY</span></button>
+      <button class="nav-item future" data-roadmap="Upozornění"><span data-icon="bell"></span>Upozornění<span class="soon">BRZY</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="research-card"><span class="small-orbit">◎</span><strong>Od dat k souvislostem.</strong><p>Váš onchain výzkum začíná správnými adresami.</p><button id="guide-button">Jak to funguje <span>↗</span></button></div>
+      <button class="sidebar-help" id="data-info"><span data-icon="database"></span> Zdroje a pokrytí <span>↗</span></button>
+      <div class="profile"><span class="avatar">CD</span><span>Research workspace<small>První verze · v0.1</small></span><span class="profile-dot"></span></div>
+    </div>
+  </aside>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="breadcrumb"><button class="icon-button mobile-menu" aria-label="Otevřít navigaci" id="menu-button"><span data-icon="menu"></span></button><span data-icon="grid"></span><span>Workspace</span><span class="slash">/</span><strong id="breadcrumb-view">Token screener</strong></div>
+      <div class="topbar-right"><span class="network-status"><i></i> Ethereum & L2</span><span class="top-divider"></span><button class="icon-button" id="help-button" aria-label="Nápověda"><span data-icon="help"></span></button><span class="avatar tiny">CD</span></div>
+    </header>
+    <main id="main">
+      <section class="page-heading">
+        <div><div class="eyebrow"><span></span> FOLLOW THE CONNECTIONS</div><h1 id="page-title">Token screener<span>.</span></h1><p id="page-description">Najděte peněženky, které drží tokeny, na kterých vám záleží.</p></div>
+        <div class="heading-actions"><button class="subtle-button" id="saved-searches"><span data-icon="history"></span> Uložené dotazy</button><div class="source-toggle" aria-label="Zdroj dat"><button class="active" data-source="demo"><i></i> Demo</button><button data-source="live">Live API <span>↗</span></button></div></div>
+      </section>
+      <div class="source-banner" id="source-banner"><span data-icon="flask"></span><span><strong>Prozkoumejte možnosti.</strong> Pracujete s ilustračními daty. Pro skutečné adresy přepněte na Live API.</span><button id="banner-info" aria-label="Informace o datech">ⓘ</button></div>
+      <section class="query-panel panel" id="query-panel">
+        <div class="query-top"><div class="mode-tabs" role="tablist" aria-label="Typ průzkumu"><button class="active" role="tab" aria-selected="true" data-mode="screener"><span data-icon="scan"></span> Tokeny → peněženky</button><button role="tab" aria-selected="false" data-mode="wallets"><span data-icon="wallet"></span> Peněženky → tokeny</button></div><span class="step-label">01 <span>/ SESTAVTE DOTAZ</span></span></div>
+        <div id="token-query"><div class="field-label"><label>Vybrané tokeny <span id="token-count">2 / 5</span></label><button class="text-button" id="clear-tokens">Vymazat</button></div><div class="token-input" id="token-input"><div id="selected-tokens"></div><button class="add-token" id="add-token"><span>+</span> Přidat token nebo kontrakt</button></div><div class="query-bottom"><div class="match-control"><span>Peněženka drží</span><div class="segmented"><button class="active" data-match="all">Všechny tokeny <span>AND</span></button><button data-match="any">Alespoň jeden <span>OR</span></button></div></div><button class="primary-button" id="scan-button"><span data-icon="search"></span><span>Najít peněženky</span><span class="button-arrow">↗</span></button></div></div>
+        <div id="wallet-query" hidden><div class="field-label"><label for="wallet-addresses">Adresy peněženek <span>max. 20</span></label><button class="text-button" id="load-wallet-demo">Vložit ukázkové adresy</button></div><textarea id="wallet-addresses" rows="3" spellcheck="false" placeholder="0x…&#10;Vložte jednu adresu na řádek nebo oddělte čárkou."></textarea><div class="query-bottom"><span class="field-hint">Zjistěte, které tokeny mají zadané peněženky společné.</span><button class="primary-button" id="analyze-button"><span data-icon="chart"></span> Analyzovat peněženky <span class="button-arrow">↗</span></button></div></div>
+        <div class="chain-row"><span class="chain-label"><span data-icon="layers"></span> Sítě</span><div id="chain-filters"></div><button class="text-button" id="all-chains">Vybrat vše</button></div>
+        <div class="query-error" id="query-error" role="alert" hidden></div>
+      </section>
+      <div class="scan-notice" id="scan-notice" role="status" hidden></div>
+      <section class="stats-grid" id="stats" aria-label="Souhrn výsledků"></section>
+      <div class="results-layout">
+        <section class="results-panel panel">
+          <div class="results-title-row"><div><h2 id="results-title">Nalezené peněženky <span class="count-badge" id="result-count">0</span></h2><p id="results-subtitle">Drží všechny vybrané tokeny</p></div><div class="results-actions"><button class="subtle-button" id="save-search" aria-label="Uložit dotaz"><span data-icon="bookmark"></span><span>Uložit dotaz</span></button><button class="subtle-button" id="export-button" aria-label="Export do CSV"><span data-icon="download"></span><span>Export</span></button></div></div>
+          <div class="table-toolbar"><div class="table-search"><span data-icon="search"></span><input id="result-search" aria-label="Filtrovat výsledky" placeholder="Hledat adresu nebo štítek…"></div><div class="table-filters"><label class="minimum-filter">Min. pozice <span>$</span><input id="min-value" type="number" min="0" step="100" placeholder="0" aria-label="Minimální hodnota pozice v USD"></label><select id="sort-select" aria-label="Řazení výsledků"><option value="value">Hodnota: nejvyšší</option><option value="match">Počet tokenů</option><option value="address">Adresa A–Z</option></select></div></div>
+          <div class="bulk-bar" id="bulk-bar" hidden><span id="bulk-count"></span><button class="text-button" id="analyze-selected">Analyzovat vybrané →</button><button class="text-button" id="clear-selection">Zrušit výběr</button></div>
+          <div class="table-wrap"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table><div class="empty-state" id="empty-state" hidden></div></div>
+          <div class="table-footer"><span id="table-range"></span><div class="pagination"><button class="icon-button" id="previous-page" aria-label="Předchozí stránka">‹</button><span id="page-number">1</span><button class="icon-button" id="next-page" aria-label="Další stránka">›</button></div></div>
+        </section>
+        <aside class="insight-panel panel" id="insight-panel"></aside>
+      </div>
+      <div class="coverage-footer"><span><i></i><span id="coverage-label">Ilustrační dataset · žádná investiční doporučení</span></span><button class="text-button" id="coverage-button">Metodika a pokrytí <span>↗</span></button></div>
+    </main>
+    <footer class="app-footer"><span>CHAINDETECTIVE <span class="footer-version">/ v0.1</span></span><span>See the connections. Find your edge.</span></footer>
+  </div>
+  <dialog id="token-dialog" class="modal token-modal"><div class="modal-heading"><div><span class="eyebrow">SESTAVTE SI SVŮJ VÝZKUM</span><h2>Přidat token</h2></div><button class="icon-button" data-close="token-dialog" aria-label="Zavřít">×</button></div><label class="modal-search"><span data-icon="search"></span><input id="token-search" placeholder="Název, ticker nebo adresa kontraktu…" autocomplete="off"></label><div class="custom-token-fields" id="custom-token-fields" hidden><label for="custom-chain">Síť kontraktu</label><select id="custom-chain"></select><button class="primary-button" id="add-custom-token">Přidat kontrakt →</button></div><div class="list-label">TOKENY PODLE SÍTĚ <span>kontrakt určuje identitu tokenu</span></div><div id="token-options" class="token-options"></div><p class="modal-footnote">Stejný ticker může mít na různých sítích jiný kontrakt. Vždy ověřte adresu a síť.</p></dialog>
+  <dialog id="info-dialog" class="modal info-modal"><div class="modal-heading"><h2 id="info-title"></h2><button class="icon-button" data-close="info-dialog" aria-label="Zavřít">×</button></div><div id="info-content"></div></dialog>
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div><aside class="wallet-drawer" id="wallet-drawer" role="dialog" aria-modal="true" aria-label="Detail peněženky" hidden></aside>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script type="module">/** ChainDetective data boundary. Demo data is synthetic. Live data is a bounded indexer sample. */
+const NETWORKS = [
+  {id:'ethereum',chainId:1,name:'Ethereum',short:'ETH',color:'#8799d3',explorer:'https://eth.blockscout.com',api:'https://eth.blockscout.com/api/v2',live:true},
+  {id:'base',chainId:8453,name:'Base',short:'BASE',color:'#3568f5',explorer:'https://base.blockscout.com',api:'https://base.blockscout.com/api/v2',live:true},
+  {id:'arbitrum',chainId:42161,name:'Arbitrum',short:'ARB',color:'#49a8dc',explorer:'https://arbitrum.blockscout.com',api:'https://arbitrum.blockscout.com/api/v2',live:true},
+  {id:'optimism',chainId:10,name:'Optimism',short:'OP',color:'#f05663',explorer:'https://explorer.optimism.io',api:'https://explorer.optimism.io/api/v2',live:true},
+  {id:'zksync',chainId:324,name:'zkSync Era',short:'ZK',color:'#a692e1',explorer:'https://explorer.zksync.io',api:null,live:false},
+  {id:'scroll',chainId:534352,name:'Scroll',short:'SCR',color:'#d7ab83',explorer:'https://scrollscan.com',api:null,live:false},
+  {id:'linea',chainId:59144,name:'Linea',short:'LINEA',color:'#b1d6cc',explorer:'https://lineascan.build',api:null,live:false},
+];
+const token = (chainId,address,symbol,name,decimals,price,color) => ({id:`${chainId}:${address.toLowerCase()}`,chainId,address:address.toLowerCase(),symbol,name,decimals,price,color});
+/** Prices below are fixed illustration values ONLY, never used to price live results. */
+const TOKENS = [
+ token('arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548','ARB','Arbitrum',18,.57,'#4b9ee5'),
+ token('arbitrum','0x82aF49447D8a07e3bd95BD0d56f35241523fBab1','WETH','Wrapped Ether',18,3260,'#99a1ce'),
+ token('arbitrum','0xaf88d065e77c8cC2239327C5EDb3A432268e5831','USDC','USD Coin',6,1,'#478bce'),
+ token('ethereum','0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2','WETH','Wrapped Ether',18,3260,'#99a1ce'),
+ token('ethereum','0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48','USDC','USD Coin',6,1,'#478bce'),
+ token('ethereum','0x6B175474E89094C44Da98b954EedeAC495271d0F','DAI','Dai Stablecoin',18,1,'#e2b659'),
+ token('ethereum','0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984','UNI','Uniswap',18,7.24,'#dc78aa'),
+ token('ethereum','0x514910771AF9Ca656af840dff83E8264EcF986CA','LINK','Chainlink',18,13.8,'#5e83dc'),
+ token('ethereum','0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9','AAVE','Aave',18,152.4,'#ba88cf'),
+ token('base','0x4200000000000000000000000000000000000006','WETH','Wrapped Ether',18,3260,'#99a1ce'),
+ token('base','0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913','USDC','USD Coin',6,1,'#478bce'),
+ token('optimism','0x4200000000000000000000000000000000000042','OP','Optimism',18,1.62,'#ee6672'),
+ token('optimism','0x4200000000000000000000000000000000000006','WETH','Wrapped Ether',18,3260,'#99a1ce'),
+ token('optimism','0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85','USDC','USD Coin',6,1,'#478bce'),
+ token('zksync','0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91','WETH','Wrapped Ether',18,3260,'#99a1ce'),
+ token('scroll','0x5300000000000000000000000000000000000004','WETH','Wrapped Ether',18,3260,'#99a1ce'),
+ token('linea','0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f','WETH','Wrapped Ether',18,3260,'#99a1ce'),
+];
+const tokenById = new Map(TOKENS.map(t=>[t.id,t]));
+const round = n => Math.round(n*100)/100;
+const sumKnown = entries => {const priced=entries.filter(h=>Number.isFinite(h.value));return priced.length?round(priced.reduce((s,h)=>s+h.value,0)):null;};
+const chainList = holdings => [...new Set(holdings.map(h=>h.chainId))];
+const findToken = (symbol,chainId) => TOKENS.find(t=>t.symbol===symbol&&t.chainId===chainId);
+function demoHolding(symbol,chainId,amount){const t=findToken(symbol,chainId);return {...t,tokenId:t.id,amount,value:round(amount*t.price)};}
+const labels=['Atlas','Northstar','Cedar','Orbit','Meridian','Lumen','Vector','Aster','Pioneer','Summit','Nomad','Sierra','Quartz','Halo','Delta','Echo','Copper','Finch','Acorn','Solstice','Harbor','Willow','Ember','Mosaic'];
+/** Invented identities/addresses and holdings: no real address is classified or labelled. */
+const DEMO_WALLETS = Array.from({length:24},(_,i)=>{
+ const holdings=[];
+ const scale=[24,18,15,12,10,8,6,5,4,3.2,2.7,2.2,1.8,1.5,1.2,1,.8,.65,.5,.4,.3,.2,.15,.1][i];
+ if(i<20)holdings.push(demoHolding('ARB','arbitrum',round((92000+i*4931)*scale)));
+ if(i<16||i>=20)holdings.push(demoHolding('WETH','arbitrum',round((17+i*1.43)*scale)));
+ if(i%3!==2)holdings.push(demoHolding('USDC','arbitrum',round((12300+i*3930)*scale)));
+ if(i%2===0||i<4)holdings.push(demoHolding('WETH','ethereum',round((3.6+i*.38)*scale)));
+ if(i%3===0||i<3)holdings.push(demoHolding('USDC','ethereum',round((8000+i*1000)*scale)));
+ if(i%4===0)holdings.push(demoHolding('LINK','ethereum',round((560+i*70)*scale)));
+ if(i%5===0)holdings.push(demoHolding('UNI','ethereum',round((1200+i*100)*scale)));
+ if(i%6===0)holdings.push(demoHolding('AAVE','ethereum',round((26+i*4)*scale)));
+ if(i%4===1)holdings.push(demoHolding('DAI','ethereum',round((3700+i*900)*scale)));
+ if(i%2===1||i<5)holdings.push(demoHolding('USDC','base',round((13500+i*1850)*scale)));
+ if(i%3===1)holdings.push(demoHolding('WETH','base',round((2.5+i*.6)*scale)));
+ if(i%3===0||i<4)holdings.push(demoHolding('OP','optimism',round((7500+i*2130)*scale)));
+ if(i%4===2)holdings.push(demoHolding('WETH','optimism',round((1.6+i*.3)*scale)));
+ if(i%6===1)holdings.push(demoHolding('USDC','optimism',round(4310*scale)));
+ if(i%5===2)holdings.push(demoHolding('WETH','zksync',round((.8+i*.13)*scale)));
+ if(i%5===3)holdings.push(demoHolding('WETH','scroll',round((.4+i*.1)*scale)));
+ if(i%5===4)holdings.push(demoHolding('WETH','linea',round((.5+i*.1)*scale)));
+ const address='0x'+Array.from({length:5},(_,j)=>(Math.imul(i+17,0x9e3779b1+j*0x13579b)>>>0).toString(16).padStart(8,'0')).join('');
+ return {address,label:`${labels[i]} · demo`,chainIds:chainList(holdings),holdings,value:sumKnown(holdings),matchedTokens:[],matchCount:0,isDemo:true};
+});
+const isAddress = value => /^0x[0-9a-fA-F]{40}$/.test(value||'');
+const normalizeAddress = value => isAddress(value)?value.toLowerCase():null;
+const getToken = (address,chainId) => TOKENS.find(t=>t.chainId===chainId&&t.address===String(address).toLowerCase());
+const getNetwork = id => NETWORKS.find(n=>n.id===id||n.chainId===Number(id));
+const abort = signal => {if(signal?.aborted)throw new DOMException('Sken byl zrušen.','AbortError');};
+const progress = (callback,message,completed,total) => callback?.({message,completed,total});
+function chains(ids){const selected=ids?.length?[...new Set(ids.map(id=>getNetwork(id)?.id||id))]:NETWORKS.map(n=>n.id);if(selected.some(id=>!getNetwork(id)))throw new Error('Neznámá síť.');return selected;}
+function inputs(tokens,chainIds){
+ if(!tokens?.length)throw new Error('Vyberte alespoň jeden token.');
+ if(tokens.length>5)throw new Error('Jeden sken podporuje nejvýše pět tokenů.');
+ const result=tokens.map(t=>{
+  if(typeof t==='string')t=tokenById.get(t)||{address:t};
+  if(!isAddress(t.address))throw new Error('Neplatná adresa kontraktu.');
+  let chainId=getNetwork(t.chainId)?.id;
+  if(!chainId){const found=TOKENS.filter(x=>x.address===t.address.toLowerCase()&&chainIds.includes(x.chainId));if(found.length===1)chainId=found[0].chainId;else if(chainIds.length===1)chainId=chainIds[0];else throw new Error('Ke každému kontraktu přiřaďte konkrétní síť.');}
+  if(!chainIds.includes(chainId))throw new Error('Síť vybraného tokenu není zapnutá.');
+  return {...getToken(t.address,chainId),...t,chainId,address:t.address.toLowerCase(),id:`${chainId}:${t.address.toLowerCase()}`};
+ });
+ return [...new Map(result.map(t=>[t.id,t])).values()];
+}
+function makeCoverage(source,message,details=[]){return {source,message,details,bounded:source==='live',complete:false,asOf:new Date().toISOString()};}
+function walletResult(w,selected,chainIds,match,minValue){
+ const holdings=w.holdings.filter(h=>chainIds.includes(h.chainId));
+ const matchedTokens=selected.filter(t=>holdings.some(h=>h.tokenId===t.id&&h.amount>0));
+ if(!(match==='any'?matchedTokens.length:matchedTokens.length===selected.length))return null;
+ const value=sumKnown(holdings.filter(h=>selected.some(t=>t.id===h.tokenId)));
+ if(minValue>0&&(value===null||value<minValue))return null;
+ return {...w,holdings,chainIds:chainList(holdings),value,matchedTokens,matchCount:matchedTokens.length};
+}
+/** AND/OR across exact (network, contract) identities; wallet.value sums matching selected positions. */
+async function searchHolders({tokens,chainIds,match='all',minValue=0,source='demo',onProgress,signal,maxPages=3}={}){
+ abort(signal);const selectedChains=chains(chainIds);const selected=inputs(tokens,selectedChains);
+ if(!['all','any'].includes(match))throw new Error('Neznámý režim průniku.');
+ if(!['demo','live'].includes(source))throw new Error('Neznámý zdroj dat.');
+ if(source==='demo'){
+  const unknown=selected.filter(t=>!tokenById.has(t.id));
+  const wallets=DEMO_WALLETS.map(w=>walletResult(w,selected,selectedChains,match,minValue)).filter(Boolean).sort((a,b)=>(b.value??-1)-(a.value??-1));
+  progress(onProgress,'Ukázkový dataset je připravený.',selected.length,selected.length);
+  return {wallets,tokens:selected,source,warnings:unknown.map(t=>`Kontrakt ${t.address} na síti ${getNetwork(t.chainId).name} není součástí demo datasetu. Pro vlastní kontrakty přepněte na Live API.`),coverage:makeCoverage(source,`Syntetický dataset: ${DEMO_WALLETS.length} ukázkových peněženek. Kontrakty slouží pro orientaci; zůstatky, adresy, štítky i ceny jsou ilustrační.`)};
+ }
+ for(const t of selected)t.price=null;
+ const warnings=[];const details=[];const byAddress=new Map();let succeeded=0;
+ for(let i=0;i<selected.length;i++){
+  abort(signal);const input=selected[i];const n=getNetwork(input.chainId);
+  progress(onProgress,`${n.name}: načítám držitele ${input.symbol||input.address.slice(0,8)}…`,i,selected.length);
+  if(!n.live){warnings.push(`${n.name}: živý adaptér zatím není připojen. Tento token se nepodařilo načíst.`);details.push({chainId:n.id,tokenId:input.id,status:'unsupported',complete:false});continue;}
+  try{
+   const metadata=await request(`${n.api}/tokens/${input.address}`,signal);
+   if(metadata.type&&metadata.type!=='ERC-20')throw new Error('Podporovány jsou pouze ERC-20 tokeny.');
+   const t=liveToken(metadata,n.id,input.address);selected[i]=t;
+   const page=await pages(`${n.api}/tokens/${input.address}/holders`,signal,maxPages);
+   for(const item of page.items){const address=normalizeAddress(item.address?.hash||item.address_hash||item.address);if(!address)continue;const holding=liveHolding(t,item.value);if(!(holding.amount>0))continue;const w=byAddress.get(address)||{address,label:null,holdings:[],isDemo:false};if(!w.holdings.some(h=>h.tokenId===holding.tokenId))w.holdings.push(holding);byAddress.set(address,w);}
+   succeeded++;details.push({chainId:n.id,tokenId:input.id,status:'ok',...page.coverage});
+   if(!page.coverage.complete)warnings.push(`${n.name} / ${t.symbol}: načteno ${page.items.length} držitelů, limit ${page.coverage.pages} stran. Další držitelé nejsou v průniku zahrnuti.`);
+  }catch(error){if(error.name==='AbortError')throw error;warnings.push(`${n.name} / ${input.symbol||input.address}: ${error.message}`);details.push({chainId:n.id,tokenId:input.id,status:'error',error:error.message,complete:false});}
+ }
+ if(!succeeded)throw new Error(`Živá data se nepodařilo načíst. ${warnings.join(' ')} Veřejné API může být omezené; pro produkční provoz je potřeba serverový poskytovatel dat.`);
+ const wallets=[...byAddress.values()].map(w=>walletResult(w,selected,selectedChains,match,minValue)).filter(Boolean).sort((a,b)=>(b.value??-1)-(a.value??-1));
+ progress(onProgress,'Omezený sken je dokončen.',selected.length,selected.length);
+ return {wallets,tokens:selected,source,warnings,coverage:makeCoverage(source,`Načtené stránky držitelů: ${details.filter(d=>d.status==='ok').reduce((s,d)=>s+d.pages,0)}. Průnik je omezený načtenými adresami; prázdný výsledek neprokazuje neexistenci držitelů. USD ceny dodává indexer, chybějící ceny zůstávají neznámé.`,details)};
+}
+/** Group by exact network+contract, not ticker; share is holderCount / submitted unique addresses (0..1). */
+function aggregateHoldings(wallets,addressCount=wallets.length){
+ const groups=new Map();
+ for(const w of wallets){for(const h of w.holdings){if(!(h.amount>0))continue;let g=groups.get(h.tokenId);if(!g){g={...h,amount:0,totalValue:null,holders:[],holderCount:0,share:0,pricedPositions:0,unpricedPositions:0};delete g.value;groups.set(h.tokenId,g);}g.amount+=h.amount;if(Number.isFinite(h.value)){g.totalValue=(g.totalValue??0)+h.value;g.pricedPositions++;}else g.unpricedPositions++;if(!g.holders.includes(w.address))g.holders.push(w.address);}}
+ return [...groups.values()].map(g=>({...g,totalValue:g.totalValue===null?null:round(g.totalValue),holderCount:g.holders.length,share:addressCount?g.holders.length/addressCount:0})).sort((a,b)=>(b.totalValue??-1)-(a.totalValue??-1));
+}
+async function analyzeWallets({addresses,chainIds,source='demo',onProgress,signal,maxPages=3}={}){
+ abort(signal);const selectedChains=chains(chainIds);const submitted=[...new Set((addresses||[]).map(a=>String(a).toLowerCase()))];
+ if(!submitted.length)throw new Error('Vložte alespoň jednu adresu peněženky.');
+ if(submitted.length>20)throw new Error('Lze analyzovat nejvýše 20 adres najednou.');
+ if(submitted.some(a=>!isAddress(a)))throw new Error('V seznamu je neplatná EVM adresa.');
+ if(!['demo','live'].includes(source))throw new Error('Neznámý zdroj dat.');
+ if(source==='demo'){
+  const wallets=DEMO_WALLETS.filter(w=>submitted.includes(w.address)).map(w=>{const holdings=w.holdings.filter(h=>selectedChains.includes(h.chainId));return {...w,holdings,chainIds:chainList(holdings),value:sumKnown(holdings)};});
+  const unknown=submitted.filter(a=>!DEMO_WALLETS.some(w=>w.address===a));
+  progress(onProgress,'Ukázkové pozice jsou připravené.',submitted.length,submitted.length);
+  return {wallets,tokens:aggregateHoldings(wallets,submitted.length),source,warnings:unknown.length?[`${unknown.length} adres není součástí demo datasetu. Nejsou jim přiřazeny žádné vymyšlené pozice; pro vlastní adresy použijte Live API.`]:[],coverage:makeCoverage(source,`Syntetická analýza ${wallets.length} známých demo adres z ${submitted.length} zadaných. Podíl adres používá počet všech zadaných unikátních adres. Zůstatky a USD ceny jsou ilustrační.`)};
+ }
+ const warnings=[];const details=[];const wallets=[];let succeeded=0;let completed=0;const total=submitted.length*selectedChains.length;
+ for(const address of submitted){const holdings=[];let walletSucceeded=false;for(const chainId of selectedChains){abort(signal);const n=getNetwork(chainId);progress(onProgress,`${n.name}: ${address.slice(0,8)}…${address.slice(-4)}`,completed++,total);
+   if(!n.live){details.push({address,chainId,status:'unsupported',complete:false});continue;}
+   try{const page=await pages(`${n.api}/addresses/${address}/tokens?type=ERC-20`,signal,maxPages);for(const item of page.items){const t=liveToken(item.token||{},chainId);if(!t.address)continue;try{const holding=liveHolding(t,item.value);if(holding.amount>0&&!holdings.some(h=>h.tokenId===holding.tokenId))holdings.push(holding);}catch(error){warnings.push(`${n.name} / ${t.symbol}: ${error.message}`);}}succeeded++;walletSucceeded=true;details.push({address,chainId,status:'ok',...page.coverage});if(!page.coverage.complete)warnings.push(`${n.name} / ${address.slice(0,10)}…: dosažen limit stránek tokenů.`);}
+   catch(error){if(error.name==='AbortError')throw error;warnings.push(`${n.name} / ${address.slice(0,10)}…: ${error.message}`);details.push({address,chainId,status:'error',error:error.message,complete:false});}
+  }if(walletSucceeded)wallets.push({address,label:null,holdings,chainIds:chainList(holdings),value:sumKnown(holdings),matchedTokens:[],matchCount:0,isDemo:false});}
+ const unsupported=selectedChains.filter(c=>!getNetwork(c).live);if(unsupported.length)warnings.unshift(`Živý adaptér zatím není připojen: ${unsupported.map(c=>getNetwork(c).name).join(', ')}.`);
+ if(!succeeded)throw new Error(`Živá data se nepodařilo načíst. ${warnings.slice(0,4).join(' ')}`);
+ progress(onProgress,'Analýza načtených pozic je dokončena.',total,total);
+ return {wallets,tokens:aggregateHoldings(wallets,submitted.length),source,warnings,coverage:makeCoverage(source,`Úspěšných dotazů na adresu a síť: ${succeeded} z ${total}. Nejvýše ${boundedPages(maxPages)} stran ERC-20 na adresu a síť. Podíl používá ${submitted.length} zadaných adres; chyby mohou podíl snížit. Nativní ETH, NFT a DeFi pozice nejsou zahrnuty.`,details)};
+}
+const boundedPages = count => Math.max(1,Math.min(5,Math.floor(Number(count)||3)));
+async function request(url,signal){
+ abort(signal);const controller=new AbortController();const cancel=()=>controller.abort(signal?.reason);signal?.addEventListener('abort',cancel,{once:true});const timer=setTimeout(()=>controller.abort(),15000);
+ try{const response=await fetch(url,{signal:controller.signal,headers:{Accept:'application/json'},credentials:'omit'});if(!response.ok)throw new Error(response.status===429?'Překročen limit veřejného API. Zkuste to později.':response.status===401||response.status===403?'Indexer vyžaduje přístupový klíč nebo blokuje veřejné dotazy.':`Indexer odpověděl HTTP ${response.status}.`);const body=await response.json();if(body?.message&&!body.items&&!body.address_hash&&!body.address&&!body.symbol)throw new Error(String(body.message));return body;}
+ catch(error){if(signal?.aborted)throw new DOMException('Sken byl zrušen.','AbortError');if(error.name==='AbortError')throw new Error('Indexer neodpověděl do 15 sekund.');if(error instanceof TypeError)throw new Error('Veřejné API je nedostupné nebo nepovoluje dotaz z prohlížeče (CORS).');throw error;}
+ finally{clearTimeout(timer);signal?.removeEventListener('abort',cancel);}
+}
+async function pages(endpoint,signal,maxPages){const all=[];let cursor=null;let count=0;const cap=boundedPages(maxPages);const seen=new Set();do{const url=new URL(endpoint);if(cursor)for(const [key,value]of Object.entries(cursor))if(value!==null)url.searchParams.set(key,String(value));const body=await request(url.href,signal);if(!Array.isArray(body.items))throw new Error('Nečekaný formát odpovědi indexeru.');all.push(...body.items);cursor=body.next_page_params||null;count++;if(cursor){const signature=JSON.stringify(cursor);if(seen.has(signature))throw new Error('Indexer vrátil opakovaný kurzor stránkování.');seen.add(signature);}}while(cursor&&count<cap);return {items:all,coverage:{pages:count,items:all.length,complete:!cursor,nextPageAvailable:!!cursor}};}
+function liveToken(item,chainId,fallback){const address=normalizeAddress(item.address_hash||item.address||fallback);const known=address?getToken(address,chainId):null;const decimals=item.decimals===null||item.decimals===undefined||item.decimals===''?null:Number(item.decimals);const rate=item.exchange_rate;return {...known,id:`${chainId}:${address}`,chainId,address,symbol:item.symbol||known?.symbol||'ERC-20',name:item.name||known?.name||'Neznámý token',decimals:Number.isInteger(decimals)&&decimals>=0&&decimals<=255?decimals:known?.decimals??null,price:rate!==null&&rate!==undefined&&rate!==''&&Number.isFinite(Number(rate))?Number(rate):null};}
+function liveHolding(t,raw){const rawAmount=String(raw??'0');if(!/^\d+$/.test(rawAmount))throw new Error('Indexer vrátil neplatný zůstatek.');if(t.decimals===null&&BigInt(rawAmount)>0n)throw new Error('U nenulového zůstatku chybí počet desetinných míst; pozice není zahrnuta.');let amount=0;if(t.decimals!==null){const decimals=t.decimals;const padded=rawAmount.padStart(decimals+1,'0');amount=Number(decimals?`${padded.slice(0,-decimals)}.${padded.slice(-decimals)}`:padded);}if(!Number.isFinite(amount))throw new Error('Zůstatek přesahuje rozsah zobrazení; pozice není zahrnuta.');return {...t,tokenId:t.id,rawAmount,amount,value:Number.isFinite(t.price)?amount*t.price:null};}
+
+const data={NETWORKS,TOKENS,DEMO_WALLETS,isAddress,normalizeAddress,getToken,getNetwork,searchHolders,aggregateHoldings,analyzeWallets};
+
+
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icons = {
+  scan:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 2v4m8-4v4M2 8h4m12 0h4M2 16h4m12 0h4M8 18v4m8-4v4"/><circle cx="12" cy="12" r="3"/>',
+  wallet:'<path d="M19 7V5a2 2 0 0 0-2-2L5 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5"/><path d="M21 12h-6v5h6"/><path d="M17 14.5h.01"/>',
+  star:'<path d="m12 3 2.8 5.7 6.3.9-4.6 4.5 1.1 6.3L12 17.4l-5.6 3 1.1-6.3L3 9.6l6.2-.9Z"/>',
+  spark:'<path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4Z"/><path d="m20 2 .5 1.5L22 4l-1.5.5L20 6l-.5-1.5L18 4l1.5-.5Z"/>',
+  flow:'<path d="M4 6h13m-3-3 3 3-3 3M20 18H7m3-3-3 3 3 3M4 12h16"/>',
+  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+  database:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9.7 8.7a2.5 2.5 0 1 1 3.8 2.2c-1.5.8-1.5 1.6-1.5 2.6m0 3h.01"/>',
+  search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+  layers:'<path d="m12 3 10 5-10 5L2 8Zm-10 9 10 5 10-5M2 16l10 5 10-5"/>',
+  history:'<path d="M3 10a9 9 0 1 1 1 7M3 4v6h6M12 7v5l3 2"/>',
+  download:'<path d="M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6"/>',
+  bookmark:'<path d="M6 3h12v18l-6-4-6 4Z"/>',
+  flask:'<path d="M9 3h6m-5 0v6L4 19a1.5 1.5 0 0 0 1.3 2h13.4a1.5 1.5 0 0 0 1.3-2L14 9V3M7 15h10M9 18h.01"/>',
+  chart:'<path d="M3 3v18h18M7 16v-4m5 4V7m5 9v-6"/>',
+  menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  copy:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V3H3v13h5"/>',
+  external:'<path d="M14 3h7v7m0-7L10 14M10 3H3v18h18v-7"/>',
+  cross:'<path d="M6 6l12 12M18 6 6 18"/>',
+  users:'<circle cx="9" cy="7" r="3"/><path d="M2 21v-3a7 7 0 0 1 14 0v3m0-17a3 3 0 0 1 0 6m4 11v-3a6 6 0 0 0-3-5"/>',
+  link:'<path d="m10 14 4-4M8 16l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m0 12a4 4 0 0 0 6 0l5-5a4 4 0 0 0-6-6l-1 1" transform="translate(1 0) scale(.9)"/>',
+  dollar:'<circle cx="12" cy="12" r="9"/><path d="M15 8c-6-3-8 3-3 4s3 7-3 4m3-11v14"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+};
+const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.wallet}</svg>`;
+document.querySelectorAll('[data-icon]').forEach(el => el.innerHTML = icon(el.dataset.icon));
+
+const networks = data.NETWORKS;
+const tokens = data.TOKENS;
+const network = id => networks.find(n => n.id === id) || { id, name: id, explorer: '' };
+const short = a => a ? `${a.slice(0,6)}…${a.slice(-4)}` : '—';
+const number = n => new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:0}).format(n || 0);
+const money = (n, compact = false) => n === null || n === undefined ? 'Cena neznámá' : new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',notation:compact?'compact':'standard',maximumFractionDigits:compact?2:0}).format(n);
+const amount = n => new Intl.NumberFormat('en-US',{maximumFractionDigits:4,notation:n > 100000?'compact':'standard'}).format(n || 0);
+const tokenKey = t => t.id || `${t.chainId}:${t.address.toLowerCase()}`;
+const chainChars = { ethereum:'♦',base:'━',arbitrum:'A',optimism:'OP',zksync:'↔',scroll:'S',linea:'L' };
+const chainIcon = id => `<span class="chain-logo ${esc(id)}" title="${esc(network(id).name)}">${chainChars[id] || 'E'}</span>`;
+const coinClass = t => ({WETH:'eth',ETH:'eth',USDC:'usdc',ARB:'arb',OP:'op',DAI:'dai',UNI:'uni'}[t.symbol] || '');
+const coin = (t,size='') => `<span class="coin-icon ${coinClass(t)} ${size}" title="${esc(t.symbol)} · ${esc(network(t.chainId).name)}">${['WETH','ETH'].includes(t.symbol)?'♦':esc(t.symbol==='USDC'?'
+</body>
+</html>
+:t.symbol==='ARB'?'Λ':(t.symbol||'?').slice(0,3))}</span>`;
+function readLocal(key) { try { const v=JSON.parse(localStorage.getItem(key)||'[]'); return Array.isArray(v)?v:[]; } catch { return []; } }
+function writeLocal(key,value) { try { localStorage.setItem(key,JSON.stringify(value)); } catch { toast('Prohlížeč nepovolil místní uložení.'); } }
+const savedWallets = readLocal('cd:watchlist:v1');
+const savedQueries = readLocal('cd:queries:v1');
+const defaults = ['ARB','WETH'].map(s => tokens.find(t => t.symbol===s && t.chainId==='arbitrum')).filter(Boolean);
+const state = { view:'screener',source:'demo',selectedTokens:defaults,chainIds:networks.map(n=>n.id),match:'all',result:null,rows:[],page:1,pageSize:8,selected:new Set(),busy:false,dirty:false,controller:null,runId:0,activeWallet:null };
+let toastTimer;
+function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3500);}
+function setError(message=''){$('query-error').textContent=message;$('query-error').hidden=!message;}
+function info(title,html){$('info-title').textContent=title;$('info-content').innerHTML=html;$('info-dialog').showModal();}
+function guide(){info('Váš výzkum začíná tady.',`<p>Jeden pracovní prostor. Dva způsoby, jak propojit tokeny a adresy.</p><h3>01 / Tokeny → peněženky</h3><p>Vyberte až pět tokenů podle <strong>kontraktu a sítě</strong>. Režim <strong>AND</strong> najde adresy s každým z nich; <strong>OR</strong> adresy s alespoň jedním. Filtr minimální pozice se vztahuje na součet známých USD hodnot vybraných tokenů.</p><h3>02 / Peněženky → tokeny</h3><p>Vložte až dvacet EVM adres. Stejné adresy napříč vybranými sítěmi se vyhodnotí společně. Tokeny se seskupují podle kontraktu a sítě, řadit je můžete podle USD hodnoty nebo počtu držitelů.</p><h3>03 / Navazujte na výsledky</h3><p>Otevřete detail adresy, uložte ji hvězdičkou do watchlistu nebo vyberte více řádků pro navazující analýzu. Dotazy i watchlist se ukládají lokálně v tomto prohlížeči.</p><p><strong>Demo</strong> obsahuje syntetická data. Pro skutečné adresy použijte <strong>Live API</strong> a zkontrolujte rozsah skenu v metodice.</p>`);}
+function coverageText(){
+  const c=state.result?.coverage;
+  if(typeof c==='string')return c;
+  return c?.message || c?.summary || (state.source==='demo'?'Syntetický ukázkový dataset. Zobrazené adresy, štítky a hodnoty neslouží jako reálné investiční signály.':'Veřejné API Blockscout. Omezený počet stran; výsledky nejsou úplným seznamem držitelů.');
+}
+function dataInfo(){
+ const warnings=(state.result?.warnings||[]).map(w=>`<li>${esc(typeof w==='string'?w:w.message||JSON.stringify(w))}</li>`).join('');
+ info('Zdroje, rozsah a metodika',`<p><strong>Aktuální režim: ${state.source==='demo'?'Demo · syntetická data':'Live · veřejné Blockscout API'}</strong></p><p>${esc(coverageText())}</p>${warnings?`<h3>Upozornění k poslednímu skenu</h3><ul>${warnings}</ul>`:''}<h3>Co výsledky znamenají</h3><p>USD hodnota ve screeneru je součet <strong>vybraných pozic</strong>, nikoli celého portfolia. V analýze jde o načtené ERC-20 zůstatky. Token bez dostupné ceny má hodnotu <strong>neznámou</strong>. Nativní ETH, NFT a DeFi pozice tato verze neagreguje.</p><p>Veřejná API jsou stránkovaná a mohou být omezená, zpožděná nebo nedostupná. Průnik se počítá pouze nad načtenými držiteli. <strong>Prázdný výsledek neprokazuje, že žádní držitelé neexistují.</strong> Chyby se uvádějí odděleně od výsledků.</p><h3>Sítě</h3><p>${networks.map(n=>esc(n.name)).join(' · ')}. Živé adaptéry jsou připravené pro Ethereum, Base, Arbitrum a Optimism. zkSync Era, Scroll a Linea jsou zatím dostupné pouze v demu. Dostupnost veřejného exploreru se ověřuje při skenu. Adresy a kontrakty se odesílají veřejným indexerům pouze po spuštění živého dotazu.</p><h3>Lokální uložení</h3><p>Watchlist uchovává snapshot pozic s označením zdroje. Není průběžně aktualizovaný. Demo a live záznamy jsou vedené odděleně.</p><p>Dokumentace zdroje: <a href="https://docs.blockscout.com/devs/apis" target="_blank" rel="noopener noreferrer">Blockscout APIs ↗</a></p>`);
+}
+function renderTokens(){
+ $('selected-tokens').innerHTML=state.selectedTokens.map(t=>`<div class="token-chip">${coin(t)}<span>${esc(t.symbol)}<small>${esc(network(t.chainId).name)}</small></span><button data-remove-token="${esc(tokenKey(t))}" aria-label="Odebrat ${esc(t.symbol)}">×</button></div>`).join('');
+ $('token-count').textContent=`${state.selectedTokens.length} / 5`;
+ $('add-token').hidden=state.selectedTokens.length>=5;
+ document.querySelectorAll('[data-match]').forEach(b=>{b.classList.toggle('active',b.dataset.match===state.match);b.setAttribute('aria-pressed',b.dataset.match===state.match);});
+}
+function renderChains(){
+ $('chain-filters').innerHTML=networks.map(n=>`<button class="chain-chip ${state.chainIds.includes(n.id)?'active':''}" data-chain="${esc(n.id)}" aria-pressed="${state.chainIds.includes(n.id)}" title="${state.source==='live'&&n.live===false?'Živý adaptér zatím není dostupný; síť funguje v demu.':esc(n.name)}">${chainIcon(n.id)} ${esc(n.name.replace(' Era',''))}${state.source==='live'&&n.live===false?' <span class="demo-only">DEMO</span>':''}</button>`).join('');
+ $('all-chains').textContent=state.chainIds.length===networks.length?'Zrušit výběr':'Vybrat vše';
+}
+function setBusy(b){state.busy=b;['scan-button','analyze-button','result-search','min-value','sort-select','export-button','save-search','previous-page','next-page'].forEach(id=>$(id).disabled=b);if($('select-all'))$('select-all').disabled=b;$('scan-button').innerHTML=b?'<span class="spinner"></span> Hledám držitele…':`${icon('search')}<span>Najít peněženky</span><span class="button-arrow">↗</span>`;$('analyze-button').innerHTML=b?'<span class="spinner"></span> Analyzuji…':`${icon('chart')} Analyzovat peněženky <span class="button-arrow">↗</span>`;}
+function markDirty(){
+ state.runId++;state.controller?.abort();setBusy(false);state.dirty=true;state.result=null;state.selected.clear();state.page=1;setError();renderResults();
+ if(state.source==='demo'&&state.view==='screener'&&state.selectedTokens.length&&state.chainIds.length)run();
+}
+function setSource(source){
+ if(source===state.source)return;
+ closeDrawer();
+ state.source=source;state.result=null;state.dirty=true;state.rows=[];state.runId++;state.controller?.abort();setBusy(false);state.selected.clear();state.page=1;setError();
+ document.querySelectorAll('[data-source]').forEach(b=>{b.classList.toggle('active',b.dataset.source===source);b.setAttribute('aria-pressed',b.dataset.source===source);});
+ $('source-banner').classList.toggle('live-banner',source==='live');
+ $('source-banner').innerHTML=source==='demo'?`${icon('flask')}<span><strong>Prozkoumejte možnosti.</strong> Pracujete s ilustračními daty. Pro skutečné adresy přepněte na Live API.</span>`:`${icon('database')}<span><strong>Veřejné Live API · beta.</strong> Ethereum, Base, Arbitrum a Optimism. Omezený rozsah; ostatní sítě zatím jen v demu.</span>`;
+ $('load-wallet-demo').hidden=source==='live';
+ renderChains();
+ if(state.view==='wallets')$('wallet-addresses').value=source==='demo'?demoAddresses().join('\n'):'';
+ renderResults();if(source==='demo'&&state.view!=='watchlist')run();
+}
+function setView(view){
+ if(view===state.view)return;
+ closeDrawer();
+ state.view=view;state.result=null;state.dirty=false;state.page=1;state.selected.clear();state.runId++;state.controller?.abort();setBusy(false);setError();$('result-search').value='';$('min-value').value='';
+ const walletMode=view==='wallets';
+ document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+ document.querySelectorAll('[data-mode]').forEach(b=>{b.classList.toggle('active',b.dataset.mode===view);b.setAttribute('aria-selected',b.dataset.mode===view);});
+ const title={screener:'Token screener',wallets:'Analýza peněženek',watchlist:'Váš watchlist'}[view];
+ $('breadcrumb-view').textContent=title;$('page-title').innerHTML=`${title}<span>.</span>`;
+ $('page-description').textContent={screener:'Najděte peněženky, které drží tokeny, na kterých vám záleží.',wallets:'Propojte adresy. Objevte společné pozice a koncentraci kapitálu.',watchlist:'Zajímavé adresy na jednom místě. Navazujte na svůj výzkum.'}[view];
+ $('query-panel').hidden=view==='watchlist';$('token-query').hidden=walletMode;$('wallet-query').hidden=!walletMode;
+ $('save-search').hidden=view==='watchlist';$('saved-searches').hidden=view==='watchlist';
+ $('sort-select').innerHTML=walletMode?'<option value="value">Hodnota: nejvyšší</option><option value="holders">Počet držitelů</option><option value="symbol">Token A–Z</option>':'<option value="value">Hodnota: nejvyšší</option><option value="match">Počet tokenů</option><option value="address">Adresa A–Z</option>';
+ $('result-search').placeholder=walletMode?'Hledat token nebo kontrakt…':'Hledat adresu nebo štítek…';
+ $('sidebar').classList.remove('open');
+ if(walletMode&&state.source==='demo'&&!$('wallet-addresses').value.trim())$('wallet-addresses').value=demoAddresses().join('\n');
+ renderResults();if(state.source==='demo'&&view!=='watchlist')run();
+}
+function demoAddresses(){return (data.DEMO_WALLETS||[]).slice(0,6).map(w=>w.address);}
+function normalizeWallet(w){
+ const holdings=(w.holdings||[]).map(h=>{const meta=tokens.find(t=>tokenKey(t)===h.tokenId)||tokens.find(t=>t.address?.toLowerCase()===h.address?.toLowerCase()&&t.chainId===h.chainId)||{};return {...meta,...h,value:h.value??h.usdValue??h.totalValue??null};});
+ const matched=(w.matchedTokens||[]).map(t=>typeof t==='string'?(tokens.find(x=>tokenKey(x)===t)||holdings.find(x=>tokenKey(x)===t)):t).filter(Boolean);
+ const knownHoldings=holdings.filter(h=>h.value!==null&&h.value!==undefined);
+ const value=Object.hasOwn(w,'value')?w.value:Object.hasOwn(w,'totalValue')?w.totalValue:knownHoldings.length?knownHoldings.reduce((a,h)=>a+h.value,0):null;
+ return {...w,holdings,chainIds:w.chainIds||[...new Set(holdings.map(h=>h.chainId))],matchedTokens:matched,value,matchCount:w.matchCount??matched.length};
+}
+async function run(){
+ if(state.view==='watchlist')return;
+ setError();
+ if(!state.chainIds.length){setError('Vyberte alespoň jednu síť.');return;}
+ let addresses=[];
+ if(state.view==='screener'){
+  if(!state.selectedTokens.length){setError('Přidejte alespoň jeden token nebo kontrakt.');return;}
+  const missing=state.selectedTokens.filter(t=>!state.chainIds.includes(t.chainId));
+  if(missing.length){setError(`Zapněte síť pro všechny vybrané tokeny: ${[...new Set(missing.map(t=>network(t.chainId).name))].join(', ')}.`);return;}
+ }else{
+  addresses=[...new Set($('wallet-addresses').value.trim().split(/[\s,;]+/).filter(Boolean).map(a=>a.toLowerCase()))];
+  if(!addresses.length){setError('Vložte alespoň jednu adresu peněženky.');return;}
+  if(addresses.length>20){setError('Najednou lze analyzovat nejvýše 20 různých adres.');return;}
+  const invalid=addresses.find(a=>!/^0x[0-9a-f]{40}$/.test(a));
+  if(invalid){setError(`Neplatná EVM adresa: ${invalid.slice(0,70)}. Očekává se 0x a 40 hexadecimálních znaků.`);return;}
+ }
+ state.controller?.abort();state.controller=new AbortController();const runId=++state.runId;setBusy(true);state.result=null;state.page=1;state.selected.clear();state.dirty=false;
+ $('empty-state').hidden=false;$('empty-state').innerHTML=`<div class="loading-row"><span class="spinner"></span> ${state.view==='screener'?'Načítám držitele vybraných kontraktů…':'Načítám pozice peněženek…'}<p id="scan-progress">${state.source==='demo'?'Ukázkový dataset':'Veřejné indexery mohou odpovídat pomaleji.'}</p><button class="subtle-button" id="cancel-scan">Zrušit sken</button></div>`;$('table-body').innerHTML='';$('cancel-scan').onclick=()=>{state.runId++;state.controller.abort();setBusy(false);state.dirty=true;renderResults();toast('Sken byl zrušen.');};
+ try{
+  const options={chainIds:[...state.chainIds],source:state.source,signal:state.controller.signal,onProgress:p=>{if(runId===state.runId&&$('scan-progress'))$('scan-progress').textContent=typeof p==='string'?p:p.message||`${p.completed||0} / ${p.total||'…'}`;}};
+  const result=state.view==='screener'?await data.searchHolders({...options,tokens:state.selectedTokens,match:state.match,minValue:0}):await data.analyzeWallets({...options,addresses});
+  if(runId!==state.runId)return;
+  state.result={...result,wallets:(result.wallets||[]).map(normalizeWallet),tokens:(result.tokens||[]).map(t=>({...t,totalValue:t.totalValue??t.value??null,holderCount:t.holderCount??t.holders?.length??0,share:t.share??0}))};
+  state.result.fetchedAt=new Date().toISOString();
+  if(result.warnings?.length)toast(`Sken dokončen s upozorněním. Podrobnosti najdete v metodice.`);
+ }catch(e){
+  if(runId!==state.runId)return;
+  setError(e.name==='AbortError'?'Sken byl zrušen.':e.message||'Data se nepodařilo načíst. Zkuste jinou síť nebo režim Demo.');
+  state.result=null;state.dirty=true;
+ }finally{if(runId===state.runId){setBusy(false);renderResults();}}
+}
+function currentRows(){
+ if(state.view==='watchlist')return savedWallets.filter(w=>w.source===state.source).map(w=>normalizeWallet({...w.wallet,savedAt:w.savedAt}));
+ if(!state.result)return [];
+ return state.view==='wallets'?state.result.tokens:state.result.wallets;
+}
+function filteredRows(){
+ const q=$('result-search').value.toLowerCase().trim();const min=Math.max(0,Number($('min-value').value)||0);const mode=state.view==='wallets';const sort=$('sort-select').value;
+ const rows=currentRows().filter(r=>{
+  const searchable=mode?`${r.symbol} ${r.name} ${r.address} ${network(r.chainId).name}`:`${r.address} ${r.label||''}`;
+  const value=mode?r.totalValue:r.value;
+  return searchable.toLowerCase().includes(q)&&(!min||(value!==null&&value>=min));
+ });
+ return rows.sort((a,b)=>sort==='holders'?b.holderCount-a.holderCount:sort==='match'?(b.matchCount||0)-(a.matchCount||0):sort==='address'?a.address.localeCompare(b.address):sort==='symbol'?a.symbol.localeCompare(b.symbol):(mode?(b.totalValue??-1)-(a.totalValue??-1):(b.value??-1)-(a.value??-1)));
+}
+function renderStats(){
+ const rows=currentRows();const walletMode=state.view==='wallets';const walletRows=walletMode?(state.result?.wallets||[]):rows;
+ const sum=rows.reduce((a,r)=>a+((walletMode?r.totalValue:r.value)||0),0);const chains=[...new Set(rows.flatMap(r=>walletMode?[r.chainId]:r.chainIds))].filter(Boolean);
+ const knownRows=rows.filter(r=>Number.isFinite(walletMode?r.totalValue:r.value));
+ const stats=walletMode?[
+  ['Agregované tokeny',number(rows.length),'kontrakt + síť','layers'],
+  ['Hodnota načtených pozic',rows.length?money(knownRows.length?sum:null,true):'—','pouze známé USD ceny','dollar'],
+  ['Analyzované adresy',number(walletRows.length),'v rámci vybraných sítí','users'],
+  ['Zastoupené sítě',number(chains.length),'Ethereum & L2','grid']
+ ]:[
+  [state.view==='watchlist'?'Uložené peněženky':'Nalezené peněženky',state.result||state.view==='watchlist'?number(rows.length):'—',state.view==='watchlist'?'lokální snapshoty':state.match==='all'?'průnik vybraných tokenů':'alespoň jeden vybraný token','wallet'],
+  ['Hodnota vybraných pozic',rows.length?money(knownRows.length?sum:null,true):'—','součet známých USD hodnot','dollar'],
+  ['Průměrná pozice',rows.length?money(knownRows.length?sum/knownRows.length:null,true):'—','z pozic se známou USD hodnotou','target'],
+  ['Zastoupené sítě',state.result||state.view==='watchlist'?number(chains.length):'—','v načtených výsledcích','layers']
+ ];
+ $('stats').innerHTML=stats.map((s,i)=>`<div class="stat-card"><div class="stat-top">${s[0]}<span>${icon(s[3])}</span></div><div class="stat-value">${s[1]}${i===3?`<span class="stat-chains">${chains.slice(0,5).map(chainIcon).join('')}</span>`:''}</div><div class="stat-foot">${i===0?'<span class="accent">↗</span>':''}${s[2]}</div></div>`).join('');
+}
+function renderInsight(){
+ const rows=currentRows();const total=rows.length;const walletMode=state.view==='wallets';const sum=rows.reduce((a,r)=>a+((walletMode?r.totalValue:r.value)||0),0);
+ if(state.view==='watchlist'){
+  const chains=[...new Set(rows.flatMap(w=>w.chainIds))];
+  $('insight-panel').innerHTML=`<div class="insight-label">${icon('bookmark')} Váš výzkumný okruh</div><p>Adresy, ke kterým se chcete vrátit.</p><div class="venn-diagram"><div class="venn-circle"></div><div class="venn-circle second"></div><div class="venn-value"><strong>${total}</strong><small>uložených snapshotů</small></div></div><div class="insight-divider"></div><div class="insight-pair"><span>Zdroj</span><strong>${state.source==='demo'?'Demo':'Live API'}</strong></div><div class="insight-pair"><span>Zastoupené sítě</span><strong>${chains.length}</strong></div><div class="insight-note">${icon('history')} Pozice odpovídají okamžiku uložení. Novou analýzou získáte aktuální data.</div><button class="insight-link" id="insight-help">Jak číst snapshoty <span>↗</span></button>`;
+  $('insight-help').onclick=dataInfo;return;
+ }
+ if(walletMode){
+  const top=[...rows].sort((a,b)=>b.holderCount-a.holderCount)[0];
+  $('insight-panel').innerHTML=`<div class="insight-label">${icon('link')} Společné přesvědčení</div><p>Nejrozšířenější pozice ve vaší skupině peněženek.</p><div class="venn-diagram"><div class="venn-circle"></div><div class="venn-circle second"></div><div class="venn-value"><strong>${top?esc(top.symbol):'—'}</strong><small>${top?`${number(top.holderCount)} držitelů`:'spusťte analýzu'}</small></div></div><div class="insight-divider"></div><div class="insight-pair"><span>Unikátní kontrakty</span><strong>${total}</strong></div><div class="insight-pair"><span>Známá USD hodnota</span><strong>${money(sum,true)}</strong></div><div class="insight-note">${icon('help')} Stejný ticker na dvou sítích zůstává dvěma samostatnými kontrakty.</div><button class="insight-link" id="insight-help">Jak číst výsledky <span>↗</span></button>`;
+ }else{
+  const ts=state.selectedTokens;const counts=ts.map(t=>rows.filter(w=>w.holdings.some(h=>h.chainId===t.chainId&&h.address?.toLowerCase()===t.address.toLowerCase()&&h.amount>0)).length);
+  const both=rows.filter(w=>ts.length&&ts.every(t=>w.holdings.some(h=>h.chainId===t.chainId&&h.address?.toLowerCase()===t.address.toLowerCase()&&h.amount>0))).length;
+  const top=rows.length?Math.max(...rows.map(w=>w.value||0))/Math.max(1,sum)*100:0;
+  $('insight-panel').innerHTML=`<div class="insight-label">${icon('link')} ${state.view==='watchlist'?'Váš výzkumný okruh':'Překryv držitelů'}</div><p>${state.view==='watchlist'?'Uložené adresy pro váš další průzkum.':'Tam, kde se vaše vybrané tokeny potkávají.'}</p><div class="venn-diagram"><div class="venn-circle">${esc(ts[0]?.symbol||'A')}</div><div class="venn-circle second">${esc(ts[1]?.symbol||(ts.length?'':'B'))}</div><div class="venn-value"><strong>${state.result||state.view==='watchlist'?number(both):'—'}</strong><small>${ts.length>2?'drží všechny tokeny':'společných adres'}</small></div></div><div class="insight-divider"></div>${ts.slice(0,2).map((t,i)=>`<div class="insight-pair"><span>${esc(t.symbol)} držitelé ve výsledku</span><strong>${number(counts[i])}</strong></div>`).join('')}<div class="mini-distribution" title="Poměr USD hodnot největších načtených pozic">${rows.filter(w=>w.value>0).sort((a,b)=>b.value-a.value).slice(0,8).map((w,i)=>`<span style="flex:${w.value};background:${['#b8db8b','#6d9366','#354e40'][i%3]}"></span>`).join('')}</div><div class="insight-pair"><span>Největší pozice / celek</span><strong>${top.toFixed(1)} %</strong></div><div class="insight-note">${icon('spark')} ${state.source==='demo'?'Ukázka souvislostí. Zobrazená data jsou syntetická.':'Překryv je omezený rozsahem načtených stránek indexeru.'}</div><button class="insight-link" id="insight-help">Jak číst výsledky <span>↗</span></button>`;
+ }
+ $('insight-help').onclick=dataInfo;
+}
+function identicon(address){const colors=['#b7ba70','#8ca8ce','#b48cc2','#6fb6a6','#cc9b75','#85ad75'];const n=parseInt(address?.slice(2,6)||'0',16);return `<span class="identicon" style="--ident:${colors[n%colors.length]}">${icon(['grid','target','scan','layers','spark','link'][n%6])}</span>`;}
+function saved(address){return savedWallets.some(w=>w.source===state.source&&w.wallet?.address.toLowerCase()===address.toLowerCase());}
+function renderResults(){
+ if(state.busy)return;
+ const warnings=state.view==='watchlist'?[]:(state.result?.warnings||[]);
+ $('scan-notice').hidden=!warnings.length;
+ if(warnings.length){const failed=(state.result?.coverage?.details||[]).filter(d=>d.status==='error'||d.status==='unsupported').length;$('scan-notice').innerHTML=`${icon('help')}<span><strong>Omezení výsledku.</strong> ${failed?`${failed} dotazů se nepodařilo načíst. `:''}Výsledek pokrývá pouze načtená data.</span><button class="text-button" id="notice-details">${warnings.length} upozornění ↗</button>`;$('notice-details').onclick=dataInfo;}
+ const walletMode=state.view==='wallets';const watch=state.view==='watchlist';const rows=filteredRows();state.rows=rows;
+ const total=rows.length;const pages=Math.max(1,Math.ceil(total/state.pageSize));state.page=Math.min(state.page,pages);const start=(state.page-1)*state.pageSize;const visible=rows.slice(start,start+state.pageSize);
+ $('results-title').innerHTML=`${walletMode?'Nejvíce držené tokeny':watch?'Uložené peněženky':'Nalezené peněženky'} <span class="count-badge" id="result-count">${number(total)}</span>`;
+ $('results-subtitle').textContent=watch?'Uložené snapshoty · zdroj: '+(state.source==='demo'?'Demo':'Live API'):walletMode?'Souhrn ERC-20 pozic ze zadaných adres':`${state.match==='all'?'Drží všechny vybrané tokeny':'Drží alespoň jeden vybraný token'} · ${state.source==='demo'?'demo dataset':'načtené stránky indexeru'}`;
+ $('table-head').innerHTML=walletMode?'<tr><th>#</th><th>TOKEN / KONTRAKT</th><th>SÍŤ</th><th>DRŽITELÉ</th><th>PODÍL ADRES</th><th class="th-value">HODNOTA POZIC</th><th></th></tr>':'<tr><th><input type="checkbox" id="select-all" aria-label="Vybrat všechny zobrazené adresy"></th><th>PENĚŽENKA</th><th>SÍTĚ</th><th>VYBRANÉ TOKENY</th><th class="th-value">HODNOTA POZIC</th><th>POMĚR POZIC</th><th></th></tr>';
+ $('table-body').innerHTML=visible.map((r,i)=>walletMode?tokenRow(r,start+i):walletRow(r)).join('');
+ $('empty-state').hidden=!!total;
+ if(!total)$('empty-state').innerHTML=`${icon(watch?'star':'search')}<strong>${!state.result&&!watch?(state.dirty?'Dotaz je připravený.':'Začněte svým průzkumem.'):watch?'Watchlist čeká na první adresu.':'Žádné výsledky pro tento výběr.'}</strong><p>${!state.result&&!watch?'Vyberte tokeny nebo vložte adresy a spusťte analýzu.':watch?'Uložte zajímavé peněženky ikonou záložky v tabulce. Zobrazují se pouze záznamy aktuálně vybraného zdroje dat.':state.source==='demo'?'Demo zná pouze ukázkové kontrakty a adresy. Změňte filtry nebo použijte Live API pro vlastní vstupy.':'Zkontrolujte zadané sítě, filtry a metodiku. Výsledek se vztahuje pouze na úspěšně načtená data.'}</p>${watch?'<button class="subtle-button" id="empty-go-screener">Otevřít token screener →</button>':''}`;
+ $('empty-go-screener')?.addEventListener('click',()=>setView('screener'));
+ $('table-range').textContent=total?`${start+1}–${Math.min(start+state.pageSize,total)} z ${number(total)} ${walletMode?'tokenů':'peněženek'}`:'0 výsledků';
+ $('page-number').textContent=state.page;$('previous-page').disabled=state.page===1;$('next-page').disabled=state.page>=pages;
+ $('export-button').disabled=!total;$('save-search').disabled=!state.result;
+ $('bulk-bar').hidden=walletMode||!state.selected.size;$('bulk-count').textContent=`Vybráno ${state.selected.size} adres`;
+ $('watch-count').textContent=savedWallets.length;
+ if($('select-all')){$('select-all').checked=!!visible.length&&visible.every(r=>state.selected.has(r.address));$('select-all').onchange=e=>{visible.forEach(r=>e.target.checked?state.selected.add(r.address):state.selected.delete(r.address));renderResults();};}
+ $('coverage-label').textContent=watch?`Uložené snapshoty · ${state.source==='demo'?'syntetická demo data':'živá data v okamžiku uložení'}`:state.source==='demo'?'Ilustrační dataset · adresy, štítky a hodnoty jsou syntetické':state.result?`Blockscout · ${coverageText().slice(0,160)}`:'Veřejné Blockscout API · omezený rozsah skenu';
+ renderStats();renderInsight();
+}
+function walletRow(w){
+ const matched=w.matchedTokens.length?w.matchedTokens:w.holdings.filter(h=>state.selectedTokens.some(t=>t.chainId===h.chainId&&t.address.toLowerCase()===h.address?.toLowerCase()));
+ const values=matched.map(t=>w.holdings.find(h=>h.chainId===t.chainId&&h.address?.toLowerCase()===t.address?.toLowerCase())?.value).filter(v=>Number.isFinite(v)&&v>0);const sum=values.reduce((a,n)=>a+n,0);
+ return `<tr><td><input type="checkbox" data-select-wallet="${esc(w.address)}" aria-label="Vybrat ${esc(short(w.address))}" ${state.selected.has(w.address)?'checked':''}></td><td><div class="wallet-identity">${identicon(w.address)}<div><button class="address-button" data-wallet="${esc(w.address)}">${esc(short(w.address))}</button><div class="wallet-name"><i></i>${state.source==='demo'?esc(w.label||'Ukázková adresa'):w.savedAt?'Snapshot '+esc(new Date(w.savedAt).toLocaleDateString('cs-CZ')):'Veřejná adresa'}</div></div></div></td><td><div class="row-networks">${w.chainIds.slice(0,5).map(chainIcon).join('')}${w.chainIds.length>5?`<span class="pending-dot">+${w.chainIds.length-5}</span>`:''}</div></td><td><div class="match-tokens">${matched.slice(0,4).map(t=>coin(t,'micro')).join('')}<span class="match-total">${matched.length}/${state.view==='watchlist'?matched.length:(state.selectedTokens.length||matched.length)}</span></div></td><td class="value-cell">${money(w.value)}<small>${state.source==='demo'?'ilustrační USD':'známé USD ceny'}</small></td><td><div class="allocation" title="Poměr známých hodnot vybraných pozic">${values.slice(0,5).map(v=>`<span style="flex:${v/sum}"></span>`).join('')||'<span style="background:#354740;flex:1"></span>'}</div></td><td><div class="row-actions"><button class="bookmark-button ${saved(w.address)?'saved':''}" data-bookmark="${esc(w.address)}" aria-label="${saved(w.address)?'Odebrat z watchlistu':'Uložit do watchlistu'} ${esc(short(w.address))}">${icon('bookmark')}</button><button class="open-detail" data-wallet="${esc(w.address)}" aria-label="Detail ${esc(short(w.address))}">↗</button></div></td></tr>`;
+}
+function tokenRow(t,i){
+ let share=t.share||0;if(share<=1)share*=100;share=Math.min(100,share);
+ return `<tr><td class="pending-dot">${i+1}</td><td><div class="wallet-identity">${coin(t,'small')}<div><span class="address-button">${esc(t.symbol)}</span><div class="wallet-name">${esc(short(t.address))}</div></div></div></td><td><div class="row-networks">${chainIcon(t.chainId)}<span class="pending-dot">${esc(network(t.chainId).name)}</span></div></td><td class="value-cell" style="text-align:left">${number(t.holderCount)}</td><td><div class="holder-share"><span class="share-track"><i style="width:${share}%"></i></span>${Math.round(share)} %</div></td><td class="value-cell">${money(t.totalValue)}<small>${amount(t.amount)} ${esc(t.symbol)}</small></td><td><a class="open-detail" href="${esc(explorerUrl(t.chainId,'token',t.address))}" target="_blank" rel="noopener noreferrer" aria-label="Otevřít kontrakt ${esc(t.symbol)} v exploreru">↗</a></td></tr>`;
+}
+function explorerUrl(chainId,type,address){const base=network(chainId).explorer||network(chainId).explorerUrl||'';return /^https:\/\//.test(base)&&/^0x[\da-fA-F]{40}$/.test(address)?`${base.replace(/\/$/,'')}/${type}/${address}`:'#';}
+function toggleBookmark(address){
+ const idx=savedWallets.findIndex(w=>w.source===state.source&&w.wallet?.address===address);
+ if(idx>=0){savedWallets.splice(idx,1);toast('Adresa odebrána z watchlistu.');}
+ else{const wallet=currentRows().find(w=>w.address===address);if(!wallet)return;savedWallets.push({source:state.source,wallet,savedAt:new Date().toISOString()});toast('Adresa uložena do watchlistu.');}
+ writeLocal('cd:watchlist:v1',savedWallets);renderResults();
+ if(state.activeWallet?.address===address)openWallet(address,state.activeWallet);
+}
+function openWallet(address,existing){
+ const w=currentRows().find(w=>w.address===address)||state.result?.wallets?.find(w=>w.address===address)||existing;
+ if(!w)return;state.activeWallet=w;
+ $('wallet-drawer').innerHTML=`<div class="drawer-header"><span>WALLET INTELLIGENCE / ${state.source.toUpperCase()}</span><button class="icon-button" id="close-drawer" aria-label="Zavřít detail">×</button></div><div class="drawer-identity">${identicon(w.address)}<h2>${state.source==='demo'?esc(w.label||'Ukázková peněženka'):'Detail peněženky'}</h2><div class="full-address">${esc(w.address)}</div></div><div class="drawer-tools"><button class="subtle-button" id="copy-address">${icon('copy')} Kopírovat</button><button class="subtle-button" data-bookmark="${esc(w.address)}">${icon('bookmark')} ${saved(w.address)?'Uloženo':'Watchlist'}</button>${w.chainIds[0]?`<a class="subtle-button" href="${esc(explorerUrl(w.chainIds[0],'address',w.address))}" target="_blank" rel="noopener noreferrer">Explorer ${icon('external')}</a>`:''}</div><div class="drawer-stat"><span>Hodnota vybraných pozic ve screeneru</span><strong>${money(w.value)}</strong><p class="drawer-footnote">${state.source==='demo'?'Ilustrační USD hodnoty · syntetická adresa':'Pouze pozice vrácené indexerem. Záznam nemusí obsahovat celé portfolio.'}</p></div><h2>Načtené tokenové pozice <span class="count-badge">${w.holdings.length}</span></h2>${w.holdings.map(h=>`<div class="drawer-holding">${coin(h)}<span>${esc(h.symbol)}<small>${esc(network(h.chainId).name)}</small></span><span>${money(h.value)}<small>${amount(h.amount)} ${esc(h.symbol)}</small></span></div>`).join('')}<p class="drawer-footnote">Nativní ETH, NFT ani DeFi pozice nejsou zahrnuté. ${w.savedAt?'Snapshot: '+esc(new Date(w.savedAt).toLocaleString('cs-CZ')):''}</p><button class="primary-button" id="analyze-this-wallet" style="width:100%;margin-top:20px">Analyzovat tuto adresu →</button>`;
+ $('wallet-drawer').hidden=false;$('drawer-backdrop').hidden=false;$('close-drawer').onclick=closeDrawer;
+ $('copy-address').onclick=async()=>{try{await navigator.clipboard.writeText(w.address);toast('Adresa zkopírována.');}catch{toast('Kopírování není dostupné. Adresu lze označit v detailu.');}};
+ $('analyze-this-wallet').onclick=()=>{closeDrawer();setView('wallets');$('wallet-addresses').value=w.address;run();};
+ $('close-drawer').focus();
+}
+function closeDrawer(){$('wallet-drawer').hidden=true;$('drawer-backdrop').hidden=true;state.activeWallet=null;}
+function renderTokenOptions(){
+ const q=$('token-search').value.toLowerCase().trim();const found=tokens.filter(t=>`${t.symbol} ${t.name} ${t.address} ${network(t.chainId).name}`.toLowerCase().includes(q));
+ $('token-options').innerHTML=found.map(t=>`<button class="token-option" data-add-token="${esc(tokenKey(t))}" ${state.selectedTokens.some(x=>tokenKey(x)===tokenKey(t))?'disabled':''}>${coin(t)}<span>${esc(t.symbol)}<small>${esc(short(t.address))}</small></span><span class="option-network">${chainIcon(t.chainId)} ${esc(network(t.chainId).name)}</span><span class="added">${state.selectedTokens.some(x=>tokenKey(x)===tokenKey(t))?'✓':'+'}</span></button>`).join('')||'<p class="modal-footnote">Token není v katalogu. Pro vlastní token vložte celou adresu kontraktu a vyberte jeho síť.</p>';
+ $('custom-token-fields').hidden=!/^0x[\da-f]{40}$/i.test(q);
+}
+function addToken(t){if(state.selectedTokens.length>=5){toast('Lze vybrat nejvýše 5 tokenů.');return;}if(state.selectedTokens.some(x=>tokenKey(x)===tokenKey(t))){toast('Tento kontrakt už je vybraný.');return;}state.selectedTokens.push(t);if(!state.chainIds.includes(t.chainId))state.chainIds.push(t.chainId);renderTokens();renderChains();$('token-dialog').close();markDirty();}
+function saveSearch(){
+ if(!state.result)return;
+ const q={id:Date.now(),source:state.source,view:state.view,tokens:state.selectedTokens.map(t=>({...t})),chainIds:[...state.chainIds],match:state.match,addresses:$('wallet-addresses').value,date:new Date().toISOString()};
+ savedQueries.unshift(q);savedQueries.splice(15);writeLocal('cd:queries:v1',savedQueries);toast('Dotaz uložen. Najdete ho v Uložených dotazech.');
+}
+function showSavedSearches(){
+ info('Uložené dotazy',savedQueries.length?savedQueries.map(q=>`<div class="saved-query"><button class="text-button" data-load-query="${q.id}"><span>${q.view==='wallets'?'Analýza peněženek':esc((q.tokens||[]).map(t=>t.symbol).join(' + '))}<small>${esc(q.source.toUpperCase())} · ${esc(q.match?.toUpperCase()||'')} · ${esc(new Date(q.date).toLocaleDateString('cs-CZ'))}</small></span> →</button><button data-delete-query="${q.id}" aria-label="Smazat uložený dotaz">×</button></div>`).join(''):'<p>Zatím tu nic není. Po spuštění analýzy použijte <strong>Uložit dotaz</strong> nad tabulkou výsledků.</p>');
+}
+function exportCSV(){
+ if(!state.rows.length)return;
+ const walletMode=state.view==='wallets';
+ const rows=walletMode?[['symbol','contract','chain','holder_count','share','amount','known_usd_value','source','coverage'],...state.rows.map(t=>[t.symbol,t.address,t.chainId,t.holderCount,t.share,t.amount,t.totalValue,state.source,coverageText()])]:[['address','label','chains','matched_tokens','known_usd_value','source','coverage'],...state.rows.map(w=>[w.address,state.source==='demo'?w.label||'':'',w.chainIds.join(';'),w.matchedTokens.map(t=>`${t.symbol}:${t.chainId}`).join(';'),w.value,state.source,coverageText()])];
+ const cell=v=>`"${String(v??'').replace(/^[=+\-@\t\r]/,"'<script type="module" src="./app.js"></script>").replace(/"/g,'""')}"`;
+ const blob=new Blob(['\uFEFF'+rows.map(r=>r.map(cell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`chaindetective-${state.view}-${state.source}-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('CSV export připraven.');
+}
+
+document.addEventListener('click',event=>{
+ const b=event.target.closest('button');if(!b)return;
+ if(b.dataset.view)setView(b.dataset.view);
+ if(b.dataset.mode)setView(b.dataset.mode);
+ if(b.dataset.source)setSource(b.dataset.source);
+ if(b.dataset.match){state.match=b.dataset.match;renderTokens();markDirty();}
+ if(b.dataset.chain){const id=b.dataset.chain;state.chainIds=state.chainIds.includes(id)?state.chainIds.filter(c=>c!==id):[...state.chainIds,id];renderChains();markDirty();}
+ if(b.dataset.removeToken){state.selectedTokens=state.selectedTokens.filter(t=>tokenKey(t)!==b.dataset.removeToken);renderTokens();markDirty();}
+ if(b.dataset.addToken){const t=tokens.find(t=>tokenKey(t)===b.dataset.addToken);if(t)addToken(t);}
+ if(b.dataset.close)$(b.dataset.close).close();
+ if(b.dataset.wallet)openWallet(b.dataset.wallet);
+ if(b.dataset.bookmark)toggleBookmark(b.dataset.bookmark);
+ if(b.dataset.roadmap)info(b.dataset.roadmap,`<p>Tento modul je připravený v navigaci pro další etapu.</p><h3>${esc(b.dataset.roadmap)}</h3><p>${{'Smart money':'Skupiny sledovaných peněženek, ověřitelné štítky a historická úspěšnost.', 'Toky kapitálu':'Přírůstky a úbytky pozic, čisté toky tokenů a změny v čase.', 'Upozornění':'Pravidla nad uloženými adresami a změnami držených tokenů.'}[b.dataset.roadmap]}</p><p>V této první verzi jsou dostupné token screener, analýza peněženek a lokální watchlist.</p>`);
+ if(b.dataset.loadQuery){const q=savedQueries.find(q=>String(q.id)===b.dataset.loadQuery);if(q){state.runId++;state.controller?.abort();setBusy(false);closeDrawer();$('info-dialog').close();state.selectedTokens=(q.tokens||[]).map(t=>({...t}));state.chainIds=[...q.chainIds];state.match=q.match;setSource(q.source);setView(q.view);$('wallet-addresses').value=q.addresses||'';renderTokens();renderChains();if(q.source==='demo')run();else{state.result=null;state.dirty=true;renderResults();toast('Dotaz načten. Spusťte živý sken.');}}}
+ if(b.dataset.deleteQuery){const i=savedQueries.findIndex(q=>String(q.id)===b.dataset.deleteQuery);if(i>=0){savedQueries.splice(i,1);writeLocal('cd:queries:v1',savedQueries);$('info-dialog').close();showSavedSearches();}}
+});
+document.addEventListener('change',e=>{if(e.target.dataset.selectWallet){e.target.checked?state.selected.add(e.target.dataset.selectWallet):state.selected.delete(e.target.dataset.selectWallet);renderResults();}});
+['result-search','min-value'].forEach(id=>$(id).addEventListener('input',()=>{state.page=1;renderResults();}));$('sort-select').onchange=()=>{state.page=1;renderResults();};
+ $('previous-page').onclick=()=>{state.page--;renderResults();};$('next-page').onclick=()=>{state.page++;renderResults();};
+ $('scan-button').onclick=run;$('analyze-button').onclick=run;
+ $('wallet-addresses').addEventListener('input',()=>{state.runId++;state.controller?.abort();setBusy(false);state.result=null;state.dirty=true;renderResults();});
+ $('add-token').onclick=()=>{$('token-search').value='';renderTokenOptions();$('token-dialog').showModal();$('token-search').focus();};$('token-search').oninput=renderTokenOptions;
+ $('custom-chain').innerHTML=networks.map(n=>`<option value="${esc(n.id)}">${esc(n.name)}</option>`).join('');
+ $('add-custom-token').onclick=()=>{const address=$('token-search').value.trim();const chainId=$('custom-chain').value;if(!/^0x[\da-fA-F]{40}$/.test(address))return;const known=tokens.find(t=>t.address.toLowerCase()===address.toLowerCase()&&t.chainId===chainId);addToken(known||{id:`${chainId}:${address.toLowerCase()}`,address,chainId,symbol:'ERC-20',name:'Vlastní kontrakt',decimals:18,price:null});};
+ $('clear-tokens').onclick=()=>{state.selectedTokens=[];renderTokens();markDirty();};
+ $('all-chains').onclick=()=>{state.chainIds=state.chainIds.length===networks.length?[]:networks.map(n=>n.id);renderChains();markDirty();};
+ $('load-wallet-demo').onclick=()=>{$('wallet-addresses').value=demoAddresses().join('\n');run();};
+ $('guide-button').onclick=guide;$('help-button').onclick=guide;$('workspace-info').onclick=guide;
+ $('data-info').onclick=dataInfo;$('coverage-button').onclick=dataInfo;$('banner-info').onclick=dataInfo;
+ $('saved-searches').onclick=showSavedSearches;$('save-search').onclick=saveSearch;$('export-button').onclick=exportCSV;
+ $('menu-button').onclick=()=>$('sidebar').classList.toggle('open');
+ $('drawer-backdrop').onclick=closeDrawer;
+ $('analyze-selected').onclick=()=>{const addresses=[...state.selected];if(addresses.length>20){toast('Pro analýzu vyberte nejvýše 20 adres.');return;}setView('wallets');$('wallet-addresses').value=addresses.join('\n');run();};
+ $('clear-selection').onclick=()=>{state.selected.clear();renderResults();};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$('sidebar').classList.remove('open');}if(e.key==='Tab'&&!$('wallet-drawer').hidden){const focusable=[...$('wallet-drawer').querySelectorAll('button,a[href]')];const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+ document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}}));
+renderTokens();renderChains();renderResults();run();
+</script>
+</body>
+</html>
