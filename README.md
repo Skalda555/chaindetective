@@ -28,6 +28,8 @@ Soukromá publikace Sites nebyla dokončena: zdrojový server git.chatgpt-team.s
 
 ## Data a limity
 
+Vlastní kontrakty se při přidání přepnou do Live API. Například pro ZRO vložte `0x6985884c4392d348587b19cb9eaaf157f13271cd`, vyberte Ethereum a spusťte hledání. Název a ticker se doplní z metadat indexeru. Pokud takový dotaz přepnete zpět do Demo, aplikace místo nulového počtu držitelů zobrazí chybějící demo data a tlačítko pro skutečný sken. Ověřeno 14. října 2026: ZRO na Ethereum vrátilo 150 adres ze tří stran; nejde o úplný seznam držitelů.
+
 Podrobnosti o veřejných API, podporovaných sítích a rozsahu skenování jsou v `dist/README-data.md`. Demo data jsou syntetická a nepopisují skutečné držitele, zisky ani tržní aktivitu. Hodnoty v USD v demu jsou ilustrační.
 
 Ověření: `npm run check` a `npm test`. V prohlížeči byl ověřen demo průchod AND/OR, uložení dotazu a adresy, detail, navazující analýza a responzivní rozložení. Živý OR dotaz na ARB/WETH na Arbitrum vrátil 150 držitelů ARB ze 3 stran; WETH dotaz skončil timeoutem. Výsledky tak výslovně uvádějí částečné pokrytí. To neověřuje trvalou dostupnost dalších endpointů.

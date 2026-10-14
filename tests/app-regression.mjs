@@ -39,14 +39,45 @@ function harness() {
     setTimeout() { return 0; }, clearTimeout() {},
     localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) },
     data: { NETWORKS: [{ id: 'base', name: 'Base', explorer: 'https://base.blockscout.com' }],
-      TOKENS: [token], DEMO_WALLETS: [{ address: A }], searchHolders: request, analyzeWallets: request },
+      TOKENS: [token], DEMO_WALLETS: [{ address: A, holdings: [{...token,tokenId:token.id,amount:1}] }], searchHolders: request, analyzeWallets: request },
   });
-  vm.runInContext(source + '\nglobalThis.app = {state, run, setSource, setView, normalizeWallet, saveSearch, savedQueries, savedWallets, currentRows, toggleBookmark, renderResults};', context);
+  vm.runInContext(source + '\nglobalThis.app = {state, run, setSource, setView, normalizeWallet, saveSearch, savedQueries, savedWallets, currentRows, toggleBookmark, renderResults, addCustomToken};', context);
   const app = context.app, get = id => document.getElementById(id);
   Object.assign(app.state, { view: 'wallets', source: 'live', chainIds: ['base'], selectedTokens: [{ ...token }] });
   get('wallet-addresses').value = A;
   const clickQuery = id => events.get('click')({ target: { closest: () => ({ dataset: { loadQuery: String(id) } }) } });
   return { app, get, requests, clickQuery };
+}
+
+{
+  const {app,get,requests}=harness();
+  app.state.source='demo';app.state.view='screener';
+  app.state.selectedTokens=[{...token,id:`base:${B}`,address:B}];
+  await app.run();
+  assert.equal(requests.length,0,'custom contracts must not report demo zero holders');
+  assert.equal(app.state.result,null);
+  assert.match(get('empty-state').innerHTML,/use-live-api/);
+  assert.match(get('results-title').innerHTML,/—/);
+  get('use-live-api').onclick();
+  assert.equal(app.state.source,'live');
+  assert.equal(requests.length,1,'the explicit live action must start the real holder lookup');
+  requests[0].resolve({wallets:[],tokens:[]});
+  await Promise.resolve();
+}
+
+{
+  const {app,get,requests}=harness();
+  app.state.source='demo';app.state.view='screener';app.state.selectedTokens=[];
+  get('token-search').value=B;get('custom-chain').value='base';
+  app.addCustomToken();
+  assert.equal(app.state.source,'live','adding a custom contract must leave demo mode');
+  assert.equal(app.state.selectedTokens[0].decimals,null,'custom token decimals must come from live metadata');
+  assert.equal(requests.length,0,'adding a contract waits for the explicit scan');
+  const pending=app.run();
+  const liveToken={...app.state.selectedTokens[0],symbol:'ZRO',name:'LayerZero',decimals:18};
+  requests[0].resolve({wallets:[],tokens:[liveToken]});
+  await pending;
+  assert.equal(app.state.selectedTokens[0].symbol,'ZRO','live metadata must update the selected token chip');
 }
 
 {

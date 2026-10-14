@@ -109,6 +109,7 @@ function setView(view){
  renderResults();if(state.source==='demo'&&view!=='watchlist')run();
 }
 function demoAddresses(){return (data.DEMO_WALLETS||[]).slice(0,6).map(w=>w.address);}
+function unsupportedDemoTokens(){return state.selectedTokens.filter(t=>!(data.DEMO_WALLETS||[]).some(w=>(w.holdings||[]).some(h=>h.tokenId===tokenKey(t)&&h.amount>0)));}
 function normalizeWallet(w){
  const holdings=(w.holdings||[]).map(h=>{const meta=tokens.find(t=>tokenKey(t)===h.tokenId)||tokens.find(t=>t.address?.toLowerCase()===h.address?.toLowerCase()&&t.chainId===h.chainId)||{};return {...meta,...h,value:h.value??h.usdValue??h.totalValue??null};});
  const matched=(w.matchedTokens||[]).map(t=>typeof t==='string'?(tokens.find(x=>tokenKey(x)===t)||holdings.find(x=>tokenKey(x)===t)):t).filter(Boolean);
@@ -123,6 +124,7 @@ async function run(){
  let addresses=[];
  if(state.view==='screener'){
   if(!state.selectedTokens.length){setError('Přidejte alespoň jeden token nebo kontrakt.');return;}
+  if(state.source==='demo'&&unsupportedDemoTokens().length){state.runId++;state.controller?.abort();setBusy(false);state.result=null;state.dirty=true;renderResults();setError('Pro tento kontrakt nejsou demo data. Použijte Live API pro skutečné držitele.');return;}
   const missing=state.selectedTokens.filter(t=>!state.chainIds.includes(t.chainId));
   if(missing.length){setError(`Zapněte síť pro všechny vybrané tokeny: ${[...new Set(missing.map(t=>network(t.chainId).name))].join(', ')}.`);return;}
  }else{
@@ -138,6 +140,7 @@ async function run(){
   const options={chainIds:[...state.chainIds],source:state.source,signal:state.controller.signal,onProgress:p=>{if(runId===state.runId&&$('scan-progress'))$('scan-progress').textContent=typeof p==='string'?p:p.message||`${p.completed||0} / ${p.total||'…'}`;}};
   const result=state.view==='screener'?await data.searchHolders({...options,tokens:state.selectedTokens,match:state.match,minValue:0}):await data.analyzeWallets({...options,addresses});
   if(runId!==state.runId)return;
+  if(state.view==='screener'&&state.source==='live'){state.selectedTokens=state.selectedTokens.map(t=>(result.tokens||[]).find(r=>tokenKey(r)===tokenKey(t))||t);renderTokens();}
   state.result={...result,wallets:(result.wallets||[]).map(normalizeWallet),tokens:(result.tokens||[]).map(t=>({...t,totalValue:t.totalValue??t.value??null,holderCount:t.holderCount??t.holders?.length??0,share:t.share??0}))};
   state.result.fetchedAt=new Date().toISOString();
   if(result.warnings?.length)toast(`Sken dokončen s upozorněním. Podrobnosti najdete v metodice.`);
@@ -205,13 +208,14 @@ function renderResults(){
  if(warnings.length){const failed=(state.result?.coverage?.details||[]).filter(d=>d.status==='error'||d.status==='unsupported').length;$('scan-notice').innerHTML=`${icon('help')}<span><strong>Omezení výsledku.</strong> ${failed?`${failed} dotazů se nepodařilo načíst. `:''}Výsledek pokrývá pouze načtená data.</span><button class="text-button" id="notice-details">${warnings.length} upozornění ↗</button>`;$('notice-details').onclick=dataInfo;}
  const walletMode=state.view==='wallets';const watch=state.view==='watchlist';const rows=filteredRows();state.rows=rows;
  const total=rows.length;const pages=Math.max(1,Math.ceil(total/state.pageSize));state.page=Math.min(state.page,pages);const start=(state.page-1)*state.pageSize;const visible=rows.slice(start,start+state.pageSize);
- $('results-title').innerHTML=`${walletMode?'Nejvíce držené tokeny':watch?'Uložené peněženky':'Nalezené peněženky'} <span class="count-badge" id="result-count">${number(total)}</span>`;
+ $('results-title').innerHTML=`${walletMode?'Nejvíce držené tokeny':watch?'Uložené peněženky':'Nalezené peněženky'} <span class="count-badge" id="result-count">${state.result||watch?number(total):'—'}</span>`;
  $('results-subtitle').textContent=watch?'Uložené snapshoty · zdroj: '+(state.source==='demo'?'Demo':'Live API'):walletMode?'Souhrn ERC-20 pozic ze zadaných adres':`${state.match==='all'?'Drží všechny vybrané tokeny':'Drží alespoň jeden vybraný token'} · ${state.source==='demo'?'demo dataset':'načtené stránky indexeru'}`;
  $('table-head').innerHTML=walletMode?'<tr><th>#</th><th>TOKEN / KONTRAKT</th><th>SÍŤ</th><th>DRŽITELÉ</th><th>PODÍL ADRES</th><th class="th-value">HODNOTA POZIC</th><th></th></tr>':'<tr><th><input type="checkbox" id="select-all" aria-label="Vybrat všechny zobrazené adresy"></th><th>PENĚŽENKA</th><th>SÍTĚ</th><th>VYBRANÉ TOKENY</th><th class="th-value">HODNOTA POZIC</th><th>POMĚR POZIC</th><th></th></tr>';
  $('table-body').innerHTML=visible.map((r,i)=>walletMode?tokenRow(r,start+i):walletRow(r)).join('');
  $('empty-state').hidden=!!total;
  if(!total)$('empty-state').innerHTML=`${icon(watch?'star':'search')}<strong>${!state.result&&!watch?(state.dirty?'Dotaz je připravený.':'Začněte svým průzkumem.'):watch?'Watchlist čeká na první adresu.':'Žádné výsledky pro tento výběr.'}</strong><p>${!state.result&&!watch?'Vyberte tokeny nebo vložte adresy a spusťte analýzu.':watch?'Uložte zajímavé peněženky ikonou záložky v tabulce. Zobrazují se pouze záznamy aktuálně vybraného zdroje dat.':state.source==='demo'?'Demo zná pouze ukázkové kontrakty a adresy. Změňte filtry nebo použijte Live API pro vlastní vstupy.':'Zkontrolujte zadané sítě, filtry a metodiku. Výsledek se vztahuje pouze na úspěšně načtená data.'}</p>${watch?'<button class="subtle-button" id="empty-go-screener">Otevřít token screener →</button>':''}`;
  $('empty-go-screener')?.addEventListener('click',()=>setView('screener'));
+ if(state.source==='demo'&&state.view==='screener'&&unsupportedDemoTokens().length){$('empty-state').hidden=false;$('empty-state').innerHTML=`${icon('database')}<strong>Pro tento kontrakt nejsou demo data.</strong><p>Demo obsahuje pouze ukázkové pozice. Skutečné držitele vlastního kontraktu načtete přes Live API na vybrané síti.</p><button class="primary-button" id="use-live-api">Načíst skutečné držitele · Live API ↗</button>`;$('use-live-api').onclick=()=>{setSource('live');run();};}
  $('table-range').textContent=total?`${start+1}–${Math.min(start+state.pageSize,total)} z ${number(total)} ${walletMode?'tokenů':'peněženek'}`:'0 výsledků';
  $('page-number').textContent=state.page;$('previous-page').disabled=state.page===1;$('next-page').disabled=state.page>=pages;
  $('export-button').disabled=!total;$('save-search').disabled=!state.result;
@@ -254,6 +258,16 @@ function renderTokenOptions(){
  $('custom-token-fields').hidden=!/^0x[\da-f]{40}$/i.test(q);
 }
 function addToken(t){if(state.selectedTokens.length>=5){toast('Lze vybrat nejvýše 5 tokenů.');return;}if(state.selectedTokens.some(x=>tokenKey(x)===tokenKey(t))){toast('Tento kontrakt už je vybraný.');return;}state.selectedTokens.push(t);if(!state.chainIds.includes(t.chainId))state.chainIds.push(t.chainId);renderTokens();renderChains();$('token-dialog').close();markDirty();}
+function addCustomToken(){
+ const address=$('token-search').value.trim(),chainId=$('custom-chain').value;
+ if(!/^0x[\da-fA-F]{40}$/.test(address))return;
+ if(network(chainId).live===false){toast('Pro tuto síť zatím není dostupný živý adaptér.');return;}
+ if(state.selectedTokens.length>=5){toast('Lze vybrat nejvýše 5 tokenů.');return;}
+ const known=tokens.find(t=>t.address.toLowerCase()===address.toLowerCase()&&t.chainId===chainId);
+ const t=known||{id:`${chainId}:${address.toLowerCase()}`,address:address.toLowerCase(),chainId,symbol:'ERC-20',name:'Vlastní kontrakt',decimals:null,price:null};
+ if(state.selectedTokens.some(x=>tokenKey(x)===tokenKey(t))){toast('Tento kontrakt už je vybraný.');return;}
+ setSource('live');addToken(t);toast('Kontrakt přidán do Live API. Spusťte hledání peněženek.');
+}
 function saveSearch(){
  if(!state.result)return;
  const q={id:Date.now(),source:state.source,view:state.view,tokens:state.selectedTokens.map(t=>({...t})),chainIds:[...state.chainIds],match:state.match,addresses:$('wallet-addresses').value,date:new Date().toISOString()};
@@ -293,7 +307,7 @@ document.addEventListener('change',e=>{if(e.target.dataset.selectWallet){e.targe
  $('wallet-addresses').addEventListener('input',()=>{state.runId++;state.controller?.abort();setBusy(false);state.result=null;state.dirty=true;renderResults();});
  $('add-token').onclick=()=>{$('token-search').value='';renderTokenOptions();$('token-dialog').showModal();$('token-search').focus();};$('token-search').oninput=renderTokenOptions;
  $('custom-chain').innerHTML=networks.map(n=>`<option value="${esc(n.id)}">${esc(n.name)}</option>`).join('');
- $('add-custom-token').onclick=()=>{const address=$('token-search').value.trim();const chainId=$('custom-chain').value;if(!/^0x[\da-fA-F]{40}$/.test(address))return;const known=tokens.find(t=>t.address.toLowerCase()===address.toLowerCase()&&t.chainId===chainId);addToken(known||{id:`${chainId}:${address.toLowerCase()}`,address,chainId,symbol:'ERC-20',name:'Vlastní kontrakt',decimals:18,price:null});};
+ $('add-custom-token').onclick=addCustomToken;
  $('clear-tokens').onclick=()=>{state.selectedTokens=[];renderTokens();markDirty();};
  $('all-chains').onclick=()=>{state.chainIds=state.chainIds.length===networks.length?[]:networks.map(n=>n.id);renderChains();markDirty();};
  $('load-wallet-demo').onclick=()=>{$('wallet-addresses').value=demoAddresses().join('\n');run();};
