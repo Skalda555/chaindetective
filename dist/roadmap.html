@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c0f12">
+  <meta name="description" content="Roadmapa ChainDetective: hotové funkce, aktuální priority a další rozvoj.">
+  <title>Roadmapa · ChainDetective</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="roadmap-page">
+  <header class="roadmap-header"><a href="./" class="roadmap-brand">◎ chaindetective</a><a href="./" class="subtle-button">← Zpět do aplikace</a></header>
+  <main class="roadmap-main">
+    <div class="eyebrow"><span></span> PLÁN VÝVOJE</div>
+    <h1>Roadmapa<span>.</span></h1>
+    <p class="roadmap-lead">Nejdřív spolehlivá data a práce s peněženkami. Pak hlubší souvislosti.</p>
+    <p class="roadmap-meta">Aktualizováno 14. října 2026 · Pracovní plán bez pevných termínů. Priority upravujeme podle zkušeností z používání.</p>
+    <nav class="roadmap-jumps" aria-label="Sekce roadmapy"><a href="#done">Hotovo</a><a href="#next">Nejbližší priority</a><a href="#later">Další rozvoj</a><a href="#prices">Odložené ceny</a></nav>
+
+    <section id="next" class="roadmap-section" aria-labelledby="next-title">
+      <div class="roadmap-section-heading"><span class="roadmap-badge next">PRIORITA</span><h2 id="next-title">Nejbližší kroky</h2></div>
+      <div class="roadmap-grid">
+        <article class="roadmap-card"><span class="roadmap-step">01 / KVALITA DAT</span><h3>Ověření skutečných portfolií</h3><p>Ověřit Alchemy skutečným API klíčem, porovnat výsledky s Blockscoutem a doladit chybové stavy i pokračování skenů.</p><small>Hotovo bude znamenat: ověřené zůstatky, původ dat a srozumitelně uvedená omezení.</small></article>
+        <article class="roadmap-card"><span class="roadmap-step">02 / POKRYTÍ</span><h3>Další sítě a rychlejší průniky</h3><p>Prověřit Robinhood Chain a další požadované sítě. Otestovat Chainbase nebo Bitquery na průnicích více tokenů; před integrací ověřit pokrytí, úplnost a cenu.</p><small>Výzkum a ověření. Nepřipojené služby v roletce zatím nelze použít.</small></article>
+        <article class="roadmap-card"><span class="roadmap-step">03 / SMART WALLETS</span><h3>Rozvíjet vlastní seznam adres</h3><p>Navázat na ruční evidenci: import exportovaného JSON, pohodlnější skupiny a hromadná práce s adresami.</p><small>Uživatelské hodnocení peněženky oddělovat od automaticky ověřené výkonnosti.</small></article>
+      </div>
+    </section>
+
+    <section id="done" class="roadmap-section" aria-labelledby="done-title">
+      <div class="roadmap-section-heading"><span class="roadmap-badge done">HOTOVO</span><h2 id="done-title">Na čem už stavíme</h2></div>
+      <ul class="roadmap-done-list">
+        <li><strong>Tokeny → peněženky</strong><span>Až 5 kontraktů, průnik AND a sjednocení OR; držitelé z Blockscoutu.</span></li>
+        <li><strong>Serverové skeny a SQLite</strong><span>Stránkování bez původního limitu 150 držitelů, ukládání průběhu, pozastavení a pokračování po restartu.</span></li>
+        <li><strong>Wallet Profiler</strong><span>Agregace ERC-20 pozic až 20 adres, filtrování a export CSV.</span></li>
+        <li><strong>Smart wallets</strong><span>Ruční i hromadné zadávání, poznámky, štítky, hodnocení a export JSON.</span></li>
+        <li><strong>Výběr zdroje</strong><span>Automaticky nebo Blockscout; adaptér Alchemy s dostupnou zálohou Blockscout. Alchemy čeká na ověření skutečným klíčem.</span></li>
+        <li><strong>Práce s výsledky</strong><span>Detail adresy, lokální watchlist, uložené dotazy a označení částečných výsledků. Hlavní aplikace pracuje bez demo přepínače.</span></li>
+      </ul>
+    </section>
+
+    <section id="later" class="roadmap-section" aria-labelledby="later-title">
+      <div class="roadmap-section-heading"><span class="roadmap-badge">PLÁNOVÁNO</span><h2 id="later-title">Další rozvoj</h2></div>
+      <div class="roadmap-grid">
+        <article class="roadmap-card"><span class="roadmap-step">SLEDOVÁNÍ ADRES</span><h3>Změny pozic Smart wallets</h3><p>Ukládat časové snapshoty a rozlišovat nové tokeny, navýšení a snížení zůstatků. Samotný převod tokenů neoznačovat automaticky jako nákup či prodej.</p></article>
+        <article id="socials" class="roadmap-card"><span class="roadmap-step">SOCIÁLNÍ KONTEXT</span><h3>Socials / Moni + DataBot</h3><p>Moni je připojené: profil účtu na X, Smart Mentions za 7 dní a významní sledující, s cache a místním rozpočtem. Další krok: watchlist účtů, nové projekty a globální feed; ověřit vazby na kontrakty.</p><small>Profil a oba seznamy živě ověřeny na @ethereum. DataBot zatím není připojený.</small></article>
+        <article id="capital-flows" class="roadmap-card"><span class="roadmap-step">SOUVISLOSTI</span><h3>Toky kapitálu</h3><p>Historie převodů, protistrany a vazby mezi sledovanými adresami. Vyžaduje spolehlivý zdroj transakční historie.</p></article>
+        <article id="alerts" class="roadmap-card"><span class="roadmap-step">UDÁLOSTI</span><h3>Upozornění</h3><p>Upozornění na změny držených tokenů a nové společné pozice sledovaných adres. Způsob doručování a interval kontrol teprve zvolíme.</p></article>
+        <article class="roadmap-card"><span class="roadmap-step">VÝZKUM / ZÁVISLOSTI</span><h3>Ziskovost a Smart Money metriky</h3><p>Prověřit Codex a metodiku realizovaného i nerealizovaného PnL. Výpočet navazuje na historii obchodů a cen; musí řešit převody, neznámé pořizovací náklady a gas.</p><small>PnL zatím není implementované. Historické ceny jsou součástí odložené cenové vrstvy.</small></article>
+      </div>
+    </section>
+
+    <section id="prices" class="roadmap-section roadmap-deferred" aria-labelledby="prices-title">
+      <div class="roadmap-section-heading"><span class="roadmap-badge deferred">ODLOŽENO</span><h2 id="prices-title">Ceny a tržní data</h2></div>
+      <p>Na přání uživatele mají nyní nižší prioritu. Současné ocenění zůstává u dat dostupných od Blockscoutu nebo Alchemy.</p>
+      <div class="roadmap-grid">
+        <article class="roadmap-card"><h3>DexScreener</h3><p>Aktuální DEX ceny, likvidita, objemy a hlavní obchodní páry. Před oceněním vyhodnotit kvalitu poolu a správnou síť i kontrakt.</p><a href="https://docs.dexscreener.com/api/reference" target="_blank" rel="noopener noreferrer">Dokumentace ↗</a></article>
+        <article class="roadmap-card"><h3>DeFiLlama</h3><p>Doplnění a porovnání cen, historie a později přehled TVL, objemů a příjmů protokolů. Rozsah bezplatných endpointů ověřit před integrací.</p><a href="https://api-docs.defillama.com/" target="_blank" rel="noopener noreferrer">Dokumentace ↗</a></article>
+        <article class="roadmap-card"><h3>Samostatná cenová vrstva</h3><p>Ukládat cenu, zdroj, čas a případný pool. Aktualizovat ocenění bez nového stahování zůstatků, zachovat původní snapshot a rozlišit neznámé či málo likvidní pozice.</p><small>Nové cenové služby zatím nejsou připojené.</small></article>
+      </div>
+    </section>
+    <footer class="roadmap-footer">ChainDetective · Jeden průběžně aktualizovaný plán. Stav „plánováno“ neznamená dostupnou funkci.</footer>
+  <section class="panel"><h2>Hotovo · Socials · 15. 10. 2026</h2><p>Objevování projektů Moni s filtrem sítě a šestihodinovou cache. Sledované účty na X uložené v místní SQLite databázi. Další krok: globální feed a mindshare.</p></section></main>
+</body>
+</html>

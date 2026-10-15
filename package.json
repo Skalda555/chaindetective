@@ -1,0 +1,17 @@
+{
+  "name": "chaindetective",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Onchain research workspace for Ethereum and L2 token holders",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "check": "node --check dist/app.js && node --check dist/data.js && node --check dist/smart-wallets.js && node --check server.mjs && node --check server/provider.mjs && node --check server/scans.mjs && node --check server/smart-wallets.mjs && node --check server/wallet-provider.mjs && node --check server/moni.mjs && node --check dist/socials.js",
+    "test": "node tests/app-regression.mjs && node tests/data-regression.mjs && node tests/server-regression.mjs && node tests/smart-wallets-regression.mjs && node tests/wallet-provider-regression.mjs && node tests/moni-regression.mjs",
+    "bundle": "node scripts/bundle.mjs"
+  }
+}
