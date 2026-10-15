@@ -22,6 +22,21 @@ async function until(check){const deadline=Date.now()+3000;while(!check()){if(Da
  try{const result=e.result(id);assert.deepEqual(result.job.query.chainIds,['linea']);assert.match(result.warnings.join(' '),/Linea/,'existing legacy scans still render with their archived network name');}finally{await e.close();}
 }
 
+// Spam classification filters the server-side page/count only; SQLite scan rows remain intact.
+{
+ const e=new ScanEngine({filename:':memory:',provider:{metadata,async page(){return {items:[
+  {token:{address_hash:TA,decimals:'0',symbol:'CLAIM',name:'Claim at example.com'},value:'2'},
+  {token:{address_hash:TB,decimals:'0',symbol:'WETH',name:'Wrapped Ether'},value:'3'},
+ ],cursor:null};}}});
+ try{
+  const job=e.start({kind:'wallets',chainIds:['base'],addresses:[A]});await finished(e,job.id);
+  const hidden=e.result(job.id,{view:'tokens'});assert.equal(hidden.pagination.total,1);assert.equal(hidden.tokens[0].symbol,'WETH');
+  const shown=e.result(job.id,{view:'tokens',hideSpam:false});assert.equal(shown.pagination.total,2);const spam=shown.tokens.find(t=>t.symbol==='CLAIM');assert.equal(spam.likelySpam,true);assert.ok(spam.spamReasons.includes('url-in-name'));assert.ok(spam.spamReasons.includes('keyword:claim'));
+  assert.equal(e.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(job.id).n,2,'toggling spam visibility never deletes saved positions');
+  assert.equal(e.result(job.id).wallets[0].holdings.length,2,'wallet result and scan history retain the original raw holdings');
+ }finally{await e.close();}
+}
+
 // A shared owner appears only on page four of both tokens, beyond the old 150 limit.
 {
  let calls=0;
@@ -44,6 +59,17 @@ async function until(check){const deadline=Date.now()+3000;while(!check()){if(Da
 // A committed page and cursor survive pause, provider failure, and a server restart.
 const temp=await mkdtemp(path.join(os.tmpdir(),'chaindetective-tests-'));
 try{
+ // A live wallet scan exposes completed-network aggregates while another network is still running.
+ {
+  let releaseBase,baseCalls=0;const baseGate=new Promise(resolve=>{releaseBase=resolve;});
+  const live=new ScanEngine({filename:':memory:',provider:{metadata:async task=>({id:`${task.chainId}:${TA}`,chainId:task.chainId,address:TA,symbol:task.chainId==='base'?'BASE':'ETH',name:'Live token',decimals:0}),async page(task){const item={token:{address_hash:TA,decimals:'0',symbol:task.chainId==='base'?'BASE':'ETH',name:'Live token',exchange_rate:null},value:'3'};if(task.chainId==='base'){baseCalls++;if(baseCalls===1)return {items:[item],cursor:{page:2}};await baseGate;}return {items:[item],cursor:null};}}});
+  try{
+   const job=live.start({kind:'wallets',chainIds:['base','ethereum'],addresses:[A]});await until(()=>baseCalls===2&&live.store.tasks(job.id).some(t=>t.chainId==='ethereum'&&t.status==='complete'));
+   const inFlight=live.result(job.id,{view:'tokens'});assert.equal(inFlight.job.status,'running','reading a running result must not change the scan state');assert.equal(inFlight.job.progress.completedTasks,1);assert.equal(inFlight.job.progress.totalTasks,2);assert.equal(inFlight.tokens.length,1);assert.equal(inFlight.tokens[0].chainId,'ethereum');assert.match(inFlight.warnings.join(' '),/Průběžný výsledek/);assert.equal(inFlight.coverage.networks.find(n=>n.chainId==='ethereum').analyzed,1);assert.equal(inFlight.coverage.networks.find(n=>n.chainId==='base').analyzed,0);
+   const walletSnapshot=live.result(job.id);assert.equal(walletSnapshot.wallets[0].holdings.length,1,'positions from an incomplete task are excluded from the live wallet result');assert.equal(walletSnapshot.wallets[0].holdings[0].chainId,'ethereum');
+   releaseBase();await finished(live,job.id);const completed=live.result(job.id,{view:'tokens'});assert.equal(completed.job.status,'complete');assert.equal(completed.tokens.length,2,'the result includes new data after the remaining task completes');assert.equal(live.store.describe(job.id).progress.completedTasks,2);
+  }finally{releaseBase();await live.close();}
+ }
  const filename=path.join(temp,'resume.sqlite');let firstCalls=0;
  const firstProvider={metadata,async page(task,signal){firstCalls++;if(!task.cursor)return {items:[{address:{hash:A},value:'2'}],cursor:{page:2}};await delay(10000,undefined,{signal});throw Error('unreachable');}};
  const e=new ScanEngine({filename,provider:firstProvider});const j=e.start({...query,tokens:[query.tokens[0]]});
@@ -101,6 +127,7 @@ try{
   // Active writers must be rejected even during the pause/abort settling window.
   app.scans.provider={metadata,async page(task,signal){await delay(10000,undefined,{signal});return {items:[],cursor:null};}};
   const running=app.scans.start({...query,tokens:[query.tokens[0]],refresh:true});
+  const liveResult=await fetch(origin+'/'+ 'api/scans/'+running.id+'/result?view=tokens').then(async response=>({status:response.status,body:await response.json()}));assert.equal(liveResult.status,200);assert.equal(liveResult.body.job.status,'running','GET result must not pause or mark the job partial');
   assert.equal((await fetch(origin+'/api/scans/'+running.id,{method:'DELETE'})).status,409);
   const stopping=app.scans.pause(running.id);
   assert.throws(()=>app.scans.remove(running.id),error=>error.status===409);

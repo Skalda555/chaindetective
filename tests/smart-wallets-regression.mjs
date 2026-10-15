@@ -3,6 +3,7 @@ import {mkdtemp,rm} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {createApp} from '../server.mjs';
+import {ZERO_ADDRESS} from '../dist/data.js';
 
  const A='0x11111111111111111111111111111111111111aA',B='0x2222222222222222222222222222222222222222',C='0x3333333333333333333333333333333333333333',D='0x4444444444444444444444444444444444444444',E='0x5555555555555555555555555555555555555555',F='0x6666666666666666666666666666666666666666',G='0x7777777777777777777777777777777777777777',H='0x8888888888888888888888888888888888888888';
 const temp=await mkdtemp(path.join(os.tmpdir(),'chaindetective-wallet-tests-')),dbPath=path.join(temp,'wallets.sqlite');
@@ -13,6 +14,9 @@ try{
  const call=async(method,route='',body)=>{const r=await fetch(origin+'/api/smart-wallets'+route,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});return {status:r.status,body:await r.json()};};
  const record={name:'Výzkum <script>',tags:['DEX trader','DEX trader'],source:'Vlastní průzkum',note:'Nákup před růstem; ověřit historii.',status:'candidate',chainIds:['base','ethereum','base']};
  assert.deepEqual((await call('GET')).body.wallets,[]);
+ assert.equal((await call('POST','/import-preview',{entries:[{address:ZERO_ADDRESS}]})).status,400,'zero address is rejected during Smart wallet import preview');
+ assert.match((await call('POST','/import-preview',{entries:[{address:ZERO_ADDRESS}]})).body.error,/Neplatná systémová adresa/);
+ assert.equal((await call('POST','',{...record,addresses:[ZERO_ADDRESS]})).status,400,'zero address cannot enter the Smart wallet database');
  const preview=await call('POST','/import-preview',{entries:[{address:A},{address:B}]});assert.deepEqual(preview.body,{newCount:2,existingCount:0});
  const added=await call('POST','',{...record,addresses:[A,A.toLowerCase(),B]});assert.equal(added.status,201);assert.deepEqual(added.body,{created:[A.toLowerCase(),B],updated:[],unchanged:[]});
  let rows=(await call('GET')).body.wallets;assert.equal(rows.length,2);assert.ok(rows.some(w=>w.address===A.toLowerCase()));assert.deepEqual(rows[0].chainIds,['base','ethereum']);assert.deepEqual(rows[0].tags,['DEX trader']);
@@ -36,6 +40,13 @@ try{
  assert.deepEqual(addNetwork.body,{created:[],updated:[B],unchanged:[]});rows=(await call('GET')).body.wallets;assert.deepEqual(rows.find(w=>w.address===B).chainIds,['arbitrum','base','ethereum','optimism']);
  const replaceNetwork=await call('POST','',{...record,name:'',tags:[],source:'',note:'',status:'reviewed',chainIds:['optimism'],entries:[{address:B}],updateExisting:true,tagsMode:'add',networksMode:'replace'});
  assert.deepEqual(replaceNetwork.body,{created:[],updated:[B],unchanged:[]});assert.deepEqual((await call('GET')).body.wallets.find(w=>w.address===B).chainIds,['optimism']);
+ const seedForTagMerge=await call('POST','',{...record,name:'Original merge wallet',tags:['Moni Wizards'],source:'Original source',note:'Original note',status:'reviewed',chainIds:['base','ethereum'],entries:[{address:F}]});assert.deepEqual(seedForTagMerge.body.created,[F]);
+ const tagMerge=await call('POST','',{...record,name:'Imported name must be ignored',tags:['AlfaDAO','moni wizards','Fund','Whale'],source:'Imported source',note:'Imported note',status:'excluded',chainIds:['arbitrum'],entries:[{address:F},{address:H,name:'New combined wallet'}],conflictMode:'merge-tags'});
+ assert.deepEqual(tagMerge.body,{created:[H],updated:[F],unchanged:[]});rows=(await call('GET')).body.wallets;const mergedWallet=rows.find(w=>w.address===F),newCombined=rows.find(w=>w.address===H);
+ assert.deepEqual(mergedWallet.tags,['Moni Wizards','AlfaDAO','Fund','Whale']);assert.equal(mergedWallet.name,'Original merge wallet');assert.equal(mergedWallet.source,'Original source');assert.equal(mergedWallet.note,'Original note');assert.equal(mergedWallet.status,'reviewed');assert.deepEqual(mergedWallet.chainIds,['base','ethereum']);
+ assert.equal(newCombined.name,'New combined wallet');assert.deepEqual(newCombined.tags,['AlfaDAO','moni wizards','Fund','Whale']);assert.equal(newCombined.source,'Imported source');assert.equal(newCombined.status,'excluded');assert.deepEqual(newCombined.chainIds,['arbitrum']);
+ const repeatedTagMerge=await call('POST','',{...record,tags:['alfadao','MONI WIZARDS'],entries:[{address:F}],conflictMode:'merge-tags'});assert.deepEqual(repeatedTagMerge.body,{created:[],updated:[],unchanged:[F]});assert.deepEqual((await call('GET')).body.wallets.find(w=>w.address===F).tags,['Moni Wizards','AlfaDAO','Fund','Whale']);
+ assert.deepEqual((await call('DELETE','',{addresses:[F,H]})).body,{deleted:[F,H],missing:[]});
  const duplicateImport=await call('POST','',{...record,entries:[{address:G,name:'First'},{address:G,name:'Ignored'}],updateExisting:true});assert.deepEqual(duplicateImport.body,{created:[],updated:[G],unchanged:[]});assert.equal((await call('GET')).body.wallets.filter(w=>w.address===G).length,1);
  await call('PATCH','',{addresses:[E],changes:{tags:{mode:'replace',values:Array.from({length:12},(_,i)=>`tag-${i}`)}}});const importAtomicFailure=await call('POST','',{...record,name:'Must rollback',tags:['overflow'],source:'',note:'',chainIds:['base'],entries:[{address:H},{address:A},{address:E}],updateExisting:true,tagsMode:'add'});
  assert.equal(importAtomicFailure.status,400);rows=(await call('GET')).body.wallets;assert.equal(rows.some(w=>w.address===H),false,'failed import rolls back newly inserted rows');assert.equal(rows.find(w=>w.address===A.toLowerCase()).name,'Arthur Hayes','failed import rolls back earlier updates');

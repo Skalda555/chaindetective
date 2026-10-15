@@ -2,7 +2,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
-import {NETWORKS,getNetwork,isAddress,aggregateHoldings} from '../dist/data.js';
+import {NETWORKS,getNetwork,isAddress,isSystemWalletAddress,aggregateHoldings,classifyTokenSpam} from '../dist/data.js';
 import {decodeToken,decodeHolding} from './provider.mjs';
 import {WalletProviderRouter} from './wallet-provider.mjs';
 
@@ -25,8 +25,11 @@ export function validateQuery(input){
   query.tokens=[...new Map(input.tokens.map(t=>{if(!isAddress(t.address)||!chainIds.includes(t.chainId))throw new Error('Neplatný kontrakt nebo jeho síť.');const address=t.address.toLowerCase();return [`${t.chainId}:${address}`,{chainId:t.chainId,address}];})).values()].sort((a,b)=>`${a.chainId}:${a.address}`.localeCompare(`${b.chainId}:${b.address}`));
  }else{
   if(!Array.isArray(input.addresses)||!input.addresses.length||input.addresses.some(a=>!isAddress(a)))throw new Error('Vložte alespoň jednu platnou adresu.');
-  query.addresses=[...new Set(input.addresses.map(a=>a.toLowerCase()))].sort();
-  if(query.addresses.length>SCAN_CONFIG.maxWallets)throw new Error(`Jeden sken může obsahovat nejvýše ${SCAN_CONFIG.maxWallets} unikátních peněženek.`);
+  const submitted=[...new Set(input.addresses.map(a=>a.toLowerCase()))].sort();
+  if(submitted.length>SCAN_CONFIG.maxWallets)throw new Error(`Jeden sken může obsahovat nejvýše ${SCAN_CONFIG.maxWallets} unikátních peněženek.`);
+  query.excludedSystemAddresses=submitted.filter(isSystemWalletAddress);
+  query.addresses=submitted.filter(address=>!isSystemWalletAddress(address));
+  if(!query.addresses.length)throw new Error('Neplatná systémová adresa (zero address). Nebyla vytvořena žádná úloha peněženka × síť.');
   const inputMetadata=Array.isArray(input.walletMetadata)?input.walletMetadata:[];
   query.walletMetadata=[...new Map(inputMetadata.filter(w=>w&&isAddress(w.address)&&query.addresses.includes(w.address.toLowerCase())).map(w=>[w.address.toLowerCase(),{
    address:w.address.toLowerCase(),name:typeof w.name==='string'?w.name.trim().slice(0,120):'',tags:[...new Set((Array.isArray(w.tags)?w.tags:[]).filter(t=>typeof t==='string').map(t=>t.trim().slice(0,64)).filter(Boolean))].slice(0,30),status:['candidate','reviewed','excluded'].includes(w.status)?w.status:null
@@ -59,7 +62,9 @@ export class ScanStore{
   const all=compact?null:this.tasks(id),tasks=compact?this.summarizeWalletTasks(id):all;
   const positions=this.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(id).n;
   const progress=compact?this.db.prepare('SELECT COALESCE(SUM(pages),0) pages FROM tasks WHERE scan_id=?').get(id).pages:all.reduce((s,t)=>s+t.pages,0);
-  return {id,status:row.status,query,createdAt:row.created_at,updatedAt:row.updated_at,finishedAt:row.finished_at,message:row.message,revision:row.revision,pages:progress,positions,taskCount:count,tasks:tasks.map(t=>({key:t.task_key,kind:t.kind,chainId:t.chainId,address:t.address,provider:t.provider,fallbackUsed:!!t.fallback_from,fallbackFrom:t.fallback_from, fallbackReason:t.fallback_reason,asOf:t.as_of,status:t.status,pages:t.pages,complete:t.status==='complete',invalidRows:t.invalid_rows,error:t.error,token:t.metadata,nextPageAvailable:t.status!=='complete',...(t.taskCount?{taskCount:t.taskCount,counts:t.counts}: {})}))};
+  const completedTasks=this.db.prepare("SELECT COUNT(*) AS n FROM tasks WHERE scan_id=? AND status='complete'").get(id).n;
+  const completedWallets=query.kind==='wallets'?this.db.prepare("SELECT COUNT(*) AS n FROM (SELECT address FROM tasks WHERE scan_id=? GROUP BY address HAVING SUM(CASE WHEN status='complete' THEN 1 ELSE 0 END)=?)").get(id,query.chainIds.length).n:0;
+  return {id,status:row.status,query,createdAt:row.created_at,updatedAt:row.updated_at,finishedAt:row.finished_at,message:row.message,revision:row.revision,pages:progress,positions,taskCount:count,progress:{completedTasks,totalTasks:count,completedWallets,totalWallets:query.kind==='wallets'?query.addresses.length:0},tasks:tasks.map(t=>({key:t.task_key,kind:t.kind,chainId:t.chainId,address:t.address,provider:t.provider,fallbackUsed:!!t.fallback_from,fallbackFrom:t.fallback_from, fallbackReason:t.fallback_reason,asOf:t.as_of,status:t.status,pages:t.pages,complete:t.status==='complete',invalidRows:t.invalid_rows,error:t.error,token:t.metadata,nextPageAvailable:t.status!=='complete',...(t.taskCount?{taskCount:t.taskCount,counts:t.counts}: {})}))};
  }
  summarizeWalletTasks(id){
   return this.db.prepare(`SELECT chain_id,provider,fallback_from,status,COUNT(*) task_count,SUM(pages) pages,SUM(invalid_rows) invalid_rows,MAX(as_of) as_of,MIN(error) error,MIN(fallback_reason) fallback_reason
@@ -160,25 +165,26 @@ export class ScanEngine{
    db.exec('COMMIT');
   }catch(error){db.exec('ROLLBACK');throw error;}
  }
- result(id,{offset=0,limit=100,revision,view='wallets',sort='holders',minHolders=0,minShare=0,chainId='',search=''}={}){
+ result(id,{offset=0,limit=100,revision,view='wallets',sort='holders',minHolders=0,minShare=0,chainId='',search='',hideSpam=true}={}){
   const job=this.store.describe(id);if(!job)throw new Error('Sken nebyl nalezen.');
-  if(job.status==='running'){const error=new Error('Pro otevření průběžných výsledků sken nejprve pozastavte.');error.status=409;throw error;}
   if(revision!==undefined&&Number(revision)!==job.revision){const error=new Error('Výsledky se změnily. Otevřete sken znovu.');error.status=409;throw error;}
   offset=Math.max(0,Math.floor(Number(offset)||0));limit=Math.min(200,Math.max(1,Math.floor(Number(limit)||100)));
-  if(job.query.kind==='wallets'&&view==='tokens')return this.tokenResults(id,job,{offset,limit,revision,sort,minHolders,minShare,chainId,search});
+  if(job.query.kind==='wallets'&&view==='tokens')return this.tokenResults(id,job,{offset,limit,revision,sort,minHolders,minShare,chainId,search,hideSpam});
   const db=this.store.db,query=job.query,required=query.kind==='holders'&&query.match==='all'?query.tokens.length:1;
   const grouped='SELECT owner FROM positions WHERE scan_id=? GROUP BY owner HAVING COUNT(DISTINCT token_id)>=?';
   const taskRows=this.store.tasks(id);
   const successful=query.kind==='wallets'?query.addresses.filter(address=>taskRows.some(t=>t.address===address&&t.status==='complete')):null;
   const total=successful?successful.length:db.prepare(`SELECT COUNT(*) AS n FROM (${grouped})`).get(id,required).n;
   const owners=successful?successful.slice(offset,offset+limit):db.prepare(`${grouped} ORDER BY owner LIMIT ? OFFSET ?`).all(id,required,limit,offset).map(r=>r.owner);
-  const rows=owners.length?db.prepare(`SELECT owner,holding FROM positions WHERE scan_id=? AND owner IN (${owners.map(()=>'?').join(',')}) ORDER BY owner,token_id`).all(id,...owners):[];
+  const rows=owners.length?db.prepare(`SELECT p.owner,p.holding FROM positions p JOIN tasks t ON t.scan_id=p.scan_id AND t.task_key=p.task_key WHERE p.scan_id=? AND t.status='complete' AND p.owner IN (${owners.map(()=>'?').join(',')}) ORDER BY p.owner,p.token_id`).all(id,...owners):[];
   const map=new Map(owners.map(address=>[address,{address,label:null,isDemo:false,holdings:[]} ]));
   for(const r of rows)map.get(r.owner).holdings.push(parse(r.holding));
   const metadata=new Map((query.walletMetadata||[]).map(w=>[w.address,w]));
   const wallets=[...map.values()].map(w=>({...w,...(metadata.has(w.address)?{smartWallet:metadata.get(w.address)}:{}),value:w.holdings.length?knownSum(w.holdings):0,chainIds:[...new Set(w.holdings.map(h=>h.chainId))],matchedTokens:query.kind==='holders'?w.holdings.map(h=>taskRows.find(t=>t.metadata?.id===h.tokenId)?.metadata).filter(Boolean):[],matchCount:query.kind==='holders'?w.holdings.length:0}));
-  const warnings=taskRows.flatMap(t=>[...(t.fallbackReason?[`${getNetwork(t.chainId).name}: ${t.fallbackReason} Použit Blockscout.`]:[]),...(t.error?[`${getNetwork(t.chainId).name}: ${t.error}`]:[]),...(t.invalid_rows?[`${t.invalid_rows} neplatných pozic nebylo možné zahrnout.`]:[])]);
-  if(job.status!=='complete')warnings.unshift('Sken není dokončený. Výsledky a průnik pokrývají pouze dosud načtené stránky.');
+  const warnings=[...(query.excludedSystemAddresses||[]).map(()=>`Neplatná systémová adresa (zero address) byla přeskočena; nebyly pro ni vytvořeny žádné úlohy.`),...taskRows.flatMap(t=>[...(t.fallbackReason?[`${getNetwork(t.chainId).name}: ${t.fallbackReason} Použit Blockscout.`]:[]),...(t.error?[`${getNetwork(t.chainId).name}: ${t.error}`]:[]),...(t.invalid_rows?[`${t.invalid_rows} neplatných pozic nebylo možné zahrnout.`]:[])])];
+  if(job.status==='running')warnings.unshift('Průběžný výsledek. Data a průnik pokrývají pouze dosud dokončené úlohy a mohou se změnit.');
+  else if(job.status==='paused')warnings.unshift('Sken je pozastavený. Výsledky pokrývají pouze dosud dokončené úlohy; sken lze později obnovit.');
+  else if(job.status==='partial')warnings.unshift('Sken skončil s neúplnými daty. Výsledky pokrývají pouze úspěšně dokončené úlohy.');
   const coverage=this.coverage(id,job,taskRows);
   const providerLabel=[...new Set(taskRows.filter(t=>t.status!=='unsupported').map(t=>t.provider==='alchemy'?'Alchemy':'Blockscout'))].join(' + ')||'Žádný zdroj nebyl dostupný';coverage.providerLabel=providerLabel;
   return {wallets,tokens:query.kind==='holders'?taskRows.map(t=>t.metadata).filter(Boolean):aggregateHoldings(wallets,query.addresses.length),source:'live',warnings,coverage,job,pagination:{offset,limit,total,nextOffset:offset+owners.length<total?offset+owners.length:null,revision:job.revision}};
@@ -192,7 +198,7 @@ export class ScanEngine{
   const networkText=chainCoverage.map(n=>`${getNetwork(n.chainId).name} ${n.analyzed}/${n.requested}`).join(' · ');
   return {source:'live',complete:job.status==='complete',bounded:job.status!=='complete',asOf:job.updatedAt,startedAt:job.createdAt,snapshotConsistent:false,details:failures.length<=50?failures:failures.slice(0,50),provenance:[...providers.values()],analyzedWalletCount,requestedWalletCount,networks:chainCoverage,message:`${analyzedWalletCount} / ${requestedWalletCount} peněženek úspěšně analyzováno napříč vybranými sítěmi${networkText?` · ${networkText}`:''}. ${job.status==='complete'?'Všechny úlohy dokončeny':'Výsledky zahrnují dokončené úlohy; částečné úlohy lze obnovit.'}`};
  }
- tokenResults(id,job,{offset,limit,revision,sort,minHolders,minShare,chainId,search}){
+ tokenResults(id,job,{offset,limit,revision,sort,minHolders,minShare,chainId,search,hideSpam=true}){
   let rows=this.tokenCache.get(id)?.revision===job.revision?this.tokenCache.get(id).rows:null;
   if(!rows){
    const tasks=this.store.tasks(id),analyzed=new Map();for(const task of tasks)if(task.status==='complete')analyzed.set(task.chainId,(analyzed.get(task.chainId)||0)+1);
@@ -201,11 +207,15 @@ export class ScanEngine{
    rows=[...grouped.values()].map(g=>{const {owners,...row}=g;row.share=row.analyzedWalletCount?row.holderCount/row.analyzedWalletCount:0;row.totalValue=row.totalValue===null?null:Math.round(row.totalValue*100)/100;return row;});
    if(this.tokenCache.size>=6)this.tokenCache.delete(this.tokenCache.keys().next().value);this.tokenCache.set(id,{revision:job.revision,rows});
   }
+  rows=rows.map(t=>({...t,...classifyTokenSpam(t)}));
   const minCount=Math.max(0,Number(minHolders)||0),minPercent=Math.max(0,Number(minShare)||0),needle=String(search||'').trim().toLowerCase();
-  rows=rows.filter(t=>(!chainId||t.chainId===chainId)&&t.holderCount>=minCount&&t.share*100>=minPercent&&(!needle||`${t.symbol} ${t.name} ${t.address}`.toLowerCase().includes(needle)));
+  rows=rows.filter(t=>(!hideSpam||!t.likelySpam)&&(!chainId||t.chainId===chainId)&&t.holderCount>=minCount&&t.share*100>=minPercent&&(!needle||`${t.symbol} ${t.name} ${t.address}`.toLowerCase().includes(needle)));
   rows.sort(sort==='value'?(a,b)=>(b.totalValue??-1)-(a.totalValue??-1)||b.holderCount-a.holderCount:(a,b)=>b.holderCount-a.holderCount||b.share-a.share||(b.totalValue??-1)-(a.totalValue??-1));
   const total=rows.length,tokens=rows.slice(offset,offset+limit),taskRows=this.store.tasks(id),coverage=this.coverage(id,job,taskRows),providerLabel=[...new Set(taskRows.filter(t=>t.status!=='unsupported').map(t=>t.provider==='alchemy'?'Alchemy':'Blockscout'))].join(' + ')||'Žádný zdroj nebyl dostupný';coverage.providerLabel=providerLabel;
-  const warnings=taskRows.flatMap(t=>[...(t.fallbackReason?[`${getNetwork(t.chainId).name}: ${t.fallbackReason} Použit Blockscout.`]:[]),...(t.error?[`${getNetwork(t.chainId).name}: ${t.error}`]:[]),...(t.invalid_rows?[`${t.invalid_rows} neplatných pozic nebylo možné zahrnout.`]:[])]);if(job.status!=='complete')warnings.unshift('Sken je částečný. Popularita se počítá pouze z úspěšně dokončených úloh v relevantní síti.');
+  const warnings=[...(job.query.excludedSystemAddresses||[]).map(()=>`Neplatná systémová adresa (zero address) byla přeskočena; nebyly pro ni vytvořeny žádné úlohy.`),...taskRows.flatMap(t=>[...(t.fallbackReason?[`${getNetwork(t.chainId).name}: ${t.fallbackReason} Použit Blockscout.`]:[]),...(t.error?[`${getNetwork(t.chainId).name}: ${t.error}`]:[]),...(t.invalid_rows?[`${t.invalid_rows} neplatných pozic nebylo možné zahrnout.`]:[])])];
+  if(job.status==='running')warnings.unshift('Průběžný výsledek. Popularita se během běhu může měnit; podíl vychází z úspěšně dokončených úloh v relevantní síti.');
+  else if(job.status==='paused')warnings.unshift('Sken je pozastavený. Popularita vychází z úspěšně dokončených úloh v relevantní síti.');
+  else if(job.status==='partial')warnings.unshift('Sken je částečný. Popularita vychází z úspěšně dokončených úloh v relevantní síti.');
   return {wallets:[],tokens,source:'live',warnings,coverage,job,pagination:{offset,limit,total,nextOffset:offset+tokens.length<total?offset+tokens.length:null,revision:job.revision,view:'tokens'}};
  }
  async close(){await Promise.all([...this.active.keys()].map(id=>this.pause(id)));this.store.close();}

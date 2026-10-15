@@ -52,7 +52,8 @@ const savedWallets = readLocal('cd:watchlist:v1');
 const savedQueries = readLocal('cd:queries:v1');
 const defaults = ['ARB','WETH'].map(s => tokens.find(t => t.symbol===s && t.chainId==='arbitrum')).filter(Boolean);
 const standaloneDemo=globalThis.location?.protocol==='file:';
-const state = { view:'screener',source:standaloneDemo?'demo':'live',provider:'auto',selectedTokens:defaults,chainIds:networks.filter(n=>standaloneDemo||n.live).map(n=>n.id),match:'all',result:null,rows:[],page:1,pageSize:8,selected:new Set(),busy:false,dirty:false,controller:null,runId:0,activeWallet:null,tokenPageRequest:0,tokenPageController:null };
+let scanHistoryOpen=false;try{scanHistoryOpen=globalThis.sessionStorage?.getItem('cd:scan-history-open')==='true';}catch{}
+const state = { view:'screener',source:standaloneDemo?'demo':'live',provider:'auto',selectedTokens:defaults,chainIds:networks.filter(n=>standaloneDemo||n.live).map(n=>n.id),match:'all',result:null,rows:[],page:1,pageSize:8,selected:new Set(),smartDatasetAddresses:new Set(),serverScans:[],scanHistoryOpen,busy:false,dirty:false,controller:null,runId:0,activeWallet:null,tokenPageRequest:0,tokenPageController:null };
 let walletCapabilities=null;
 const supportsWalletChain=id=>state.provider==='blockscout'?(walletCapabilities?.blockscoutChains?.includes(id)??!!network(id).live):state.provider==='alchemy'?(walletCapabilities?.alchemyChains?.includes(id)??false):(walletCapabilities?.availableChains?.includes(id)??!!network(id).live);
 const supportsCurrentChain=id=>state.source==='demo'||(state.view==='wallets'?supportsWalletChain(id):!!network(id).live);
@@ -91,7 +92,7 @@ function coverageText(){
 }
 function dataInfo(){
  const warnings=(state.result?.warnings||[]).map(w=>`<li>${esc(typeof w==='string'?w:w.message||JSON.stringify(w))}</li>`).join('');
- info('Zdroje, rozsah a metodika',`<p><strong>Aktuální režim: ${state.source==='demo'?'Demo · syntetická data':'Live · serverové indexery'}</strong></p><p>${esc(coverageText())}</p>${warnings?`<h3>Upozornění k poslednímu skenu</h3><ul>${warnings}</ul>`:''}<h3>Co výsledky znamenají</h3><p>USD hodnota ve screeneru je součet <strong>vybraných pozic</strong>, nikoli celého portfolia. V analýze jde o načtené ERC-20 zůstatky. Token bez dostupné ceny má hodnotu <strong>neznámou</strong>. Nativní ETH, NFT a DeFi pozice tato verze neagreguje.</p><p>Veřejná API jsou stránkovaná a mohou být omezená, zpožděná nebo nedostupná. Průnik se počítá pouze nad načtenými držiteli. <strong>Prázdný výsledek neprokazuje, že žádní držitelé neexistují.</strong> Chyby se uvádějí odděleně od výsledků.</p><h3>Sítě</h3><p>${networks.map(n=>esc(n.name)).join(' · ')}. Holder scanner používá Blockscout. Wallet Analyzer běží přes Alchemy na Ethereum, Base, Optimism a Arbitrum; Ethereum, Optimism a Arbitrum mohou při chybě přejít na Blockscout Pro. Base Blockscout fallback nemá. Robinhood Chain používá Blockscout. zkSync Era, Scroll a Linea jsou archivní sítě dostupné pouze pro čtení starších dat. Adresy a kontrakty se odesílají veřejným indexerům pouze po spuštění živého dotazu.</p><h3>Serverové skeny</h3><p>Live dotazy načítá lokální server. Každou stránku, výsledky a bod pokračování ukládá do SQLite. Sken můžete pozastavit, zobrazit uložený průnik a později pokračovat i po restartu serveru. Historie je dostupná v panelu Serverové skeny. Dokončené stejné dotazy se 15 minut používají z uložených dat; tlačítko Načíst čerstvá data založí nový sken.</p><p>Stav Všechny stránky načteny znamená dokončené stránkování indexeru. Zůstatky pocházejí z časového intervalu skenu a nejsou snapshotem k jednomu bloku. Po restartu serveru zůstane rozpracovaný sken pozastavený.</p><h3>Lokální uložení</h3><p>Watchlist uchovává snapshot pozic s označením zdroje. Není průběžně aktualizovaný. Demo a live záznamy jsou vedené odděleně.</p><p>Dokumentace zdroje: <a href="https://docs.blockscout.com/devs/apis" target="_blank" rel="noopener noreferrer">Blockscout APIs ↗</a></p>`);
+ info('Zdroje, rozsah a metodika',`<p><strong>Aktuální režim: ${state.source==='demo'?'Demo · syntetická data':'Live · serverové indexery'}</strong></p><p>${esc(coverageText())}</p>${warnings?`<h3>Upozornění k poslednímu skenu</h3><ul>${warnings}</ul>`:''}<h3>Co výsledky znamenají</h3><p>USD hodnota ve screeneru je součet <strong>vybraných pozic</strong>, nikoli celého portfolia. V analýze jde o načtené ERC-20 zůstatky. Token bez dostupné ceny má hodnotu <strong>neznámou</strong>. Nativní ETH, NFT a DeFi pozice tato verze neagreguje.</p><p>Veřejná API jsou stránkovaná a mohou být omezená, zpožděná nebo nedostupná. Průnik se počítá pouze nad načtenými držiteli. <strong>Prázdný výsledek neprokazuje, že žádní držitelé neexistují.</strong> Chyby se uvádějí odděleně od výsledků.</p><h3>Sítě</h3><p>${networks.map(n=>esc(n.name)).join(' · ')}. Holder scanner používá Blockscout. Wallet Analyzer běží přes Alchemy na Ethereum, Base, Optimism a Arbitrum; Ethereum, Optimism a Arbitrum mohou při chybě přejít na Blockscout Pro. Base Blockscout fallback nemá. Robinhood Chain používá Blockscout. zkSync Era, Scroll a Linea jsou archivní sítě dostupné pouze pro čtení starších dat. Adresy a kontrakty se odesílají veřejným indexerům pouze po spuštění živého dotazu.</p><h3>Serverové skeny</h3><p>Live dotazy načítá lokální server. Každou stránku, výsledky a bod pokračování ukládá do SQLite. Průběžné výsledky lze otevřít bez zastavení skenu; přehled se obnovuje každé 3 sekundy. Samostatná akce Pozastavit zastaví další načítání a uloží aktuální stránky i kurzory, sken pak lze později obnovit. Historie je dostupná v panelu Serverové skeny. Dokončené stejné dotazy se 15 minut používají z uložených dat; tlačítko Načíst čerstvá data založí nový sken.</p><p>Stav Všechny stránky načteny znamená dokončené stránkování indexeru. Zůstatky pocházejí z časového intervalu skenu a nejsou snapshotem k jednomu bloku. Po restartu serveru zůstane rozpracovaný sken pozastavený.</p><h3>Lokální uložení</h3><p>Watchlist uchovává snapshot pozic s označením zdroje. Není průběžně aktualizovaný. Demo a live záznamy jsou vedené odděleně.</p><p>Dokumentace zdroje: <a href="https://docs.blockscout.com/devs/apis" target="_blank" rel="noopener noreferrer">Blockscout APIs ↗</a></p>`);
 }
 function renderTokens(){
  $('selected-tokens').innerHTML=state.selectedTokens.map(t=>`<div class="token-chip">${coin(t)}<span>${esc(t.symbol)}<small>${esc(network(t.chainId).name)}</small></span><button data-remove-token="${esc(tokenKey(t))}" aria-label="Odebrat ${esc(t.symbol)}">×</button></div>`).join('');
@@ -104,7 +105,7 @@ function renderChains(){
  $('all-chains').textContent=state.chainIds.length===networks.filter(n=>supportsCurrentChain(n.id)).length?'Zrušit výběr':'Vybrat vše';
  const networkFilter=$('result-network');if(networkFilter){const current=networkFilter.value;networkFilter.innerHTML='<option value="">Všechny sítě</option>'+networks.filter(n=>state.chainIds.includes(n.id)).map(n=>`<option value="${esc(n.id)}">${esc(n.name)}</option>`).join('');networkFilter.value=state.chainIds.includes(current)?current:'';}
 }
-function setBusy(b){state.busy=b;['scan-button','analyze-button','result-search','min-value','min-holders','min-share','result-network','sort-select','export-button','save-search','previous-page','next-page'].forEach(id=>$(id).disabled=b);if($('select-all'))$('select-all').disabled=b;$('scan-button').innerHTML=b?'<span class="spinner"></span> Hledám držitele…':`${icon('search')}<span>Najít peněženky</span><span class="button-arrow">↗</span>`;$('analyze-button').innerHTML=b?'<span class="spinner"></span> Analyzuji…':`${icon('chart')} Analyzovat peněženky <span class="button-arrow">↗</span>`;}
+function setBusy(b){state.busy=b;['scan-button','analyze-button','result-search','min-value','min-holders','min-share','result-network','hide-spam','sort-select','export-button','save-search','previous-page','next-page'].forEach(id=>$(id).disabled=b);if($('select-all'))$('select-all').disabled=b;$('scan-button').innerHTML=b?'<span class="spinner"></span> Hledám držitele…':`${icon('search')}<span>Najít peněženky</span><span class="button-arrow">↗</span>`;$('analyze-button').innerHTML=b?'<span class="spinner"></span> Analyzuji…':`${icon('chart')} Analyzovat peněženky <span class="button-arrow">↗</span>`;}
 function markDirty(){
  state.runId++;state.controller?.abort();setBusy(false);state.dirty=true;state.result=null;state.selected.clear();state.page=1;setError();renderResults();
  if(state.source==='demo'&&state.view==='screener'&&state.selectedTokens.length&&state.chainIds.length)run();
@@ -113,17 +114,19 @@ function setSource(source){
  if(source==='demo'&&!standaloneDemo){toast('Demo dotazy jsou dostupné pouze v samostatné ukázce.');return;}
  if(source===state.source)return;
  closeDrawer();
+ stopLiveResultPolling();
  state.source=source;state.result=null;state.dirty=true;state.rows=[];state.runId++;state.controller?.abort();setBusy(false);state.selected.clear();state.page=1;setError();
  document.querySelectorAll('[data-source]').forEach(b=>{b.classList.toggle('active',b.dataset.source===source);b.setAttribute('aria-pressed',b.dataset.source===source);});
  $('source-banner').classList.toggle('live-banner',source==='live');
  $('source-banner').innerHTML=icon('database')+'<span id="provider-note"></span>';
  $('load-wallet-demo').hidden=source==='live';
  renderChains();
- if(state.view==='wallets')$('wallet-addresses').value=source==='demo'?demoAddresses().join('\n'):'';
+ if(state.view==='wallets'){$('wallet-addresses').value=source==='demo'?demoAddresses().join('\n'):'';state.smartDatasetAddresses.clear();}
  renderProviderStatus();refreshProviders();refreshServerScans();renderResults();if(source==='demo'&&state.view!=='watchlist')run();
 }
 function setView(view){
  if(view===state.view)return;
+ stopLiveResultPolling();
  closeDrawer();
  state.view=view;state.result=null;state.dirty=false;state.page=1;state.selected.clear();state.runId++;state.controller?.abort();setBusy(false);setError();$('result-search').value='';$('min-value').value='';
  const walletMode=view==='wallets';
@@ -142,35 +145,45 @@ function setView(view){
  if(walletMode){$('result-network').innerHTML='<option value="">Všechny sítě</option>'+networks.filter(n=>state.chainIds.includes(n.id)).map(n=>`<option value="${esc(n.id)}">${esc(n.name)}</option>`).join('');$('min-holders').value='';$('min-share').value='';$('result-network').value='';}
  $('result-search').placeholder=walletMode?'Hledat token nebo kontrakt…':'Hledat adresu nebo štítek…';
  $('sidebar').classList.remove('open');
- if(walletMode&&state.source==='demo'&&!$('wallet-addresses').value.trim())$('wallet-addresses').value=demoAddresses().join('\n');
+ if(walletMode&&state.source==='demo'&&!analysisAddresses().length){$('wallet-addresses').value=demoAddresses().join('\n');state.smartDatasetAddresses.clear();}
  renderChains();renderProviderStatus();refreshProviders();refreshServerScans();renderResults();if(walletMode){renderWalletInputContext();refreshSmartMetadata();}if(state.source==='demo'&&view!=='watchlist')run();
 }
-function analysisAddresses(){return [...new Set($('wallet-addresses').value.trim().split(/[\s,;]+/).filter(Boolean).map(a=>a.toLowerCase()))];}
+function manualAddresses(){return [...new Set($('wallet-addresses').value.trim().split(/[\s,;]+/).filter(Boolean).map(a=>a.toLowerCase()))];}
+function analysisAddresses(){return [...new Set([...manualAddresses(),...state.smartDatasetAddresses])];}
+function queryAddressList(value){return (Array.isArray(value)?value:String(value||'').trim().split(/[\s,;]+/).filter(Boolean)).map(a=>String(a).toLowerCase());}
 function smartMetadataHtml(record){return record?`<span class="smart-tags"><span class="smart-status ${esc(record.status)}">${esc(record.statusLabel||record.status)}</span>${record.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</span>`:'';}
 function analysisIdentityHtml(address,clickable=false){
  const record=smartWallets.lookup?.(address),title=record?.name||short(address);
- return `<div class="analysis-wallet-card">${clickable?`<button class="address-button" data-wallet="${esc(address)}">${esc(title)}</button>`:`<strong>${esc(title)}</strong>`}<span class="smart-address">${esc(address)}</span>${smartMetadataHtml(record)}</div>`;
+ const profileUrl=data.debankProfileUrl(address),addressHtml=profileUrl?`<a class="smart-address smart-address-link" href="${esc(profileUrl)}" target="_blank" rel="noopener noreferrer">${esc(address)}</a>`:`<span class="smart-address">${esc(address)}</span>`;
+ return `<div class="analysis-wallet-card">${clickable?`<button class="address-button" data-wallet="${esc(address)}">${esc(title)}</button>`:`<strong>${esc(title)}</strong>`}${addressHtml}${smartMetadataHtml(record)}</div>`;
 }
 function renderWalletInputContext(){
- const allKnown=analysisAddresses().filter(a=>smartWallets.lookup?.(a)),known=allKnown.slice(0,12);
- $('wallet-input-identities').hidden=state.source!=='live'||!known.length;
- $('wallet-input-identities').innerHTML=known.map(a=>analysisIdentityHtml(a)).join('')+(allKnown.length>known.length?`<p class="field-hint">+ ${allKnown.length-known.length} dalších adres se zachovanými Smart metadata</p>`:'');
- const count=analysisAddresses().length,chains=state.chainIds.length;const tasks=count*chains;
- $('wallet-scan-estimate').textContent=count?`${number(count)} ${count===1?'peněženka':'peněženek'} · ${number(chains)} ${chains===1?'vybraná síť':'vybrané sítě'} · až ${number(tasks)} wallet/network úloh${count>walletMax?` · limit jednoho skenu je ${walletMax}`:''}`:`Zadejte adresy nebo je načtěte ze Smart wallets. Limit jednoho skenu je ${walletMax} unikátních peněženek.`;
+ const all=analysisAddresses(),smart=[...state.smartDatasetAddresses].filter(a=>all.includes(a)),manual=manualAddresses().filter(a=>!state.smartDatasetAddresses.has(a)),count=all.length,chains=state.chainIds.length,tasks=count*chains;
+ $('wallet-input-identities').hidden=true;$('wallet-input-identities').innerHTML='';
+ $('wallet-dataset-summary').hidden=false;$('wallet-load-smart').hidden=standaloneDemo||smart.length>0;$('wallet-edit-smart').hidden=!smart.length;$('wallet-clear-dataset').hidden=!count;
+ const walletLabel=count===1?'peněženka':count>=2&&count<5?'peněženky':'peněženek',manualLabel=n=>`${number(n)} ${n===1?'ruční adresa':n<5?'ruční adresy':'ručních adres'}`;
+ const smartLabel=n=>`${number(n)} Smart ${n===1?'wallet':'wallets'}`,sourceLabel=smart.length&&manual.length?`${smartLabel(smart.length)} + ${manualLabel(manual.length)}`:smart.length?smartLabel(smart.length):manual.length?manualLabel(manual.length):'';
+ $('wallet-dataset-count').textContent=`${number(count)} ${walletLabel}${sourceLabel?` · ${sourceLabel}`:''}`;
+ $('wallet-dataset-work').textContent=`${number(chains)} ${chains===1?'síť':'sítí'} · až ${number(tasks)} wallet/network úloh`;
+ const tagCounts=new Map();for(const address of smart){const record=smartWallets.lookup?.(address);for(const tag of record?.tags||[])tagCounts.set(tag,(tagCounts.get(tag)||0)+1);}
+ $('wallet-dataset-tags').innerHTML=[...tagCounts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3).map(([tag,n])=>`<span>${esc(tag)} <b>${number(n)}</b></span>`).join('');$('wallet-dataset-tags').hidden=!tagCounts.size;
+ $('wallet-scan-estimate').textContent=count?`Coverage se počítá podle úspěšných úloh v každé síti.${count>walletMax?` Limit jednoho skenu je ${walletMax} unikátních peněženek.`:''}`:`Vyberte Smart wallets nebo přidejte ruční adresy. Limit jednoho skenu je ${walletMax} unikátních peněženek.`;
+ $('wallet-manual-toggle').textContent=$('wallet-manual-entry').hidden?'+ Ručně zadat adresy':'Ručně zadané adresy';
 }
 async function refreshSmartMetadata(){
  if(standaloneDemo||!smartWallets.refreshMetadata)return;
  const ok=await smartWallets.refreshMetadata();
  $('wallet-metadata-note').textContent=ok?'':'Metadata Smart wallets se nepodařilo obnovit. Ručně zadané adresy lze dál analyzovat.';
 }
-function prepareWalletAnalysis(addresses,chainIds,{append=false,skippedChainIds=[]}={}){
- const existing=append?analysisAddresses():[],unique=[...new Set([...existing,...addresses].map(a=>String(a).toLowerCase()))];
+function prepareWalletAnalysis(addresses,chainIds,{append=false,skippedChainIds=[],replaceSmartSelection=false}={}){
+ const incoming=[...new Set((addresses||[]).map(a=>String(a).toLowerCase()))],existing=append?(replaceSmartSelection?manualAddresses():analysisAddresses()):[],nextSmart=replaceSmartSelection?new Set(incoming):append?new Set([...state.smartDatasetAddresses,...incoming]):new Set(incoming),unique=[...new Set([...existing,...incoming])];
+ if(replaceSmartSelection&&!unique.length){state.smartDatasetAddresses.clear();$('wallet-addresses').value='';markDirty();renderWalletInputContext();$('wallet-smart-note').textContent='Výběr Smart wallets byl vyčištěn.';return true;}
  if(!unique.length||unique.length>walletMax)throw Error(`Pro jeden sken lze připravit 1 až ${walletMax} unikátních adres.`);
  if(unique.some(a=>!/^0x[\da-f]{40}$/.test(a)))throw Error('Ve formuláři je neplatná EVM adresa. Opravte ji před přidáním Smart wallets.');
  const requested=[...new Set([...chainIds,...(append&&existing.length?state.chainIds:[])])],supported=requested.filter(supportsWalletChain);
  if(!supported.length)throw Error('Pro vybrané adresy není dostupná žádná zvolená síť. Zkontrolujte datový zdroj.');
  const skipped=[...new Set([...skippedChainIds,...requested.filter(id=>!supportsWalletChain(id))])];
- setSource('live');setView('wallets');state.chainIds=supported;renderChains();$('wallet-addresses').value=unique.join('\n');state.backendJob=null;$('active-server-scan').innerHTML='';markDirty();renderWalletInputContext();
+ setSource('live');setView('wallets');state.smartDatasetAddresses=nextSmart;state.chainIds=supported;renderChains();$('wallet-addresses').value=unique.filter(a=>!state.smartDatasetAddresses.has(a)).join('\n');state.backendJob=null;$('active-server-scan').innerHTML='';markDirty();renderWalletInputContext();
  $('wallet-smart-note').textContent=`Připraveno ${unique.length} adres. Zkontrolujte adresy a sítě a analýzu spusťte ručně. Vybrané sítě se použijí pro všechny adresy.${skipped.length?' Nepodporované sítě nebyly vybrány: '+skipped.map(id=>network(id).name||id).join(', ')+'.':''}`;
  toast('Adresy předvyplněny. Analýzu spustíte ručně.');return true;
 }
@@ -188,29 +201,33 @@ async function run(existingJobId=null){
  if(['watchlist','smart','socials'].includes(state.view))return;
  setError();
  if(!state.chainIds.length){setError('Vyberte alespoň jednu síť.');return;}
- let addresses=[];
+ let addresses=[],skippedSystemAddresses=[];
  if(state.view==='screener'){
   if(!state.selectedTokens.length){setError('Přidejte alespoň jeden token nebo kontrakt.');return;}
   if(state.source==='demo'&&unsupportedDemoTokens().length){state.runId++;state.controller?.abort();setBusy(false);state.result=null;state.dirty=true;renderResults();setError('Pro tento kontrakt nejsou demo data. Použijte Live API pro skutečné držitele.');return;}
   const missing=state.selectedTokens.filter(t=>!state.chainIds.includes(t.chainId));
   if(missing.length){setError(`Zapněte síť pro všechny vybrané tokeny: ${[...new Set(missing.map(t=>network(t.chainId).name))].join(', ')}.`);return;}
  }else{
-  addresses=[...new Set($('wallet-addresses').value.trim().split(/[\s,;]+/).filter(Boolean).map(a=>a.toLowerCase()))];
+  addresses=analysisAddresses();
   if(!addresses.length){setError('Vložte alespoň jednu adresu peněženky.');return;}
   if(addresses.length>walletMax){setError(`Najednou lze analyzovat nejvýše ${walletMax} různých adres.`);return;}
   const invalid=addresses.find(a=>!/^0x[0-9a-f]{40}$/.test(a));
   if(invalid){setError(`Neplatná EVM adresa: ${invalid.slice(0,70)}. Očekává se 0x a 40 hexadecimálních znaků.`);return;}
+  skippedSystemAddresses=addresses.filter(data.isSystemWalletAddress);addresses=addresses.filter(address=>!data.isSystemWalletAddress(address));
+  if(skippedSystemAddresses.length)toast(`Neplatná systémová adresa (zero address) přeskočena: ${skippedSystemAddresses.length}.`);
+  if(!addresses.length){setError('Neplatná systémová adresa (zero address). Nebyla spuštěna žádná portfolio analýza ani vytvořena úloha.');return;}
   refreshSmartMetadata();
  }
- state.controller?.abort();state.controller=new AbortController();const runId=++state.runId;setBusy(true);state.result=null;state.page=1;state.selected.clear();state.dirty=false;
+ stopLiveResultPolling();state.controller?.abort();state.controller=new AbortController();const runId=++state.runId;setBusy(true);state.result=null;$('scan-live-status').hidden=true;$('scan-live-status').innerHTML='';state.page=1;state.selected.clear();state.dirty=false;
  $('wallet-result-context').hidden=true;
  if(state.source==='live'&&!existingJobId){state.backendJob=null;$('active-server-scan').innerHTML='';}
- $('empty-state').hidden=false;$('empty-state').innerHTML=`<div class="loading-row"><span class="spinner"></span> ${state.view==='screener'?'Načítám držitele vybraných kontraktů…':'Načítám pozice peněženek…'}<p id="scan-progress">${state.source==='demo'?'Ukázkový dataset':'Veřejné indexery mohou odpovídat pomaleji.'}</p><button class="subtle-button" id="cancel-scan">Zrušit sken</button></div>`;$('table-body').innerHTML='';renderStats();if(state.source==='live')$('cancel-scan').textContent='Pozastavit a zobrazit uložené výsledky';$('cancel-scan').onclick=()=>{if(state.source==='live'&&state.backendJob){pauseBackendScan(state.backendJob.id);return;}state.runId++;state.controller.abort();setBusy(false);state.dirty=true;renderResults();toast('Sken byl zrušen.');};
+ $('empty-state').hidden=false;$('empty-state').innerHTML=`<div class="loading-row"><span class="spinner"></span> ${state.view==='screener'?'Načítám držitele vybraných kontraktů…':'Načítám pozice peněženek…'}<p id="scan-progress">${state.source==='demo'?'Ukázkový dataset':'Veřejné indexery mohou odpovídat pomaleji.'}</p><button class="subtle-button" id="cancel-scan">Zrušit sken</button></div>`;$('table-body').innerHTML='';renderStats();if(state.source==='live')$('cancel-scan').textContent='Pozastavit';$('cancel-scan').onclick=()=>{if(state.source==='live'&&state.backendJob){pauseBackendScan(state.backendJob.id);return;}state.runId++;state.controller.abort();setBusy(false);state.dirty=true;renderResults();toast('Sken byl zrušen.');};
  try{
   const options={chainIds:[...state.chainIds],source:state.source,provider:state.provider,signal:state.controller.signal,refresh:!!state.forceRefresh,onProgress:p=>{if(runId===state.runId){if($('scan-progress'))$('scan-progress').textContent=typeof p==='string'?p:p.message||`${p.completed||0} / ${p.total||'…'}`;if(p?.job)renderBackendScan(p.job);}}};
   state.forceRefresh=false;
   const walletMetadata=state.view==='wallets'?addresses.map(address=>smartWallets.lookup?.(address)).filter(Boolean).map(w=>({address:w.address,name:w.name||'',tags:w.tags||[],status:w.status||null})):[];
-  const result=existingJobId?await data.openServerScan(existingJobId,options):state.view==='screener'?await data.searchHolders({...options,tokens:state.selectedTokens,match:state.match,minValue:0}):await data.analyzeWallets({...options,addresses,walletMetadata});
+  const scanResult=existingJobId?await data.openServerScan(existingJobId,options):state.view==='screener'?await data.searchHolders({...options,tokens:state.selectedTokens,match:state.match,minValue:0}):await data.analyzeWallets({...options,addresses,walletMetadata});
+  const result=skippedSystemAddresses.length?{...scanResult,warnings:[`Neplatná systémová adresa (zero address) byla přeskočena; nebyly pro ni vytvořeny žádné úlohy.`,...(scanResult.warnings||[])]}:scanResult;
   if(runId!==state.runId)return;
   if(state.view==='screener'&&state.source==='live'){state.selectedTokens=state.selectedTokens.map(t=>(result.tokens||[]).find(r=>tokenKey(r)===tokenKey(t))||t);renderTokens();}
   state.result={...result,wallets:(result.wallets||[]).map(normalizeWallet),tokens:(result.tokens||[]).map(t=>({...t,totalValue:t.totalValue??t.value??null,holderCount:t.holderCount??t.holders?.length??0,share:t.share??0}))};
@@ -224,15 +241,59 @@ async function run(existingJobId=null){
 }
 const scanStatuses={running:'Probíhá',paused:'Pozastaveno',partial:'Částečný výsledek',complete:'Všechny stránky načteny'};
 const deletingScans=new Set(),deletedScans=new Set();let scanListRevision=0;
+let liveResultTimer=null,liveResultRequest=0;
+function stopLiveResultPolling(){clearTimeout(liveResultTimer);liveResultTimer=null;liveResultRequest++;}
+function renderLiveScanStatus(job){
+ const box=$('scan-live-status');if(!box)return;
+ const isOpen=state.result?.job?.id===job?.id;
+ if(!isOpen||!job){box.hidden=true;box.innerHTML='';return;}
+ box.hidden=false;
+ if(job.status==='running')box.innerHTML=`<strong>Sken stále probíhá · zobrazené výsledky jsou průběžné</strong><span>${number(job.progress?.completedTasks||0)} / ${number(job.progress?.totalTasks||job.taskCount||0)} tasks dokončeno · ${number(job.pagination?.total||0)} agregovaných tokenů</span><small>Coverage se počítá z úspěšně dokončených úloh. Pořadí a popularita tokenů se během běhu mohou změnit.</small>`;
+ else if(job.status==='paused')box.innerHTML=`<strong>Sken je pozastavený</strong><span>${number(job.progress?.completedTasks||0)} / ${number(job.progress?.totalTasks||job.taskCount||0)} tasks dokončeno · ${number(job.pagination?.total||0)} agregovaných tokenů</span>`;
+ else if(job.status==='partial')box.innerHTML=`<strong>Sken skončil s neúplnými daty</strong><span>${number(job.progress?.completedTasks||0)} / ${number(job.progress?.totalTasks||job.taskCount||0)} tasks dokončeno · ${number(job.pagination?.total||0)} agregovaných tokenů</span>`;
+ else {box.hidden=true;box.innerHTML='';}
+}
+function scheduleLiveResultPoll(id){
+ stopLiveResultPolling();const request=liveResultRequest;
+ const poll=async()=>{
+  if(request!==liveResultRequest||state.result?.job?.id!==id)return;
+  try{
+   const job=await data.getServerScan(id);if(request!==liveResultRequest||state.result?.job?.id!==id)return;
+   renderBackendScan(job);await refreshLiveScanResult(job,request);
+   if(request===liveResultRequest&&job.status==='running')liveResultTimer=setTimeout(poll,3000);else liveResultTimer=null;
+  }catch(error){if(request===liveResultRequest){setError(error.message||'Průběžný výsledek se nepodařilo obnovit.');liveResultTimer=setTimeout(poll,5000);}}
+ };
+ liveResultTimer=setTimeout(poll,3000);
+}
+async function refreshLiveScanResult(job,request=liveResultRequest){
+ if(state.result?.job?.id!==job.id||request!==liveResultRequest)return;
+ let result;
+ if(job.query.kind==='wallets'&&data.getServerTokenPage){
+  const page=state.page||1,pageRequest=++state.tokenPageRequest;state.tokenPageController?.abort();state.tokenPageController=new AbortController();
+  result=await data.getServerTokenPage(job.id,{offset:(page-1)*state.pageSize,limit:state.pageSize,revision:job.status==='running'?undefined:job.revision,sort:$('sort-select').value,minHolders:$('min-holders').value,minShare:$('min-share').value,chainId:$('result-network').value,search:$('result-search').value,hideSpam:$('hide-spam').checked},state.tokenPageController.signal);
+  if(pageRequest!==state.tokenPageRequest)return;
+  result={...result,serverPaginated:true};
+ }else result=await data.readServerScanResult(job);
+ if(request!==liveResultRequest||state.result?.job?.id!==job.id)return;
+ state.result={...state.result,...result,job};
+ renderLiveScanStatus(state.result.job);renderResults();
+}
 function scanRow(job,active=false){
  const title=job.query.kind==='holders'?(job.tasks.map(t=>t.token?.symbol||short(t.address)).join(' + ')):`Analýza ${job.query.addresses.length} adres`;
- return `<div class="server-scan-row ${active?'current':''}"><div><strong>${esc(title)}</strong><span class="scan-status ${esc(job.status)}">${scanStatuses[job.status]||esc(job.status)}</span><p>${number(job.pages)} stran · ${number(job.positions)} pozic · ${esc(new Date(job.updatedAt).toLocaleString('cs-CZ'))}</p>${active?`<p>${esc(job.message)}</p>`:''}</div><div class="scan-row-actions">${job.status==='running'?`<button class="subtle-button" data-pause-scan="${job.id}">Pozastavit a zobrazit</button>`:`<button class="subtle-button" data-open-scan="${job.id}">Otevřít výsledek</button>${job.tasks.some(t=>['pending','error'].includes(t.status))?`<button class="subtle-button" data-resume-scan="${job.id}">Pokračovat →</button>`:''}`}<button class="subtle-button scan-delete" data-delete-scan="${job.id}" data-scan-title="${esc(title)}" aria-label="Smazat sken ${esc(title)}" title="${job.status==='running'?'Nejprve sken pozastavte':'Trvale smazat sken a jeho načtená data'}" ${job.status==='running'||deletingScans.has(job.id)?'disabled':''}>${deletingScans.has(job.id)?'Mažu…':'Smazat'}</button></div></div>`;
+ const progress=job.query.kind==='wallets'?` · ${number(job.progress?.completedTasks||0)} / ${number(job.progress?.totalTasks||job.taskCount||0)} tasks`:'';
+ return `<div class="server-scan-row ${active?'current':''}"><div><strong>${esc(title)}</strong><span class="scan-status ${esc(job.status)}">${scanStatuses[job.status]||esc(job.status)}</span><p>${number(job.pages)} stran · ${number(job.positions)} pozic${progress} · ${esc(new Date(job.updatedAt).toLocaleString('cs-CZ'))}</p>${active?`<p>${esc(job.message)}</p>`:''}</div><div class="scan-row-actions">${job.status==='running'?`<button class="subtle-button" data-view-scan="${job.id}">Zobrazit průběžné výsledky</button><button class="subtle-button" data-pause-scan="${job.id}">Pozastavit</button>`:`<button class="subtle-button" data-open-scan="${job.id}">Otevřít výsledek</button>${job.tasks.some(t=>['pending','error'].includes(t.status))?`<button class="subtle-button" data-resume-scan="${job.id}">Pokračovat →</button>`:''}`}<button class="subtle-button scan-delete" data-delete-scan="${job.id}" data-scan-title="${esc(title)}" aria-label="Smazat sken ${esc(title)}" title="${job.status==='running'?'Nejprve sken pozastavte':'Trvale smazat sken a jeho načtená data'}" ${job.status==='running'||deletingScans.has(job.id)?'disabled':''}>${deletingScans.has(job.id)?'Mažu…':'Smazat'}</button></div></div>`;
 }
-function renderBackendScan(job){if(deletedScans.has(job.id))return;state.backendJob=job;$('active-server-scan').innerHTML=scanRow(job,true);const empty=$('server-scan-history').querySelector?.('.server-scan-empty');if(empty)empty.remove();$('server-scans').hidden=state.source!=='live';$('fresh-scan').disabled=state.busy;}
+function renderServerScanPanels(){
+ const all=[...new Map([...state.serverScans.filter(j=>!deletedScans.has(j.id)),...(state.backendJob&&!deletedScans.has(state.backendJob.id)?[state.backendJob]:[])].map(j=>[j.id,j])).values()].sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));
+ const active=all.filter(j=>j.status==='running'||j.id===state.backendJob?.id),activeIds=new Set(active.map(j=>j.id)),history=all.filter(j=>!activeIds.has(j.id)).slice(0,5);
+ $('active-server-scan').innerHTML=active.map(j=>scanRow(j,j.id===state.backendJob?.id)).join('');$('server-scan-history').innerHTML=history.map(j=>scanRow(j)).join('')||(!active.length?'<p class="server-scan-empty">Zatím tu nejsou žádné skeny. Dokončený dotaz lze 15 minut znovu použít bez dalšího načítání z indexeru.</p>':'');
+ $('server-scan-history').hidden=!state.scanHistoryOpen;$('server-scan-history-count').textContent=number(all.length);$('server-scan-history-toggle').hidden=!history.length;$('server-scan-history-toggle').textContent=state.scanHistoryOpen?'Skrýt historii':'Zobrazit historii';$('server-scan-history-toggle').setAttribute('aria-expanded',String(state.scanHistoryOpen));$('fresh-scan').disabled=state.busy;
+}
+function renderBackendScan(job){if(deletedScans.has(job.id))return;state.backendJob=job;state.serverScans=[...state.serverScans.filter(item=>item.id!==job.id),job];$('server-scans').hidden=state.source!=='live';renderServerScanPanels();}
 async function refreshServerScans(){
  const revision=++scanListRevision;
  $('server-scans').hidden=state.source!=='live';if(state.source!=='live'||!data.listServerScans)return;
- try{const {scans}=await data.listServerScans();if(state.source!=='live'||revision!==scanListRevision)return;$('server-scan-history').innerHTML=scans.filter(j=>!deletedScans.has(j.id)&&j.id!==state.backendJob?.id).slice(0,5).map(j=>scanRow(j)).join('')||(!state.backendJob?'<p class="server-scan-empty">Zatím tu nejsou žádné skeny. Dokončený dotaz lze 15 minut znovu použít bez dalšího načítání z indexeru.</p>':'');if(state.backendJob){const current=scans.find(j=>j.id===state.backendJob.id);if(current)renderBackendScan(current);}}
+ try{const {scans}=await data.listServerScans();if(state.source!=='live'||revision!==scanListRevision)return;state.serverScans=scans.filter(j=>!deletedScans.has(j.id));if(state.backendJob){const current=state.serverScans.find(j=>j.id===state.backendJob.id);if(current)state.backendJob=current;}renderServerScanPanels();}
  catch(error){if(revision===scanListRevision)$('server-scan-history').textContent=error.message;}
 }
 function confirmScanDeletion(id,title){
@@ -245,6 +306,7 @@ async function deleteBackendScan(id,button){
  if(!await confirmScanDeletion(id,button?.dataset.scanTitle))return;
  deletingScans.add(id);if(button)button.disabled=true;
  try{
+  if(state.result?.job?.id===id)stopLiveResultPolling();
   await data.deleteServerScan(id);deletedScans.add(id);scanListRevision++;
   if(state.backendJob?.id===id||state.result?.job?.id===id){
    state.runId++;state.controller?.abort();state.controller=null;state.backendJob=null;state.result=null;state.rows=[];state.selected.clear();state.page=1;state.dirty=false;state.forceRefresh=false;
@@ -258,19 +320,39 @@ async function openBackendScan(id,resume=false){
  if(deletingScans.has(id)||deletedScans.has(id))return;
  try{
   if(state.busy&&state.backendJob?.id===id&&!resume)return;
+  stopLiveResultPolling();
   state.runId++;state.controller?.abort();setBusy(false);
-  const job=await data.getServerScan(id),q=job.query;
+  const job=await data.getServerScan(id);if(!resume&&job.status==='running')return await openLiveBackendScan(id,job);const q=job.query;
   if(deletingScans.has(id)||deletedScans.has(id))return;
   setSource('live');setView(q.kind==='holders'?'screener':'wallets');state.provider=q.provider||'auto';renderProviderStatus();state.chainIds=[...q.chainIds];state.match=q.match;
   if(q.tokens)state.selectedTokens=q.tokens.map(t=>job.tasks.find(task=>task.token?.id===`${t.chainId}:${t.address}`)?.token||{...t,id:`${t.chainId}:${t.address}`,symbol:'ERC-20'});
-  if(q.addresses)$('wallet-addresses').value=q.addresses.join('\n');
+ if(q.addresses){state.smartDatasetAddresses=new Set((q.walletMetadata||[]).map(w=>w.address.toLowerCase()));$('wallet-addresses').value=queryAddressList(q.addresses).filter(a=>!state.smartDatasetAddresses.has(a)).join('\n');}
   $('result-search').value='';$('min-value').value='';renderTokens();renderChains();renderBackendScan(job);
   if(resume)await data.resumeServerScan(id);
   await run(id);
  }catch(error){setError(error.message);}
 }
+async function openLiveBackendScan(id,knownJob=null){
+ if(deletingScans.has(id)||deletedScans.has(id))return;
+ stopLiveResultPolling();state.runId++;state.controller?.abort();state.controller=null;state.tokenPageRequest++;state.tokenPageController?.abort();setBusy(false);
+ try{
+  const job=knownJob||await data.getServerScan(id);if(deletingScans.has(id)||deletedScans.has(id))return;
+  const q=job.query;setSource('live');setView(q.kind==='holders'?'screener':'wallets');state.provider=q.provider||'auto';renderProviderStatus();state.chainIds=[...q.chainIds];state.match=q.match;
+  if(q.tokens)state.selectedTokens=q.tokens.map(t=>job.tasks.find(task=>task.token?.id===`${t.chainId}:${t.address}`)?.token||{...t,id:`${t.chainId}:${t.address}`,symbol:'ERC-20'});
+  if(q.addresses){state.smartDatasetAddresses=new Set((q.walletMetadata||[]).map(w=>w.address.toLowerCase()));$('wallet-addresses').value=queryAddressList(q.addresses).filter(a=>!state.smartDatasetAddresses.has(a)).join('\n');}
+  $('result-search').value='';$('min-value').value='';renderTokens();renderChains();renderBackendScan(job);setError();
+  const result=await data.readServerScanResult(job);if(deletingScans.has(id)||deletedScans.has(id))return;
+  state.result={...result,wallets:(result.wallets||[]).map(normalizeWallet),tokens:(result.tokens||[]).map(t=>({...t,totalValue:t.totalValue??t.value??null,holderCount:t.holderCount??t.holders?.length??0,share:t.share??0}))};state.result.fetchedAt=new Date().toISOString();state.dirty=false;state.page=1;
+  const latestJob=state.result.job||job;renderBackendScan(latestJob);renderResults();if(latestJob.status==='running')scheduleLiveResultPoll(id);
+ }catch(error){if(error.name!=='AbortError')setError(error.message||'Průběžný výsledek se nepodařilo otevřít.');}
+}
 async function pauseBackendScan(id){
- try{if(state.backendJob?.id===id){state.runId++;state.controller?.abort();setBusy(false);}await data.pauseServerScan(id);await openBackendScan(id);}catch(error){setError(error.message);}
+ try{
+  const isOpen=state.result?.job?.id===id;if(isOpen)stopLiveResultPolling();if(state.backendJob?.id===id&&state.busy){state.runId++;state.controller?.abort();state.controller=null;setBusy(false);}
+  const job=await data.pauseServerScan(id);renderBackendScan(job);
+  if(state.result?.job?.id===id){state.result.job=job;await refreshLiveScanResult(job,liveResultRequest);renderLiveScanStatus(state.result.job);}
+  await refreshServerScans();
+ }catch(error){setError(error.message);}
 }
 function currentRows(){
  if(state.view==='watchlist')return savedWallets.filter(w=>w.source===state.source).map(w=>normalizeWallet({...w.wallet,savedAt:w.savedAt}));
@@ -281,6 +363,7 @@ function filteredRows(){
  if(state.view==='wallets'&&state.result?.serverPaginated)return state.result.tokens||[];
  const q=$('result-search').value.toLowerCase().trim();const min=Math.max(0,Number($('min-value').value)||0);const mode=state.view==='wallets';const sort=$('sort-select').value;
  const rows=currentRows().filter(r=>{
+  if(mode&&$('hide-spam')?.checked&&r.likelySpam)return false;
   const searchable=mode?`${r.symbol} ${r.name} ${r.address} ${network(r.chainId).name}`:`${r.address} ${r.label||''}`;
   const value=mode?r.totalValue:r.value;
   return searchable.toLowerCase().includes(q)&&(!min||(value!==null&&value>=min));
@@ -291,12 +374,12 @@ async function loadServerTokenPage(page=state.page){
  if(!state.result?.serverPaginated||!data.getServerTokenPage)return;
  state.page=page;const request=++state.tokenPageRequest;state.tokenPageController?.abort();state.tokenPageController=new AbortController();
  try{
-  const response=await data.getServerTokenPage(state.result.job.id,{offset:(page-1)*state.pageSize,limit:state.pageSize,revision:state.result.pagination?.revision,sort:$('sort-select').value,minHolders:$('min-holders').value,minShare:$('min-share').value,chainId:$('result-network').value,search:$('result-search').value},state.tokenPageController.signal);
+  const response=await data.getServerTokenPage(state.result.job.id,{offset:(page-1)*state.pageSize,limit:state.pageSize,revision:state.result.job.status==='running'?undefined:state.result.pagination?.revision,sort:$('sort-select').value,minHolders:$('min-holders').value,minShare:$('min-share').value,chainId:$('result-network').value,search:$('result-search').value,hideSpam:$('hide-spam').checked},state.tokenPageController.signal);
   if(request!==state.tokenPageRequest)return;state.result={...state.result,...response,serverPaginated:true};state.page=page;renderResults();
  }catch(error){if(error.name!=='AbortError'&&request===state.tokenPageRequest)setError(error.message||'Stránku výsledků se nepodařilo načíst.');}
 }
 function renderStats(){
- const rows=currentRows();const walletMode=state.view==='wallets';const walletRows=walletMode?(state.result?.wallets||[]):rows;
+ const rows=state.view==='wallets'?filteredRows():currentRows();const walletMode=state.view==='wallets';const walletRows=walletMode?(state.result?.wallets||[]):rows;
  const sum=rows.reduce((a,r)=>a+((walletMode?r.totalValue:r.value)||0),0);const chains=[...new Set(rows.flatMap(r=>walletMode?[r.chainId]:r.chainIds))].filter(Boolean);
  const knownRows=rows.filter(r=>Number.isFinite(walletMode?r.totalValue:r.value));
  const stats=walletMode?[
@@ -313,7 +396,7 @@ function renderStats(){
  $('stats').innerHTML=stats.map((s,i)=>`<div class="stat-card"><div class="stat-top">${s[0]}<span>${icon(s[3])}</span></div><div class="stat-value">${s[1]}${i===3?`<span class="stat-chains">${chains.slice(0,5).map(chainIcon).join('')}</span>`:''}</div><div class="stat-foot">${i===0?'<span class="accent">↗</span>':''}${s[2]}</div></div>`).join('');
 }
 function renderInsight(){
- const rows=currentRows();const total=rows.length;const walletMode=state.view==='wallets';const sum=rows.reduce((a,r)=>a+((walletMode?r.totalValue:r.value)||0),0);
+ const rows=state.view==='wallets'?filteredRows():currentRows();const total=rows.length;const walletMode=state.view==='wallets';const sum=rows.reduce((a,r)=>a+((walletMode?r.totalValue:r.value)||0),0);
  if(state.view==='watchlist'){
   const chains=[...new Set(rows.flatMap(w=>w.chainIds))];
   $('insight-panel').innerHTML=`<div class="insight-label">${icon('bookmark')} Váš výzkumný okruh</div><p>Adresy, ke kterým se chcete vrátit.</p><div class="venn-diagram"><div class="venn-circle"></div><div class="venn-circle second"></div><div class="venn-value"><strong>${total}</strong><small>uložených snapshotů</small></div></div><div class="insight-divider"></div><div class="insight-pair"><span>Zdroj</span><strong>${state.source==='demo'?'Demo':'Live API'}</strong></div><div class="insight-pair"><span>Zastoupené sítě</span><strong>${chains.length}</strong></div><div class="insight-note">${icon('history')} Pozice odpovídají okamžiku uložení. Novou analýzou získáte aktuální data.</div><button class="insight-link" id="insight-help">Jak číst snapshoty <span>↗</span></button>`;
@@ -341,6 +424,7 @@ function renderProviderProvenance(){
 }
 function renderResults(){
  if(state.busy||['smart','socials'].includes(state.view))return;
+ renderLiveScanStatus(state.result?.job);
  if(state.view==='wallets')renderWalletInputContext();
  const warnings=state.view==='watchlist'?[]:(state.result?.warnings||[]);
  $('scan-notice').hidden=!warnings.length;
@@ -372,12 +456,15 @@ function walletRow(w){
  const smart=state.source==='live'?smartWallets.lookup?.(w.address):null;
  const matched=w.matchedTokens.length?w.matchedTokens:w.holdings.filter(h=>state.selectedTokens.some(t=>t.chainId===h.chainId&&t.address.toLowerCase()===h.address?.toLowerCase()));
  const values=matched.map(t=>w.holdings.find(h=>h.chainId===t.chainId&&h.address?.toLowerCase()===t.address?.toLowerCase())?.value).filter(v=>Number.isFinite(v)&&v>0);const sum=values.reduce((a,n)=>a+n,0);
- return `<tr><td><input type="checkbox" data-select-wallet="${esc(w.address)}" aria-label="Vybrat ${esc(smart?.name||short(w.address))}" ${state.selected.has(w.address)?'checked':''}></td><td><div class="wallet-identity">${identicon(w.address)}<div><button class="address-button" data-wallet="${esc(w.address)}">${esc(smart?.name||short(w.address))}</button>${smart?`<div class="smart-address">${esc(w.address)}</div>${smartMetadataHtml(smart)}`:''}<div class="wallet-name"><i></i>${state.source==='demo'?esc(w.label||'Ukázková adresa'):w.savedAt?'Snapshot '+esc(new Date(w.savedAt).toLocaleDateString('cs-CZ')):'Veřejná adresa'}</div></div></div></td><td><div class="row-networks">${w.chainIds.slice(0,5).map(chainIcon).join('')}${w.chainIds.length>5?`<span class="pending-dot">+${w.chainIds.length-5}</span>`:''}</div></td><td><div class="match-tokens">${matched.slice(0,4).map(t=>coin(t,'micro')).join('')}<span class="match-total">${matched.length}/${state.view==='watchlist'?matched.length:(state.selectedTokens.length||matched.length)}</span></div></td><td class="value-cell">${money(w.value)}<small>${state.source==='demo'?'ilustrační USD':'známé USD ceny'}</small></td><td><div class="allocation" title="Poměr známých hodnot vybraných pozic">${values.slice(0,5).map(v=>`<span style="flex:${v/sum}"></span>`).join('')||'<span style="background:#354740;flex:1"></span>'}</div></td><td><div class="row-actions">${state.source==='live'?`<button class="open-detail" data-smart-add="${esc(w.address)}" aria-label="Přidat do Smart wallets ${esc(short(w.address))}" title="Přidat do Smart wallets">+</button>`:''}<button class="bookmark-button ${saved(w.address)?'saved':''}" data-bookmark="${esc(w.address)}" aria-label="${saved(w.address)?'Odebrat z watchlistu':'Uložit do watchlistu'} ${esc(short(w.address))}">${icon('bookmark')}</button><button class="open-detail" data-wallet="${esc(w.address)}" aria-label="Detail ${esc(short(w.address))}">↗</button></div></td></tr>`;
+ const profileUrl=data.debankProfileUrl(w.address),addressHtml=profileUrl?`<a class="smart-address smart-address-link" href="${esc(profileUrl)}" target="_blank" rel="noopener noreferrer">${esc(w.address)}</a>`:`<div class="smart-address">${esc(w.address)}</div>`;
+ return `<tr><td><input type="checkbox" data-select-wallet="${esc(w.address)}" aria-label="Vybrat ${esc(smart?.name||short(w.address))}" ${state.selected.has(w.address)?'checked':''}></td><td><div class="wallet-identity">${identicon(w.address)}<div><button class="address-button" data-wallet="${esc(w.address)}">${esc(smart?.name||short(w.address))}</button>${smart?`${addressHtml}${smartMetadataHtml(smart)}`:''}<div class="wallet-name"><i></i>${state.source==='demo'?esc(w.label||'Ukázková adresa'):w.savedAt?'Snapshot '+esc(new Date(w.savedAt).toLocaleDateString('cs-CZ')):'Veřejná adresa'}</div></div></div></td><td><div class="row-networks">${w.chainIds.slice(0,5).map(chainIcon).join('')}${w.chainIds.length>5?`<span class="pending-dot">+${w.chainIds.length-5}</span>`:''}</div></td><td><div class="match-tokens">${matched.slice(0,4).map(t=>coin(t,'micro')).join('')}<span class="match-total">${matched.length}/${state.view==='watchlist'?matched.length:(state.selectedTokens.length||matched.length)}</span></div></td><td class="value-cell">${money(w.value)}<small>${state.source==='demo'?'ilustrační USD':'známé USD ceny'}</small></td><td><div class="allocation" title="Poměr známých hodnot vybraných pozic">${values.slice(0,5).map(v=>`<span style="flex:${v/sum}"></span>`).join('')||'<span style="background:#354740;flex:1"></span>'}</div></td><td><div class="row-actions">${state.source==='live'?`<button class="open-detail" data-smart-add="${esc(w.address)}" aria-label="Přidat do Smart wallets ${esc(short(w.address))}" title="Přidat do Smart wallets">+</button>`:''}<button class="bookmark-button ${saved(w.address)?'saved':''}" data-bookmark="${esc(w.address)}" aria-label="${saved(w.address)?'Odebrat z watchlistu':'Uložit do watchlistu'} ${esc(short(w.address))}">${icon('bookmark')}</button><button class="open-detail" data-wallet="${esc(w.address)}" aria-label="Detail ${esc(short(w.address))}">↗</button></div></td></tr>`;
 }
 function tokenRow(t,i){
  let share=t.share||0;if(share<=1)share*=100;share=Math.min(100,share);
- return `<tr><td class="pending-dot">${(state.page-1)*state.pageSize+i+1}</td><td><div class="wallet-identity">${coin(t,'small')}<div><span class="address-button">${esc(t.symbol)}</span><div class="wallet-name">${esc(short(t.address))}</div></div></div></td><td><div class="row-networks">${chainIcon(t.chainId)}<span class="pending-dot">${esc(network(t.chainId).name)}</span></div></td><td class="value-cell" style="text-align:left">${number(t.holderCount)} / ${number(t.analyzedWalletCount??0)}<small>úspěšně analyzovaných wallets</small></td><td><div class="holder-share"><span class="share-track"><i style="width:${share}%"></i></span>${share.toFixed(1)} %</div></td><td class="value-cell">${money(t.totalValue)}<small>${number(t.unpricedPositions||0)} pozic bez USD ceny · ${amount(t.amount)} ${esc(t.symbol)}</small></td><td><a class="open-detail" href="${esc(explorerUrl(t.chainId,'token',t.address))}" target="_blank" rel="noopener noreferrer" aria-label="Otevřít kontrakt ${esc(t.symbol)} v exploreru">↗</a></td></tr>`;
+ const reasons=(t.spamReasons||[]).map(spamReasonLabel).join(' · ');
+ return `<tr><td class="pending-dot">${(state.page-1)*state.pageSize+i+1}</td><td><div class="wallet-identity">${coin(t,'small')}<div><span class="address-button">${esc(t.symbol)}</span>${t.likelySpam?`<small class="spam-token-badge" title="${esc(reasons)}">Podezřelý spam</small>`:''}<div class="wallet-name">${esc(short(t.address))}</div></div></div></td><td><div class="row-networks">${chainIcon(t.chainId)}<span class="pending-dot">${esc(network(t.chainId).name)}</span></div></td><td class="value-cell" style="text-align:left">${number(t.holderCount)} / ${number(t.analyzedWalletCount??0)}<small>úspěšně analyzovaných wallets</small></td><td><div class="holder-share"><span class="share-track"><i style="width:${share}%"></i></span>${share.toFixed(1)} %</div></td><td class="value-cell">${money(t.totalValue)}<small>${number(t.unpricedPositions||0)} pozic bez USD ceny · ${amount(t.amount)} ${esc(t.symbol)}</small></td><td><a class="open-detail" href="${esc(explorerUrl(t.chainId,'token',t.address))}" target="_blank" rel="noopener noreferrer" aria-label="Otevřít kontrakt ${esc(t.symbol)} v exploreru">↗</a></td></tr>`;
 }
+function spamReasonLabel(reason){if(reason==='url-in-name')return 'URL v názvu';if(reason==='url-in-symbol')return 'URL v symbolu';if(reason==='name-too-long')return 'Příliš dlouhý název';if(reason.startsWith('keyword:'))return `Podezřelé slovo: ${reason.slice(8)}`;return reason;}
 function explorerUrl(chainId,type,address){const base=network(chainId).explorer||network(chainId).explorerUrl||'';return /^https:\/\//.test(base)&&/^0x[\da-fA-F]{40}$/.test(address)?`${base.replace(/\/$/,'')}/${type}/${address}`:'#';}
 function toggleBookmark(address){
  const idx=savedWallets.findIndex(w=>w.source===state.source&&w.wallet?.address===address);
@@ -389,10 +476,11 @@ function toggleBookmark(address){
 function openWallet(address,existing){
  const w=currentRows().find(w=>w.address===address)||state.result?.wallets?.find(w=>w.address===address)||existing;
  if(!w)return;state.activeWallet=w;
- $('wallet-drawer').innerHTML=`<div class="drawer-header"><span>WALLET INTELLIGENCE / ${state.source.toUpperCase()}</span><button class="icon-button" id="close-drawer" aria-label="Zavřít detail">×</button></div><div class="drawer-identity">${identicon(w.address)}<h2>${state.source==='demo'?esc(w.label||'Ukázková peněženka'):esc(smartWallets.lookup?.(w.address)?.name||'Detail peněženky')}</h2><div class="full-address">${esc(w.address)}</div>${state.source==='live'?smartMetadataHtml(smartWallets.lookup?.(w.address)):''}</div><div class="drawer-tools">${state.source==='live'?`<button class="subtle-button" data-smart-add="${esc(w.address)}">+ Smart wallets</button>`:''}<button class="subtle-button" id="copy-address">${icon('copy')} Kopírovat</button><button class="subtle-button" data-bookmark="${esc(w.address)}">${icon('bookmark')} ${saved(w.address)?'Uloženo':'Watchlist'}</button>${w.chainIds[0]?`<a class="subtle-button" href="${esc(explorerUrl(w.chainIds[0],'address',w.address))}" target="_blank" rel="noopener noreferrer">Explorer ${icon('external')}</a>`:''}</div><div class="drawer-stat"><span>Hodnota vybraných pozic ve screeneru</span><strong>${money(w.value)}</strong><p class="drawer-footnote">${state.source==='demo'?'Ilustrační USD hodnoty · syntetická adresa':'Pouze pozice vrácené indexerem. Záznam nemusí obsahovat celé portfolio.'}</p></div><h2>Načtené tokenové pozice <span class="count-badge">${w.holdings.length}</span></h2>${w.holdings.map(h=>`<div class="drawer-holding">${coin(h)}<span>${esc(h.symbol)}<small>${esc(network(h.chainId).name)}</small></span><span>${money(h.value)}<small>${amount(h.amount)} ${esc(h.symbol)}</small></span></div>`).join('')}<p class="drawer-footnote">Nativní ETH, NFT ani DeFi pozice nejsou zahrnuté. ${w.savedAt?'Snapshot: '+esc(new Date(w.savedAt).toLocaleString('cs-CZ')):''}</p><button class="primary-button" id="analyze-this-wallet" style="width:100%;margin-top:20px">Analyzovat tuto adresu →</button>`;
+ const profileUrl=data.debankProfileUrl(w.address),drawerAddress=profileUrl?`<a class="full-address smart-address-link" href="${esc(profileUrl)}" target="_blank" rel="noopener noreferrer">${esc(w.address)}</a>`:`<div class="full-address">${esc(w.address)}</div>`;
+ $('wallet-drawer').innerHTML=`<div class="drawer-header"><span>WALLET INTELLIGENCE / ${state.source.toUpperCase()}</span><button class="icon-button" id="close-drawer" aria-label="Zavřít detail">×</button></div><div class="drawer-identity">${identicon(w.address)}<h2>${state.source==='demo'?esc(w.label||'Ukázková peněženka'):esc(smartWallets.lookup?.(w.address)?.name||'Detail peněženky')}</h2>${drawerAddress}${state.source==='live'?smartMetadataHtml(smartWallets.lookup?.(w.address)):''}</div><div class="drawer-tools">${state.source==='live'?`<button class="subtle-button" data-smart-add="${esc(w.address)}">+ Smart wallets</button>`:''}<button class="subtle-button" id="copy-address">${icon('copy')} Kopírovat</button><button class="subtle-button" data-bookmark="${esc(w.address)}">${icon('bookmark')} ${saved(w.address)?'Uloženo':'Watchlist'}</button>${w.chainIds[0]?`<a class="subtle-button" href="${esc(explorerUrl(w.chainIds[0],'address',w.address))}" target="_blank" rel="noopener noreferrer">Explorer ${icon('external')}</a>`:''}</div><div class="drawer-stat"><span>Hodnota vybraných pozic ve screeneru</span><strong>${money(w.value)}</strong><p class="drawer-footnote">${state.source==='demo'?'Ilustrační USD hodnoty · syntetická adresa':'Pouze pozice vrácené indexerem. Záznam nemusí obsahovat celé portfolio.'}</p></div><h2>Načtené tokenové pozice <span class="count-badge">${w.holdings.length}</span></h2>${w.holdings.map(h=>`<div class="drawer-holding">${coin(h)}<span>${esc(h.symbol)}<small>${esc(network(h.chainId).name)}</small></span><span>${money(h.value)}<small>${amount(h.amount)} ${esc(h.symbol)}</small></span></div>`).join('')}<p class="drawer-footnote">Nativní ETH, NFT ani DeFi pozice nejsou zahrnuté. ${w.savedAt?'Snapshot: '+esc(new Date(w.savedAt).toLocaleString('cs-CZ')):''}</p><button class="primary-button" id="analyze-this-wallet" style="width:100%;margin-top:20px">Analyzovat tuto adresu →</button>`;
  $('wallet-drawer').hidden=false;$('drawer-backdrop').hidden=false;$('close-drawer').onclick=closeDrawer;
  $('copy-address').onclick=async()=>{try{await navigator.clipboard.writeText(w.address);toast('Adresa zkopírována.');}catch{toast('Kopírování není dostupné. Adresu lze označit v detailu.');}};
- $('analyze-this-wallet').onclick=()=>{closeDrawer();setView('wallets');$('wallet-addresses').value=w.address;run();};
+ $('analyze-this-wallet').onclick=()=>{closeDrawer();setView('wallets');state.smartDatasetAddresses.clear();$('wallet-manual-entry').hidden=false;$('wallet-addresses').value=w.address;renderWalletInputContext();run();};
  $('close-drawer').focus();
 }
 function closeDrawer(){$('wallet-drawer').hidden=true;$('drawer-backdrop').hidden=true;state.activeWallet=null;}
@@ -414,7 +502,7 @@ function addCustomToken(){
 }
 function saveSearch(){
  if(!state.result)return;
- const q={id:Date.now(),source:state.source,provider:state.provider,view:state.view,tokens:state.selectedTokens.map(t=>({...t})),chainIds:[...state.chainIds],match:state.match,addresses:$('wallet-addresses').value,date:new Date().toISOString()};
+ const q={id:Date.now(),source:state.source,provider:state.provider,view:state.view,tokens:state.selectedTokens.map(t=>({...t})),chainIds:[...state.chainIds],match:state.match,addresses:analysisAddresses(),walletMetadata:[...state.smartDatasetAddresses].map(address=>smartWallets.lookup?.(address)).filter(Boolean),date:new Date().toISOString()};
  savedQueries.unshift(q);savedQueries.splice(15);writeLocal('cd:queries:v1',savedQueries);toast('Dotaz uložen. Najdete ho v Uložených dotazech.');
 }
 function showSavedSearches(){
@@ -430,7 +518,7 @@ async function exportCSV(){
   try{
    const all=[];const total=state.result.pagination?.total||0;const pageSize=200;
    for(let offset=0;offset<total;offset+=pageSize){
-    const response=await data.getServerTokenPage(state.result.job.id,{offset,limit:pageSize,revision:state.result.pagination?.revision,sort:$('sort-select').value,minHolders:$('min-holders').value,minShare:$('min-share').value,chainId:$('result-network').value,search:$('result-search').value});
+    const response=await data.getServerTokenPage(state.result.job.id,{offset,limit:pageSize,revision:state.result.pagination?.revision,sort:$('sort-select').value,minHolders:$('min-holders').value,minShare:$('min-share').value,chainId:$('result-network').value,search:$('result-search').value,hideSpam:$('hide-spam').checked});
     all.push(...response.tokens);
    }
    exportRows=all;
@@ -450,7 +538,7 @@ const socialsModule=initSocials();
 document.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.smartAdd&&state.source==='live'){const wallet=state.result?.wallets?.find(w=>w.address===b.dataset.smartAdd)||currentRows().find(w=>w.address===b.dataset.smartAdd)||state.activeWallet;closeDrawer();smartWallets.add(b.dataset.smartAdd,wallet?.chainIds);}
- if(b.dataset.openScan)openBackendScan(b.dataset.openScan);if(b.dataset.resumeScan)openBackendScan(b.dataset.resumeScan,true);if(b.dataset.pauseScan)pauseBackendScan(b.dataset.pauseScan);
+ if(b.dataset.viewScan)openLiveBackendScan(b.dataset.viewScan);if(b.dataset.openScan)openBackendScan(b.dataset.openScan);if(b.dataset.resumeScan)openBackendScan(b.dataset.resumeScan,true);if(b.dataset.pauseScan)pauseBackendScan(b.dataset.pauseScan);
  if(b.dataset.deleteScan)deleteBackendScan(b.dataset.deleteScan,b);
  if(b.dataset.view)setView(b.dataset.view);
  if(b.dataset.mode)setView(b.dataset.mode);
@@ -463,19 +551,24 @@ document.addEventListener('click',event=>{
  if(b.dataset.wallet)openWallet(b.dataset.wallet);
  if(b.dataset.bookmark)toggleBookmark(b.dataset.bookmark);
  if(b.dataset.roadmap)info(b.dataset.roadmap,`<p>Tento modul je připravený v navigaci pro další etapu.</p><h3>${esc(b.dataset.roadmap)}</h3><p>${{'Smart money':'Skupiny sledovaných peněženek, ověřitelné štítky a historická úspěšnost.', 'Toky kapitálu':'Přírůstky a úbytky pozic, čisté toky tokenů a změny v čase.', 'Upozornění':'Pravidla nad uloženými adresami a změnami držených tokenů.'}[b.dataset.roadmap]}</p><p>V této první verzi jsou dostupné token screener, analýza peněženek a lokální watchlist.</p>`);
- if(b.dataset.loadQuery){const q=savedQueries.find(q=>String(q.id)===b.dataset.loadQuery);if(q){state.runId++;state.controller?.abort();setBusy(false);closeDrawer();$('info-dialog').close();state.selectedTokens=(q.tokens||[]).map(t=>({...t}));state.chainIds=[...q.chainIds];state.match=q.match;setSource(q.source);setView(q.view);state.provider=q.provider||'auto';renderProviderStatus();$('wallet-addresses').value=q.addresses||'';renderTokens();renderChains();if(q.source==='demo'&&standaloneDemo)run();else{state.result=null;state.dirty=true;renderResults();toast('Dotaz načten. Spusťte živý sken.');}}}
+ if(b.dataset.loadQuery){const q=savedQueries.find(q=>String(q.id)===b.dataset.loadQuery);if(q){state.runId++;state.controller?.abort();setBusy(false);closeDrawer();$('info-dialog').close();state.selectedTokens=(q.tokens||[]).map(t=>({...t}));state.chainIds=[...q.chainIds];state.match=q.match;setSource(q.source);setView(q.view);state.provider=q.provider||'auto';renderProviderStatus();state.smartDatasetAddresses=new Set((q.walletMetadata||[]).map(w=>w.address.toLowerCase()));$('wallet-addresses').value=queryAddressList(q.addresses).filter(a=>!state.smartDatasetAddresses.has(a)).join('\n');renderTokens();renderChains();if(q.source==='demo'&&standaloneDemo)run();else{state.result=null;state.dirty=true;renderWalletInputContext();renderResults();toast('Dotaz načten. Spusťte živý sken.');}}}
  if(b.dataset.deleteQuery){const i=savedQueries.findIndex(q=>String(q.id)===b.dataset.deleteQuery);if(i>=0){savedQueries.splice(i,1);writeLocal('cd:queries:v1',savedQueries);$('info-dialog').close();showSavedSearches();}}
 });
 document.addEventListener('change',e=>{if(e.target.dataset.selectWallet){e.target.checked?state.selected.add(e.target.dataset.selectWallet):state.selected.delete(e.target.dataset.selectWallet);renderResults();}});
 let resultFilterTimer;
 const refreshResultsForFilters=()=>{state.page=1;if(state.view==='wallets'&&state.result?.serverPaginated){clearTimeout(resultFilterTimer);resultFilterTimer=setTimeout(()=>loadServerTokenPage(1),180);}else renderResults();};
-['result-search','min-value','min-holders','min-share'].forEach(id=>$(id).addEventListener('input',refreshResultsForFilters));$('result-network').onchange=refreshResultsForFilters;$('sort-select').onchange=refreshResultsForFilters;
+['result-search','min-value','min-holders','min-share'].forEach(id=>$(id).addEventListener('input',refreshResultsForFilters));$('result-network').onchange=refreshResultsForFilters;$('sort-select').onchange=refreshResultsForFilters;$('hide-spam').onchange=refreshResultsForFilters;
  $('previous-page').onclick=()=>{state.page--;state.result?.serverPaginated?loadServerTokenPage(state.page):renderResults();};$('next-page').onclick=()=>{state.page++;state.result?.serverPaginated?loadServerTokenPage(state.page):renderResults();};
  $('refresh-scans').onclick=refreshServerScans;$('fresh-scan').onclick=()=>{state.forceRefresh=true;run();};
+ $('server-scan-history-toggle').onclick=()=>{state.scanHistoryOpen=!state.scanHistoryOpen;try{globalThis.sessionStorage?.setItem('cd:scan-history-open',String(state.scanHistoryOpen));}catch{}renderServerScanPanels();};
  $('scan-button').onclick=run;$('analyze-button').onclick=run;
  $('wallet-addresses').addEventListener('input',()=>{state.runId++;state.controller?.abort();setBusy(false);state.result=null;state.dirty=true;$('wallet-smart-note').textContent='';renderWalletInputContext();renderResults();});
  $('wallet-load-smart').hidden=standaloneDemo;
  $('wallet-load-smart').onclick=async()=>{await refreshProviders();smartWallets.pick();};
+ $('wallet-edit-smart').onclick=async()=>{await refreshProviders();smartWallets.pick({baseAddresses:manualAddresses(),selectedAddresses:[...state.smartDatasetAddresses],replaceSmartSelection:true});};
+ $('wallet-clear-dataset').onclick=()=>{state.smartDatasetAddresses.clear();$('wallet-addresses').value='';$('wallet-manual-entry').hidden=true;state.result=null;state.rows=[];state.dirty=true;state.page=1;renderWalletInputContext();renderResults();};
+ $('wallet-manual-toggle').onclick=()=>{$('wallet-manual-entry').hidden=!$('wallet-manual-entry').hidden;renderWalletInputContext();if(!$('wallet-manual-entry').hidden)$('wallet-addresses').focus();};
+ $('wallet-manual-hide').onclick=()=>{$('wallet-manual-entry').hidden=true;renderWalletInputContext();};
  $('add-token').onclick=()=>{$('token-search').value='';renderTokenOptions();$('token-dialog').showModal();$('token-search').focus();};$('token-search').oninput=renderTokenOptions;
  $('custom-chain').innerHTML=networks.map(n=>`<option value="${esc(n.id)}">${esc(n.name)}</option>`).join('');
  $('add-custom-token').onclick=addCustomToken;
@@ -483,14 +576,14 @@ const refreshResultsForFilters=()=>{state.page=1;if(state.view==='wallets'&&stat
  $('all-chains').onclick=()=>{const available=networks.filter(n=>supportsCurrentChain(n.id));state.chainIds=state.chainIds.length===available.length?[]:available.map(n=>n.id);renderChains();if(state.view==='wallets')renderWalletInputContext();markDirty();};
  $('provider-select').onchange=e=>changeProvider(e.target.value);
  $('load-wallet-demo').hidden=!standaloneDemo;
- $('load-wallet-demo').onclick=()=>{$('wallet-addresses').value=demoAddresses().join('\n');run();};
+ $('load-wallet-demo').onclick=()=>{state.smartDatasetAddresses.clear();$('wallet-manual-entry').hidden=false;$('wallet-addresses').value=demoAddresses().join('\n');renderWalletInputContext();run();};
  $('guide-button').onclick=guide;$('help-button').onclick=guide;$('workspace-info').onclick=guide;
  $('data-info').onclick=dataInfo;$('coverage-button').onclick=dataInfo;$('banner-info').onclick=dataInfo;
  $('saved-searches').onclick=showSavedSearches;$('save-search').onclick=saveSearch;$('export-button').onclick=exportCSV;
  $('menu-button').onclick=()=>$('sidebar').classList.toggle('open');
  $('drawer-backdrop').onclick=closeDrawer;
- $('analyze-selected').onclick=()=>{const addresses=[...state.selected];if(addresses.length>20){toast('Pro analýzu vyberte nejvýše 20 adres.');return;}setView('wallets');$('wallet-addresses').value=addresses.join('\n');run();};
+ $('analyze-selected').onclick=()=>{const addresses=[...state.selected];if(addresses.length>20){toast('Pro analýzu vyberte nejvýše 20 adres.');return;}state.smartDatasetAddresses.clear();setView('wallets');$('wallet-addresses').value=addresses.join('\n');$('wallet-manual-entry').hidden=false;renderWalletInputContext();run();};
  $('clear-selection').onclick=()=>{state.selected.clear();renderResults();};
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();$('sidebar').classList.remove('open');}if(e.key==='Tab'&&!$('wallet-drawer').hidden){const focusable=[...$('wallet-drawer').querySelectorAll('button,a[href]')];const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
- document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}}));
+ document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('click',e=>{if(dialog.id==='smart-dialog'||e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}));
 renderTokens();renderChains();renderProviderStatus();renderResults();refreshProviders();refreshServerScans();if(standaloneDemo)run();

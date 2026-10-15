@@ -1,9 +1,10 @@
-import {isAddress,NETWORKS} from '../dist/data.js';
+import {isAddress,isSystemWalletAddress,NETWORKS} from '../dist/data.js';
 
 const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status});};
 const text=(value,max,label)=>{if(value===undefined)return '';if(typeof value!=='string'||value.length>max)fail(`${label}: nejvýše ${max} znaků.`);return value.trim();};
 const statuses=new Set(['candidate','reviewed','excluded']);
 const networksValid=ids=>Array.isArray(ids)&&ids.length>0&&ids.every(id=>NETWORKS.some(n=>n.id===id));
+function mergeTags(...groups){const tags=[],seen=new Set();for(const tag of groups.flat()){const key=tag.toLocaleLowerCase('en-US');if(seen.has(key))continue;seen.add(key);tags.push(tag);}return tags;}
 function addresses(input){
  if(!Array.isArray(input)||!input.length||input.some(address=>typeof address!=='string'||!isAddress(address)))fail('Vyberte alespoň jednu platnou EVM adresu.');
  return [...new Set(input.map(address=>address.toLowerCase()))];
@@ -11,6 +12,7 @@ function addresses(input){
 function importEntries(input){
  const raw=Array.isArray(input?.entries)?input.entries:Array.isArray(input?.addresses)?input.addresses.map(address=>({address})):null;
  if(!raw?.length||raw.length>200||raw.some(entry=>!entry||typeof entry!=='object'||typeof entry.address!=='string'||!isAddress(entry.address)))fail('Vložte 1 až 200 platných EVM adres. Celý seznam musí být platný.');
+ const system=raw.find(entry=>isSystemWalletAddress(entry.address));if(system)fail('Neplatná systémová adresa (zero address) nelze importovat jako Smart wallet.');
  const unique=new Map();for(const entry of raw){const address=entry.address.toLowerCase();if(unique.has(address))continue;const name=Object.hasOwn(entry,'name')?text(entry.name,100,'Název'):undefined;unique.set(address,{address,...(name?{name}:{})});}
  return [...unique.values()];
 }
@@ -19,7 +21,7 @@ function fields(input,retainedLegacy=[]){
  const status=input.status??'candidate';if(!statuses.has(status))fail('Neplatný stav hodnocení.');
  if(!Array.isArray(input.chainIds)||!input.chainIds.length||input.chainIds.some(id=>!NETWORKS.some(n=>n.id===id)&&!retainedLegacy.includes(id)))fail('Vyberte alespoň jednu platnou podporovanou síť.');
  if(!Array.isArray(input.tags)||input.tags.length>12)fail('Použijte nejvýše 12 štítků.');
- const tags=[...new Set(input.tags.map(t=>text(t,40,'Štítek')).filter(Boolean))];
+ const tags=mergeTags(input.tags.map(t=>text(t,40,'Štítek')).filter(Boolean));
  return {name:text(input.name,100,'Název'),tags,source:text(input.source,300,'Zdroj'),note:text(input.note,4000,'Poznámka'),status,chainIds:[...new Set(input.chainIds)].sort()};
 }
 export class SmartWalletStore{
@@ -74,7 +76,8 @@ export class SmartWalletStore{
  add(input){
   const f=fields(input),entries=importEntries(input);
   if(input.updateExisting!==undefined&&typeof input.updateExisting!=='boolean')fail('Neplatná volba pro existující adresy.');
-  const updateExisting=input.updateExisting===true,tagsMode=input.tagsMode??'add',networksMode=input.networksMode??'replace';
+  if(input.conflictMode!==undefined&&!['merge-tags','keep','update'].includes(input.conflictMode))fail('Neplatný režim existujících adres.');
+  const conflictMode=input.conflictMode??(input.updateExisting===true?'update':'keep'),tagsMode=input.tagsMode??'add',networksMode=input.networksMode??'replace';
   if(!['add','replace'].includes(tagsMode))fail('Neplatný režim štítků.');
   if(!['add','replace'].includes(networksMode))fail('Neplatný režim sledovaných sítí.');
   const created=[],updated=[],unchanged=[],now=new Date().toISOString();
@@ -85,10 +88,16 @@ export class SmartWalletStore{
    for(const entry of entries){
     const row=get.get(entry.address);
     if(!row){insert.run(entry.address,entry.name||f.name,JSON.stringify(f.tags),f.source,f.note,f.status,JSON.stringify(f.chainIds),now,now);created.push(entry.address);continue;}
-    if(!updateExisting){unchanged.push(entry.address);continue;}
     const wallet=this.decode(row);
+    if(conflictMode==='keep'){unchanged.push(entry.address);continue;}
+    if(conflictMode==='merge-tags'){
+     const tags=mergeTags(wallet.tags,f.tags);
+     if(tags.length>12)fail('Doplnění by vytvořilo více než 12 štítků u jedné peněženky.');
+     if(JSON.stringify(tags)===JSON.stringify(wallet.tags)){unchanged.push(entry.address);continue;}
+     this.db.prepare('UPDATE smart_wallets SET tags_json=?,updated_at=? WHERE address=?').run(JSON.stringify(tags),now,entry.address);updated.push(entry.address);continue;
+    }
     const name=entry.name||f.name||wallet.name;
-    const tags=tagsMode==='replace'?f.tags:[...new Set([...wallet.tags,...f.tags])];
+    const tags=tagsMode==='replace'?f.tags:mergeTags(wallet.tags,f.tags);
     if(tags.length>12)fail('Aktualizace by vytvořila více než 12 štítků u jedné peněženky.');
     const source=f.source||wallet.source,note=f.note||wallet.note,status=f.status;
     const chainIds=[...new Set(networksMode==='replace'?f.chainIds:[...wallet.chainIds,...f.chainIds])].sort();

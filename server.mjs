@@ -55,7 +55,7 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
      if(!scans.store.get(id)){await json(404,{error:'Sken nebyl nalezen.'});return;}
      if(request.method==='DELETE'&&!action){await json(200,scans.remove(id));return;}
      if(request.method==='GET'&&!action){await json(200,scans.store.describe(id));return;}
-     if(request.method==='GET'&&action==='result'){await json(200,scans.result(id,{offset:url.searchParams.get('offset'),limit:url.searchParams.get('limit'),revision:url.searchParams.has('revision')?url.searchParams.get('revision'):undefined,view:url.searchParams.get('view')||'wallets',sort:url.searchParams.get('sort')||'holders',minHolders:url.searchParams.get('minHolders'),minShare:url.searchParams.get('minShare'),chainId:url.searchParams.get('chainId')||'',search:url.searchParams.get('search')||''}));return;}
+     if(request.method==='GET'&&action==='result'){await json(200,scans.result(id,{offset:url.searchParams.get('offset'),limit:url.searchParams.get('limit'),revision:url.searchParams.has('revision')?url.searchParams.get('revision'):undefined,view:url.searchParams.get('view')||'wallets',sort:url.searchParams.get('sort')||'holders',minHolders:url.searchParams.get('minHolders'),minShare:url.searchParams.get('minShare'),chainId:url.searchParams.get('chainId')||'',search:url.searchParams.get('search')||'',hideSpam:url.searchParams.get('hideSpam')!=='false'}));return;}
      if(request.method==='POST'&&['pause','resume'].includes(action)){await body(request);await json(200,action==='pause'?await scans.pause(id):scans.resume(id));return;}
     }
     await json(404,{error:'API endpoint nebyl nalezen.'});return;
