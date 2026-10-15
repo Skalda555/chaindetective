@@ -16,7 +16,11 @@ Nová evidence používá `/api/smart-wallets` a tabulku `smart_wallets` ve stej
 - `listServerScans()`, `getServerScan(id)`, `pauseServerScan(id)`, `resumeServerScan(id)`, `openServerScan(id,{onProgress,signal})` obsluhují uložené živé skeny.
 - `aggregateHoldings`, `getToken`, `getNetwork`, `isAddress`, `normalizeAddress` jsou společné pomocné exporty.
 
-Parametr `maxPages` z první verze se již nepoužívá. Živý sken nemá pevný limit stran ani limit 150 držitelů. Prohlížeč dotazuje stav přibližně jednou za sekundu. Po dokončení či pozastavení načte uložené výsledky po 500 adresách do výsledné tabulky; toto je stránkování výstupu, nikoli omezení skenu indexeru. Změnu dat mezi stránkami hlídá revize skenu.
+Parametr `maxPages` z první verze se již nepoužívá. Živý sken nemá pevný limit stran ani limit 150 držitelů. Prohlížeč dotazuje stav přibližně jednou za sekundu. Holder výsledky se načítají po stránkách podle adres. Výsledky Wallet Analyzeru se agregují a filtrují na serveru a prohlížeč si vyžádá jen aktuální stránku tokenů; revize skenu brání smíchání různých stavů.
+
+Wallet Analyzer přijímá nejvýše 500 unikátních adres. `SCAN_MAX_WALLETS` a `SCAN_TASK_CONCURRENCY` nastavují limit datasetu a počet souběžných úloh na sken (výchozí hodnoty 500 a 4). Provider request limity lze nastavit pomocí `ALCHEMY_REQUEST_CONCURRENCY`, `ALCHEMY_MIN_REQUEST_INTERVAL_MS`, `BLOCKSCOUT_REQUEST_CONCURRENCY` a `BLOCKSCOUT_MIN_REQUEST_INTERVAL_MS`. Souběžnost úloh se nesmí zaměňovat za rychlost požadavků provideru; každá vrstva má vlastní limit.
+
+U wallet datasetu se token seskupuje podle sítě a kontraktu. `holderCount` je počet unikátních vlastníků tokenu mezi úspěšně dokončenými wallet/network úlohami; `analyzedWalletCount` je počet úspěšně dokončených wallet úloh v téže síti. `share = holderCount / analyzedWalletCount`. Neúspěšné nebo nepodporované úlohy se do jmenovatele nezapočítávají. Metadata známých Smart wallets (název, štítky a stav) se kopírují do uloženého dotazu.
 
 Peněženka má tvar `{address,label,chainIds,holdings,value,matchedTokens,matchCount,isDemo}`. Pozice obsahuje `{...token,tokenId,amount,value,rawAmount}`. Živé `value` je `null`, pokud není dostupná cena. `rawAmount` uchovává celočíselný zůstatek jako řetězec, zatímco `amount` je JavaScript Number pro zobrazení a může zaokrouhlovat.
 
@@ -25,19 +29,19 @@ Agregovaný token obsahuje `{...token,amount,totalValue,holders,holderCount,shar
 
 ## Alchemy pro Wallet Profiler
 
-Zkopírujte .env.example do .env, nastavte ALCHEMY_API_KEY a restartujte server. Klíč zůstává na serveru; .env je v .gitignore. Bez klíče se používá Blockscout.
+Zkopírujte `.env.example` do `.env`, nastavte `ALCHEMY_API_KEY` a `BLOCKSCOUT_API_KEY` a restartujte server. Server při startu načte `.env`; proměnné již nastavené v procesu mají přednost. Klíče zůstávají na serveru a soubor je v `.gitignore`.
 
-Wallet Profiler používá Alchemy Portfolio API (Tokens By Wallet), včetně metadat, dostupných USD cen a stránkování. Podporované sítě adaptéru: Ethereum, Base, Arbitrum, Optimism, zkSync Era, Scroll a Linea. Hledání držitelů ERC-20 dál používá Blockscout na prvních čtyřech sítích; Alchemy getOwnersForToken je NFT endpoint. Robinhood zatím není v adaptéru.
+Wallet Analyzer automaticky posílá Ethereum, Base, Optimism a Arbitrum do Alchemy; Robinhood Chain jde rovnou přes Blockscout. Při chybě Alchemy může Ethereum, Optimism a Arbitrum převzít Blockscout Pro. Base běží pouze přes Alchemy, protože současný účet Blockscoutu vrací HTTP 402. Ruční volba Blockscoutu je pro Wallet Analyzer dostupná na Ethereum, Optimism, Arbitrum a Robinhood Chain. Holder scanner zůstává na Blockscoutu.
 
-Při vyčerpaném kreditu, chybě přístupu nebo přetrvávajícím výpadku se daná kombinace adresy a sítě přepne na Blockscout, je-li dostupný. Krátkodobé limity 429 a výpadky se nejdříve dvakrát opakují. Přepnutí atomicky zahodí pouze pozice a kurzory této úlohy a načte zálohu od první stránky. Zdroje se v jedné úloze nemíchají. Zvolený zdroj a důvod přepnutí jsou uložené v SQLite a vrácené ve výsledku. Po restartu pokračuje úloha se svým uloženým poskytovatelem.
+Fallback se spustí při retryable síťové chybě, HTTP 429/5xx, upstream ochraně, poškozené odpovědi nebo vyčerpaném kreditu. Neplatný vstup, chyba přístupu a platná odpověď s nulou tokenů fallback nespouštějí. Alchemy má nejvýše tři pokusy s exponenciálním odstupem a respektuje `Retry-After` do 10 sekund. Jistič se vede zvlášť pro provider a síť: po třech chybách se na 60 sekund otevře; po cooldownu se primární zdroj zkusí znovu. Vyčerpaný Alchemy kredit má 30minutový cooldown. Při fallbacku se smažou pouze pozice a kurzory dané síťové úlohy a nová služba načte data od první stránky. Zdroje se v jedné úloze nemíchají. Poskytovatel, `fallbackFrom`, důvod a čas poslední úspěšné stránky jsou uložené v SQLite a viditelné ve výsledku. Chyba jedné sítě zachová výsledky ostatních. Po restartu pokračuje úloha se svým uloženým poskytovatelem.
 
-Na zkSync, Scroll a Linea záloha Blockscout není připojená: při chybě zůstávají dosud načtené pozice a sken je částečný. Kvóta nebo chyba přístupu omezí další pokusy o Alchemy na 30 minut, přetrvávající krátkodobá chyba na minutu. Nový sken po uplynutí této doby může Alchemy zkusit znovu. GET /api/providers zveřejňuje konfiguraci a pokrytí bez klíče. Cache rozlišuje skeny s konfigurací Alchemy od původních skenů Blockscout.
+GET `/api/providers` zveřejňuje konfiguraci, podporované operace a sítě i aktivní jističe bez klíče. Cache rozlišuje skeny podle konfigurace providerů. Výsledek Wallet Analyzeru zobrazuje skutečný zdroj, případný fallback a čas načtení podle sítě.
 
-Testy wallet-provider-regression.mjs ověřují stránkování, rozlišení kvóty a 429, bezpečné přepnutí po uložené stránce, nedostupnou zálohu a nepřítomnost klíče ve výsledcích. Alchemy nebylo ověřeno živým klíčem; používají se deterministické HTTP odpovědi.
+`tests/wallet-provider-regression.mjs` ověřuje jednotlivé trasy, fallback, izolaci jističů, Base bez Blockscout zálohy, částečné výsledky, provenance a neveřejnost klíčů. Praktický živý smoke test se spouští pouze samostatně; `npm test` nevolá externí API.
 
 ## Živý poskytovatel
 
-Blockscout je připojen pro **Ethereum, Base, Arbitrum a Optimism**. zkSync Era, Scroll a Linea jsou v živém Wallet Profileru dostupné s konfigurací Alchemy. Nepodporovaná síť má stav `unsupported` a upozornění, nikoli předstíraný úspěšný prázdný výsledek.
+Blockscout je připojen pro **Ethereum, Base, Optimism, Arbitrum a Robinhood Chain**. Nepodporovaná síť má stav `unsupported` a upozornění, nikoli předstíraný úspěšný prázdný výsledek.
 
 Použité Blockscout v2 cesty:
 

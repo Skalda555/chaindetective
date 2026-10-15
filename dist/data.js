@@ -2,11 +2,17 @@
 export const NETWORKS = [
   {id:'ethereum',chainId:1,name:'Ethereum',short:'ETH',color:'#8799d3',explorer:'https://eth.blockscout.com',api:'https://eth.blockscout.com/api/v2',live:true},
   {id:'base',chainId:8453,name:'Base',short:'BASE',color:'#3568f5',explorer:'https://base.blockscout.com',api:'https://base.blockscout.com/api/v2',live:true},
+  {id:'optimism',chainId:10,name:'Optimism',short:'OP',color:'#f05663',explorer:'https://optimism.blockscout.com',api:'https://optimism.blockscout.com/api/v2',live:true},
   {id:'arbitrum',chainId:42161,name:'Arbitrum',short:'ARB',color:'#49a8dc',explorer:'https://arbitrum.blockscout.com',api:'https://arbitrum.blockscout.com/api/v2',live:true},
-  {id:'optimism',chainId:10,name:'Optimism',short:'OP',color:'#f05663',explorer:'https://explorer.optimism.io',api:'https://explorer.optimism.io/api/v2',live:true},
-  {id:'zksync',chainId:324,name:'zkSync Era',short:'ZK',color:'#a692e1',explorer:'https://explorer.zksync.io',api:null,live:false},
-  {id:'scroll',chainId:534352,name:'Scroll',short:'SCR',color:'#d7ab83',explorer:'https://scrollscan.com',api:null,live:false},
-  {id:'linea',chainId:59144,name:'Linea',short:'LINEA',color:'#b1d6cc',explorer:'https://lineascan.build',api:null,live:false},
+  {id:'robinhood',chainId:4663,name:'Robinhood Chain',short:'RH',color:'#78c8a3',explorer:'https://robinhoodchain.blockscout.com',api:'https://robinhoodchain.blockscout.com/api/v2',live:true},
+];
+export const MAX_WALLET_SCAN=500;
+// Retired networks stay resolvable for old scan results and saved Smart wallets.
+// They are intentionally excluded from NETWORKS and all new input validation.
+export const LEGACY_NETWORKS = [
+  {id:'zksync',chainId:324,name:'zkSync Era',short:'ZK',color:'#a692e1',explorer:'https://explorer.zksync.io',api:null,live:false,legacy:true},
+  {id:'scroll',chainId:534352,name:'Scroll',short:'SCR',color:'#d7ab83',explorer:'https://scrollscan.com',api:null,live:false,legacy:true},
+  {id:'linea',chainId:59144,name:'Linea',short:'LINEA',color:'#b1d6cc',explorer:'https://lineascan.build',api:null,live:false,legacy:true},
 ];
 const token = (chainId,address,symbol,name,decimals,price,color) => ({id:`${chainId}:${address.toLowerCase()}`,chainId,address:address.toLowerCase(),symbol,name,decimals,price,color});
 /** Prices below are fixed illustration values ONLY, never used to price live results. */
@@ -25,9 +31,6 @@ export const TOKENS = [
  token('optimism','0x4200000000000000000000000000000000000042','OP','Optimism',18,1.62,'#ee6672'),
  token('optimism','0x4200000000000000000000000000000000000006','WETH','Wrapped Ether',18,3260,'#99a1ce'),
  token('optimism','0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85','USDC','USD Coin',6,1,'#478bce'),
- token('zksync','0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91','WETH','Wrapped Ether',18,3260,'#99a1ce'),
- token('scroll','0x5300000000000000000000000000000000000004','WETH','Wrapped Ether',18,3260,'#99a1ce'),
- token('linea','0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f','WETH','Wrapped Ether',18,3260,'#99a1ce'),
 ];
 const tokenById = new Map(TOKENS.map(t=>[t.id,t]));
 const round = n => Math.round(n*100)/100;
@@ -54,19 +57,17 @@ export const DEMO_WALLETS = Array.from({length:24},(_,i)=>{
  if(i%3===0||i<4)holdings.push(demoHolding('OP','optimism',round((7500+i*2130)*scale)));
  if(i%4===2)holdings.push(demoHolding('WETH','optimism',round((1.6+i*.3)*scale)));
  if(i%6===1)holdings.push(demoHolding('USDC','optimism',round(4310*scale)));
- if(i%5===2)holdings.push(demoHolding('WETH','zksync',round((.8+i*.13)*scale)));
- if(i%5===3)holdings.push(demoHolding('WETH','scroll',round((.4+i*.1)*scale)));
- if(i%5===4)holdings.push(demoHolding('WETH','linea',round((.5+i*.1)*scale)));
  const address='0x'+Array.from({length:5},(_,j)=>(Math.imul(i+17,0x9e3779b1+j*0x13579b)>>>0).toString(16).padStart(8,'0')).join('');
  return {address,label:`${labels[i]} · demo`,chainIds:chainList(holdings),holdings,value:sumKnown(holdings),matchedTokens:[],matchCount:0,isDemo:true};
 });
 export const isAddress = value => /^0x[0-9a-fA-F]{40}$/.test(value||'');
 export const normalizeAddress = value => isAddress(value)?value.toLowerCase():null;
 export const getToken = (address,chainId) => TOKENS.find(t=>t.chainId===chainId&&t.address===String(address).toLowerCase());
-export const getNetwork = id => NETWORKS.find(n=>n.id===id||n.chainId===Number(id));
+export const getNetwork = id => [...NETWORKS,...LEGACY_NETWORKS].find(n=>n.id===id||n.chainId===Number(id));
+export const isSupportedNetwork = id => NETWORKS.some(n=>n.id===id||n.chainId===Number(id));
 const abort = signal => {if(signal?.aborted)throw new DOMException('Sken byl zrušen.','AbortError');};
 const progress = (callback,message,completed,total) => callback?.({message,completed,total});
-function chains(ids){const selected=ids?.length?[...new Set(ids.map(id=>getNetwork(id)?.id||id))]:NETWORKS.map(n=>n.id);if(selected.some(id=>!getNetwork(id)))throw new Error('Neznámá síť.');return selected;}
+function chains(ids){const selected=ids?.length?[...new Set(ids.map(id=>NETWORKS.find(n=>n.id===id||n.chainId===Number(id))?.id||id))]:NETWORKS.map(n=>n.id);if(selected.some(id=>!NETWORKS.some(n=>n.id===id)))throw new Error('Vyberte podporovanou síť.');return selected;}
 function inputs(tokens,chainIds){
  if(!tokens?.length)throw new Error('Vyberte alespoň jeden token.');
  if(tokens.length>5)throw new Error('Jeden sken podporuje nejvýše pět tokenů.');
@@ -102,25 +103,25 @@ export async function searchHolders({tokens,chainIds,match='all',minValue=0,sour
  }
  return runServerScan('holders',{tokens:selected,chainIds:selectedChains,match,refresh,onProgress,signal,provider});
 }
-/** Group by exact network+contract, not ticker; share is holderCount / submitted unique addresses (0..1). */
+/** Group by exact network+contract, not ticker; caller supplies the successfully analyzed denominator (0..1). */
 export function aggregateHoldings(wallets,addressCount=wallets.length){
  const groups=new Map();
  for(const w of wallets){for(const h of w.holdings){if(!(h.amount>0))continue;let g=groups.get(h.tokenId);if(!g){g={...h,amount:0,totalValue:null,holders:[],holderCount:0,share:0,pricedPositions:0,unpricedPositions:0};delete g.value;groups.set(h.tokenId,g);}g.amount+=h.amount;if(Number.isFinite(h.value)){g.totalValue=(g.totalValue??0)+h.value;g.pricedPositions++;}else g.unpricedPositions++;if(!g.holders.includes(w.address))g.holders.push(w.address);}}
  return [...groups.values()].map(g=>({...g,totalValue:g.totalValue===null?null:round(g.totalValue),holderCount:g.holders.length,share:addressCount?g.holders.length/addressCount:0})).sort((a,b)=>(b.totalValue??-1)-(a.totalValue??-1));
 }
-export async function analyzeWallets({addresses,chainIds,source='demo',onProgress,signal,refresh=false,provider='auto'}={}){
+export async function analyzeWallets({addresses,chainIds,source='demo',onProgress,signal,refresh=false,provider='auto',walletMetadata=[]}={}){
  abort(signal);const selectedChains=chains(chainIds);const submitted=[...new Set((addresses||[]).map(a=>String(a).toLowerCase()))];
  if(!submitted.length)throw new Error('Vložte alespoň jednu adresu peněženky.');
- if(submitted.length>20)throw new Error('Lze analyzovat nejvýše 20 adres najednou.');
+ if(submitted.length>MAX_WALLET_SCAN)throw new Error(`Lze analyzovat nejvýše ${MAX_WALLET_SCAN} adres v jednom skenu.`);
  if(submitted.some(a=>!isAddress(a)))throw new Error('V seznamu je neplatná EVM adresa.');
  if(!['demo','live'].includes(source))throw new Error('Neznámý zdroj dat.');
  if(source==='demo'){
   const wallets=DEMO_WALLETS.filter(w=>submitted.includes(w.address)).map(w=>{const holdings=w.holdings.filter(h=>selectedChains.includes(h.chainId));return {...w,holdings,chainIds:chainList(holdings),value:sumKnown(holdings)};});
   const unknown=submitted.filter(a=>!DEMO_WALLETS.some(w=>w.address===a));
   progress(onProgress,'Ukázkové pozice jsou připravené.',submitted.length,submitted.length);
-  return {wallets,tokens:aggregateHoldings(wallets,submitted.length),source,warnings:unknown.length?[`${unknown.length} adres není součástí demo datasetu. Nejsou jim přiřazeny žádné vymyšlené pozice; pro vlastní adresy použijte Live API.`]:[],coverage:makeCoverage(source,`Syntetická analýza ${wallets.length} známých demo adres z ${submitted.length} zadaných. Podíl adres používá počet všech zadaných unikátních adres. Zůstatky a USD ceny jsou ilustrační.`)};
+  return {wallets,tokens:aggregateHoldings(wallets,wallets.length),source,warnings:unknown.length?[`${unknown.length} adres není součástí demo datasetu. Nejsou jim přiřazeny žádné vymyšlené pozice; pro vlastní adresy použijte Live API.`]:[],coverage:makeCoverage(source,`Syntetická analýza ${wallets.length} známých demo adres z ${submitted.length} zadaných. Podíl používá počet adres nalezených v demo datasetu. Zůstatky a USD ceny jsou ilustrační.`)};
  }
- return runServerScan('wallets',{addresses:submitted,chainIds:selectedChains,refresh,onProgress,signal,provider});
+ return runServerScan('wallets',{addresses:submitted,chainIds:selectedChains,walletMetadata,refresh,onProgress,signal,provider});
 }
 
 /** Live data is fetched only by the local server; the browser polls persisted scans. */
@@ -132,10 +133,16 @@ async function scanApi(route,{method='GET',body,signal,keepalive=false}={}){
 }
 export const listServerScans=()=>scanApi('');
 export const getServerScan=id=>scanApi('/'+encodeURIComponent(id));
+export const deleteServerScan=id=>scanApi('/'+encodeURIComponent(id),{method:'DELETE'});
 export const pauseServerScan=id=>scanApi('/'+encodeURIComponent(id)+'/pause',{method:'POST',body:{}});
 export const resumeServerScan=id=>scanApi('/'+encodeURIComponent(id)+'/resume',{method:'POST',body:{}});
 function pollingDelay(signal){return new Promise((resolve,reject)=>{const finish=()=>{signal?.removeEventListener('abort',cancel);resolve();};const timer=setTimeout(finish,1000);const cancel=()=>{clearTimeout(timer);reject(signal.reason||new DOMException('Zrušeno','AbortError'));};if(signal?.aborted)cancel();else signal?.addEventListener('abort',cancel,{once:true});});}
 async function readServerResult(job,{onProgress,signal}={}){
+ if(job.query.kind==='wallets'){
+  abort(signal);const result=await getServerTokenPage(job.id,{offset:0,limit:8,revision:job.revision,sort:'holders'},signal);
+  onProgress?.({message:`Výsledky: ${result.coverage.analyzedWalletCount} / ${result.coverage.requestedWalletCount} peněženek úspěšně analyzováno`,job});
+  return {...result,wallets:[],serverPaginated:true};
+ }
  const wallets=[];let offset=0,first;
  do{
   abort(signal);const result=await scanApi('/'+job.id+'/result?limit=500&offset='+offset+(first?'&revision='+first.pagination.revision:''),{signal});
@@ -144,6 +151,11 @@ async function readServerResult(job,{onProgress,signal}={}){
  }while(offset!==null);
  return {...first,wallets,tokens:job.query.kind==='wallets'?aggregateHoldings(wallets,job.query.addresses.length):first.tokens};
 }
+export async function getServerTokenPage(id,{offset=0,limit=8,revision,sort='holders',minHolders=0,minShare=0,chainId='',search=''}={},signal){
+ const params=new URLSearchParams({view:'tokens',offset:String(offset),limit:String(limit),sort,minHolders:String(minHolders),minShare:String(minShare)});
+ if(revision!==undefined)params.set('revision',String(revision));if(chainId)params.set('chainId',chainId);if(search)params.set('search',search);
+ return scanApi('/'+encodeURIComponent(id)+'/result?'+params.toString(),{signal});
+}
 export async function openServerScan(id,{onProgress,signal}={}){
  const cancel=()=>{scanApi('/'+id+'/pause',{method:'POST',body:{},keepalive:true}).catch(()=>{});};
  signal?.addEventListener('abort',cancel,{once:true});
@@ -151,9 +163,9 @@ export async function openServerScan(id,{onProgress,signal}={}){
   for(;;){abort(signal);const job=await scanApi('/'+encodeURIComponent(id),{signal});onProgress?.({message:job.message,job});if(job.status!=='running')return await readServerResult(job,{onProgress,signal});await pollingDelay(signal);}
  }finally{signal?.removeEventListener('abort',cancel);}
 }
-async function runServerScan(kind,{tokens,addresses,chainIds,match='all',refresh=false,onProgress,signal,provider='auto'}){
+async function runServerScan(kind,{tokens,addresses,chainIds,match='all',walletMetadata,refresh=false,onProgress,signal,provider='auto'}){
  // Keep the creation response so cancellation can pause the accepted job by id.
- abort(signal);const job=await scanApi('',{method:'POST',body:{kind,tokens,addresses,chainIds,match,refresh,provider}});
+ abort(signal);const job=await scanApi('',{method:'POST',body:{kind,tokens,addresses,chainIds,match,walletMetadata,refresh,provider}});
  if(signal?.aborted){await scanApi('/'+job.id+'/pause',{method:'POST',body:{},keepalive:true});abort(signal);}
  onProgress?.({message:job.cached?'Načítám uložený dokončený sken.':job.message,job});
  return openServerScan(job.id,{onProgress,signal});

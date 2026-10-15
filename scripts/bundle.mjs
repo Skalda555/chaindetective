@@ -8,6 +8,8 @@ new Function(script); // Compile without executing: standalone must contain no u
 const standalone=html.replace('<link rel="stylesheet" href="./style.css">',`<style>${css}</style>`).replace('href="./favicon.svg"',`href="data:image/svg+xml;base64,${Buffer.from(favicon).toString('base64')}"`).replace('<script type="module" src="./app.js"></script>',`<script type="module">${script.replace(/<\/script/gi,'<\\/script')}</script>`);
 await mkdir(new URL('standalone/',root),{recursive:true});
 await writeFile(new URL('standalone/ChainDetective.html',root),standalone);
-const roadmap=await read('dist/roadmap.html');
-await writeFile(new URL('standalone/roadmap.html',root),roadmap.replace('<link rel="stylesheet" href="./style.css">',`<style>${css}</style>`).replaceAll('href="./"','href="./ChainDetective.html"').replace('href="./favicon.svg"',`href="data:image/svg+xml;base64,${Buffer.from(favicon).toString('base64')}"`));
+for(const filename of ['roadmap.html','roadmap-v2-audit.html']){
+ const roadmap=await read('dist/'+filename);
+ await writeFile(new URL('standalone/'+filename,root),roadmap.replace('<link rel="stylesheet" href="./style.css">',`<style>${css}</style>`).replaceAll('href="./"','href="./ChainDetective.html"').replace('href="./favicon.svg"',`href="data:image/svg+xml;base64,${Buffer.from(favicon).toString('base64')}"`));
+}
 console.log('Standalone: standalone/ChainDetective.html');

@@ -10,10 +10,11 @@ import {SmartWalletStore} from './server/smart-wallets.mjs';
 import {MoniService} from './server/moni.mjs';
 
 const base=path.dirname(fileURLToPath(import.meta.url)),root=path.join(base,'dist');
+try{process.loadEnvFile(path.join(base,'.env'));}catch(error){if(error.code!=='ENOENT')throw error;}
 const zip=promisify(gzip),types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json'};
 async function body(request){
  if(!request.headers['content-type']?.startsWith('application/json'))throw new Error('Požadován JSON.');
- let size=0;const chunks=[];for await(const chunk of request){size+=chunk.length;if(size>65536)throw new Error('Příliš velký dotaz.');chunks.push(chunk);}
+ let size=0;const chunks=[];for await(const chunk of request){size+=chunk.length;if(size>2*1024*1024)throw new Error('Příliš velký dotaz.');chunks.push(chunk);}
  return JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}');
 }
 export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'),provider,cacheMs,moniOptions}={}){
@@ -25,7 +26,7 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
   try{
    const url=new URL(request.url,'http://'+request.headers.host);
    if(url.pathname.startsWith('/api/')){
-    if(!['localhost','127.0.0.1','[::1]'].includes(url.hostname)||request.headers.origin&&request.headers.origin!==url.origin){await json(403,{error:'API přijímá pouze požadavky z místní aplikace.'});return;}
+    if((!process.env.VERCEL&&!['localhost','127.0.0.1','[::1]'].includes(url.hostname))||request.headers.origin&&request.headers.origin!==url.origin){await json(403,{error:'API přijímá pouze požadavky z místní aplikace.'});return;}
     if(request.method==='GET'&&url.pathname==='/api/health'){await json(200,{service:'chaindetective',backendVersion:2});return;}
     if(request.method==='GET'&&url.pathname==='/api/providers'){await json(200,scans.provider.status?.()||{});return;}
     if(url.pathname==='/api/socials/watchlist'){
@@ -35,12 +36,16 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
     if(request.method==='DELETE'&&url.pathname.startsWith('/api/socials/watchlist/')){await json(200,{items:moni.unwatch(decodeURIComponent(url.pathname.slice('/api/socials/watchlist/'.length)))});return;}
     if(request.method==='GET'&&url.pathname==='/api/socials/moni/status'){await json(200,moni.status());return;}
     if(request.method==='POST'&&url.pathname==='/api/socials/moni/account'){const input=await body(request);await json(200,await moni.get(input.handle,input.part));return;}
+    if(request.method==='POST'&&url.pathname==='/api/smart-wallets/import-preview'){await json(200,smartWallets.previewImport(await body(request)));return;}
     if(url.pathname==='/api/smart-wallets'){
      if(request.method==='GET'){await json(200,{wallets:smartWallets.list()});return;}
      if(request.method==='POST'){await json(201,smartWallets.add(await body(request)));return;}
+     if(request.method==='PATCH'){const input=await body(request);await json(200,smartWallets.bulkUpdate(input.addresses,input.changes));return;}
+     if(request.method==='DELETE'){const input=await body(request);await json(200,smartWallets.deleteMany(input.addresses));return;}
     }
     const walletPath=url.pathname.match(/^\/api\/smart-wallets\/(0x[0-9a-fA-F]{40})$/);
     if(walletPath&&request.method==='PUT'){await json(200,{wallet:smartWallets.update(walletPath[1],await body(request))});return;}
+    if(walletPath&&request.method==='DELETE'){const result=smartWallets.deleteMany([walletPath[1]]);if(!result.deleted.length){const error=new Error('Peněženka nebyla nalezena.');error.status=404;throw error;}await json(200,{address:result.deleted[0],deleted:true});return;}
     if(url.pathname==='/api/scans'){
      if(request.method==='GET'){await json(200,{scans:scans.store.list()});return;}
      if(request.method==='POST'){await json(202,scans.start(await body(request)));return;}
@@ -48,8 +53,9 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
     const match=url.pathname.match(/^\/api\/scans\/([a-f0-9-]{36})(?:\/(result|pause|resume))?$/);
     if(match){const [,id,action]=match;
      if(!scans.store.get(id)){await json(404,{error:'Sken nebyl nalezen.'});return;}
+     if(request.method==='DELETE'&&!action){await json(200,scans.remove(id));return;}
      if(request.method==='GET'&&!action){await json(200,scans.store.describe(id));return;}
-     if(request.method==='GET'&&action==='result'){await json(200,scans.result(id,{offset:url.searchParams.get('offset'),limit:url.searchParams.get('limit'),revision:url.searchParams.has('revision')?url.searchParams.get('revision'):undefined}));return;}
+     if(request.method==='GET'&&action==='result'){await json(200,scans.result(id,{offset:url.searchParams.get('offset'),limit:url.searchParams.get('limit'),revision:url.searchParams.has('revision')?url.searchParams.get('revision'):undefined,view:url.searchParams.get('view')||'wallets',sort:url.searchParams.get('sort')||'holders',minHolders:url.searchParams.get('minHolders'),minShare:url.searchParams.get('minShare'),chainId:url.searchParams.get('chainId')||'',search:url.searchParams.get('search')||''}));return;}
      if(request.method==='POST'&&['pause','resume'].includes(action)){await body(request);await json(200,action==='pause'?await scans.pause(id):scans.resume(id));return;}
     }
     await json(404,{error:'API endpoint nebyl nalezen.'});return;
@@ -61,6 +67,14 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
   }catch(error){if(!response.headersSent)await json(request.url.startsWith('/api/')?(error.status||400):404,{error:error.message});else response.end();}
  });
  return {server,scans,moni,async close(){await moni.close();await scans.close();await new Promise((resolve,reject)=>server.close(error=>error?reject(error):resolve()));}};
+}
+let vercelApp;
+export default function handler(request,response){
+ if(!vercelApp){
+  const dbPath=process.env.VERCEL?path.join('/tmp','chaindetective.sqlite'):path.join(base,'.data','chaindetective.sqlite');
+  vercelApp=createApp({dbPath});
+ }
+ vercelApp.server.emit('request',request,response);
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const envFile=path.join(base,'.env');if(existsSync(envFile))process.loadEnvFile(envFile);

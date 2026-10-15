@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { NETWORKS, TOKENS, DEMO_WALLETS, searchHolders, analyzeWallets, aggregateHoldings, isAddress } from '../dist/data.js';
+import { NETWORKS, LEGACY_NETWORKS, getNetwork, isSupportedNetwork, TOKENS, DEMO_WALLETS, searchHolders, analyzeWallets, aggregateHoldings, isAddress } from '../dist/data.js';
 
 const A = '0x1111111111111111111111111111111111111111';
 const B = '0x2222222222222222222222222222222222222222';
@@ -18,6 +18,11 @@ async function withFetch(mock, run) {
 }
 
 assert.ok(DEMO_WALLETS.every(w => isAddress(w.address)));
+assert.deepEqual(NETWORKS.map(n=>n.name),['Ethereum','Base','Optimism','Arbitrum','Robinhood Chain']);
+assert.ok(NETWORKS.every(n=>n.live&&n.api?.startsWith('https://')),'all selectable networks have a live Blockscout API');
+assert.equal(LEGACY_NETWORKS.length,3);assert.ok(LEGACY_NETWORKS.every(n=>getNetwork(n.id)?.legacy&&!isSupportedNetwork(n.id)),'retired chains stay resolvable but are not selectable');
+assert.equal(getNetwork(4663).id,'robinhood');assert.equal(getNetwork(4663).explorer,'https://robinhoodchain.blockscout.com');
+await assert.rejects(searchHolders({tokens:[{chainId:'linea',address:UNKNOWN}],chainIds:['linea']}),/podporovanou síť/);
 assert.ok(TOKENS.every(t => isAddress(t.address)));
 assert.equal(new Set(DEMO_WALLETS.map(w => w.address)).size, DEMO_WALLETS.length);
 const all = await searchHolders({ tokens: [arb, arbWeth], chainIds: ['arbitrum'], match: 'all' });

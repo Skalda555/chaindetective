@@ -21,7 +21,8 @@ export function decodeHolding(token,raw){
  return {...token,tokenId:token.id,rawAmount,amount,value:Number.isFinite(value)?value:null};
 }
 export class BlockscoutProvider{
- constructor({fetchImpl=globalThis.fetch,intervalMs=400,retries=3,timeoutMs=20000}={}){Object.assign(this,{fetchImpl,intervalMs,retries,timeoutMs});this.nextRequest=0;}
+ constructor({fetchImpl=globalThis.fetch,intervalMs=400,retries=3,timeoutMs=20000,proApiKey=process.env.BLOCKSCOUT_API_KEY||''}={}){Object.assign(this,{fetchImpl,intervalMs,retries,timeoutMs,proApiKey:proApiKey.trim()});this.nextRequest=0;}
+ supports(operation,chainId){return ['wallets','holders'].includes(operation)&&!!getNetwork(chainId)?.live;}
  async request(chainId,route,cursor,signal){
   const n=getNetwork(chainId);if(!n?.live)throw new Error(`${n?.name||chainId}: živý adaptér zatím není dostupný.`);
   const url=new URL(`${n.api}/${route}`);
@@ -32,13 +33,21 @@ export class BlockscoutProvider{
    if(wait)await delay(wait,undefined,{signal});
    try{
     const timeout=AbortSignal.timeout(this.timeoutMs),combined=signal?AbortSignal.any([signal,timeout]):timeout;
-    const response=await this.fetchImpl(url,{signal:combined,headers:{Accept:'application/json'},redirect:'error'});
-    if(!response.ok){const error=new Error(response.status===429?'Limit indexeru (HTTP 429).':`Indexer odpověděl HTTP ${response.status}.`);error.retryable=response.status===429||response.status>=500;const after=Number(response.headers?.get?.('retry-after'));error.retryMs=Number.isFinite(after)?Math.min(60000,Math.max(0,after*1000)):0;throw error;}
-    const body=await response.json();if(!body||typeof body!=='object')throw new Error('Neplatná odpověď indexeru.');return body;
+    let response=await this.fetchImpl(url,{signal:combined,headers:{Accept:'application/json'},redirect:'error'});
+    if(response.status===403&&this.proApiKey){
+     await response.body?.cancel();
+     const proUrl=new URL(`https://api.blockscout.com/${n.chainId}/api/v2/${route}`);
+     if(cursor)for(const [k,v]of Object.entries(cursor)){if(v!==null)proUrl.searchParams.set(k,String(v));}
+     proUrl.searchParams.set('apikey',this.proApiKey);
+     response=await this.fetchImpl(proUrl,{signal:combined,headers:{Accept:'application/json'},redirect:'error'});
+    }
+    if(!response.ok){const htmlChallenge=response.status===403&&/text\/html/i.test(response.headers?.get?.('content-type')||'');const error=new Error(response.status===429?'Limit indexeru (HTTP 429).':htmlChallenge?'Indexer odpověděl HTTP 403 (HTML challenge místo JSON).':`Indexer odpověděl HTTP ${response.status}.`);error.retryable=response.status===429||response.status>=500||htmlChallenge;const retryHeader=response.headers?.get?.('retry-after'),seconds=Number(retryHeader),retryDate=Date.parse(retryHeader||'');const retryMs=Number.isFinite(seconds)?seconds*1000:Number.isFinite(retryDate)?retryDate-Date.now():0;error.retryMs=Math.min(10000,Math.max(0,retryMs));throw error;}
+    let body;try{body=await response.json();}catch{const error=new Error('Neplatná JSON odpověď indexeru.');error.retryable=true;throw error;}if(!body||typeof body!=='object'){const error=new Error('Neplatná odpověď indexeru.');error.retryable=true;throw error;}return body;
    }catch(error){
     if(signal?.aborted)throw signal.reason;
-    const retryable=error.retryable||error.name==='TimeoutError'||error.name==='TypeError';
-    if(!retryable||attempt===this.retries)throw new Error(`${error.message} Uložený průběh lze obnovit.`);
+    if(error.name==='TypeError'){error=new Error('Indexer: připojení selhalo nebo vypršel čas požadavku.');error.retryable=true;}
+    const retryable=error.retryable||error.name==='TimeoutError';
+    if(!retryable||attempt===this.retries){const finalError=new Error(`${error.message} Uložený průběh lze obnovit.`);finalError.retryable=!!retryable;finalError.retryMs=error.retryMs||0;throw finalError;}
     await delay(Math.max(error.retryMs||0,Math.min(8000,500*2**attempt)),undefined,{signal});
    }
   }
