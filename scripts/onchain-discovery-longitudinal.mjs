@@ -1,6 +1,6 @@
 import '../server/load-env.mjs';
 import { DatabaseSync } from 'node:sqlite';
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
@@ -10,8 +10,9 @@ import {
   normalizeDexPair, uniqueTargets,
 } from './onchain-discovery-core.mjs';
 import {
-  commitFactoryRange, createPilotSchema, floorTimeBucket, initializePilotMeta, quantile,
-  seedFactoryCursor, upsertTokenObservation, upsertTrendingObservation, withTransaction,
+  commitFactoryRange, CONFIG_DEFAULTS, createPilotSchema, floorTimeBucket, initializePilotMeta, migratePilotConfig,
+  migratePilotMetaConfig, quantile, seedFactoryCursor, upsertGeckoTrendingObservation, upsertTokenObservation,
+  upsertTrendingObservation, withTransaction,
 } from './onchain-discovery-longitudinal-store.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -22,11 +23,10 @@ const REPORT_PATH = resolve(OUTPUT_DIR, 'report.json');
 const args = new Set(process.argv.slice(2));
 const ONCE = args.has('--once'); const REPORT_ONLY = args.has('--report');
 const DAY = 86_400_000;
-const DEFAULT_CONFIG = Object.freeze({
-  durationDays: 14, factoryPollMs: 5 * 60_000, coingeckoPollMs: 5 * 60_000,
-  dexRetryMs: 30 * 60_000, canonicalPollMs: 60 * 60_000,
-  dexBatchSize: 30, maxCanonicalTokensPerCycle: 100,
-});
+const DEFAULT_CONFIG = CONFIG_DEFAULTS;
+const GECKOTERMINAL_BASE = 'https://api.geckoterminal.com/api/v2';
+const GECKOTERMINAL_NETWORKS = Object.freeze({ ethereum: 'eth', base: 'base' });
+const GECKOTERMINAL_DURATIONS = Object.freeze(['5m', '1h']);
 const SWAP_V2_TOPIC = toEventSelector(parseAbiItem('event Swap(address indexed sender, uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address indexed to)')).toLowerCase();
 const FACTORY_SELECTIONS = Object.entries(CHAINS).map(([chain, config]) => [chain, config.factories.map((factory) => ({
   address: [factory.address], topics: [[toEventSelector(FACTORY_ABIS[factory.family]).toLowerCase()]],
@@ -140,6 +140,102 @@ function tokenRows(db) {
 
 function observationsBucket(now, interval) { return floorTimeBucket(now, interval); }
 
+function pollTimestamp(db, key) {
+  return db.prepare('SELECT value FROM pilot_meta WHERE key=?').get(`lastPoll:${key}`)?.value ?? null;
+}
+
+function pollDue(db, key, nowMs, interval) {
+  const last = pollTimestamp(db, key);
+  return !last || nowMs - Date.parse(last) >= interval;
+}
+
+function recordPoll(db, key, observedAt) {
+  db.prepare(`INSERT INTO pilot_meta(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value`)
+    .run(`lastPoll:${key}`, observedAt);
+}
+
+function recordGeckoFirstSeen(db, row) {
+  if (!row.targetContract) return;
+  const column = row.duration === '5m' ? 'first_gt_trending_5m_at' : 'first_gt_trending_1h_at';
+  if (!GECKOTERMINAL_DURATIONS.includes(row.duration)) throw new Error('Unsupported GeckoTerminal duration.');
+  db.prepare(`UPDATE tokens SET ${column}=CASE WHEN ${column} IS NULL OR ${column}>? THEN ? ELSE ${column} END WHERE chain=? AND contract=?`)
+    .run(row.observedAt, row.observedAt, row.chain, row.targetContract);
+}
+
+function geckoTokenAddress(id, networkId) {
+  const match = String(id ?? '').match(/^([a-z0-9]+)_(0x[\da-f]{40})$/i);
+  return match && match[1] === networkId ? match[2].toLowerCase() : null;
+}
+
+function finiteMetric(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function normalizeGeckoTrending(payload, chain, duration, observedAt) {
+  const networkId = GECKOTERMINAL_NETWORKS[chain];
+  if (!networkId || !GECKOTERMINAL_DURATIONS.includes(duration)) throw new Error('Unsupported GeckoTerminal network or duration.');
+  if (!Array.isArray(payload?.data)) throw new Error('Invalid GeckoTerminal response: expected JSON:API data array.');
+  const included = new Map((payload.included ?? []).filter((item) => item?.type === 'token')
+    .map((item) => [item.id, item.attributes ?? {}]));
+  const rows = [];
+  for (const [index, pool] of payload.data.entries()) {
+    const attr = pool?.attributes ?? {};
+    const rel = pool?.relationships ?? {};
+    const baseRef = rel.base_token?.data;
+    const quoteRef = rel.quote_token?.data;
+    const baseAddress = geckoTokenAddress(baseRef?.id, networkId);
+    const quoteAddress = geckoTokenAddress(quoteRef?.id, networkId);
+    const poolAddress = String(attr.address ?? pool?.id?.slice(networkId.length + 1) ?? '').toLowerCase();
+    if (!ADDRESS_RE.test(poolAddress) || !baseAddress || !quoteAddress || baseAddress === quoteAddress) continue;
+    const quote = classifyQuotePair(chain, baseAddress, quoteAddress);
+    const baseInfo = included.get(baseRef.id) ?? {};
+    const quoteInfo = included.get(quoteRef.id) ?? {};
+    rows.push({ observedAt, chain, duration, rank: index + 1, poolAddress,
+      targetContract: quote.classification === 'KNOWN_QUOTE' ? quote.targetContract : null,
+      baseTokenAddress: baseAddress, quoteTokenAddress: quoteAddress,
+      baseTokenSymbol: baseInfo.symbol ?? null, baseTokenName: baseInfo.name ?? null,
+      quoteTokenSymbol: quoteInfo.symbol ?? null, quoteTokenName: quoteInfo.name ?? null,
+      poolCreatedAt: attr.pool_created_at && Number.isFinite(Date.parse(attr.pool_created_at)) ? new Date(attr.pool_created_at).toISOString() : null,
+      reserveInUsd: finiteMetric(attr.reserve_in_usd), marketCapUsd: finiteMetric(attr.market_cap_usd), fdvUsd: finiteMetric(attr.fdv_usd),
+      volume: attr.volume_usd ?? null, transactions: attr.transactions ?? null, quoteClassification: quote.classification });
+  }
+  return rows;
+}
+
+async function pollGeckoTerminal(db, nowMs, config) {
+  const result = { checked: 0, pools: 0, canonicalTargets: 0, observations: [] };
+  const observedAt = observationsBucket(nowMs, config.geckoterminalPollMs);
+  for (const chain of Object.keys(GECKOTERMINAL_NETWORKS)) {
+    for (const duration of GECKOTERMINAL_DURATIONS) {
+      const key = `geckoterminal:${chain}:${duration}`;
+      if (!pollDue(db, key, nowMs, config.geckoterminalPollMs)) continue;
+      try {
+        const network = GECKOTERMINAL_NETWORKS[chain];
+        const url = `${GECKOTERMINAL_BASE}/networks/${network}/trending_pools?duration=${duration}&include=base_token%2Cquote_token`;
+        const { value } = await requestJson(url, { headers: { accept: 'application/json' }, phase: `GeckoTerminal ${chain} ${duration}` });
+        const rows = normalizeGeckoTrending(value, chain, duration, observedAt);
+        withTransaction(db, () => {
+          for (const row of rows) {
+            upsertGeckoTrendingObservation(db, row);
+            recordGeckoFirstSeen(db, row);
+          }
+          recordPoll(db, key, observedAt);
+        });
+        result.checked += 1; result.pools += rows.length; result.canonicalTargets += rows.filter((row) => row.targetContract).length;
+        result.observations.push({ chain, duration, count: rows.length });
+      } catch (error) {
+        result.errors ??= [];
+        result.errors.push({ chain, duration, message: String(error?.message ?? error).slice(0, 250) });
+        errorRow(db, `geckoterminal-${duration}`, error, chain);
+      }
+      await delay(500);
+    }
+  }
+  return result;
+}
+
 function dexApiError(db, chain, contract, error) {
   db.prepare('UPDATE tokens SET dex_retry_after=? WHERE chain=? AND contract=?').run(new Date(Date.now() + 5 * 60_000).toISOString(), chain, contract);
   errorRow(db, 'dex-enrichment', error, chain);
@@ -219,6 +315,7 @@ async function getCoinList(nowMs) {
 }
 
 async function pollCoinGecko(db, nowMs, config) {
+  if (!pollDue(db, 'coingecko-search-trending', nowMs, config.coingeckoPollMs)) return { skipped: true, entries: 0, canonicalEntries: 0 };
   const [trendingResponse, coinList] = await Promise.all([
     requestJson('https://api.coingecko.com/api/v3/search/trending', { phase: 'CoinGecko trending' }), getCoinList(nowMs),
   ]);
@@ -242,6 +339,7 @@ async function pollCoinGecko(db, nowMs, config) {
       db.prepare('UPDATE token_observations SET first_cg_trending_at=?,lead_time_hours=? WHERE chain=? AND contract=?')
         .run(token?.first_cg_trending_at ?? null, lead, row.chain, row.contract);
     }
+    recordPoll(db, 'coingecko-search-trending', observedAt);
   });
   return { observedAt, entries: entries.length, canonicalEntries: entries.filter((row) => row.chain).length };
 }
@@ -301,7 +399,8 @@ async function runResolver(db, nowMs, config) {
 }
 
 function profileTotals(db) {
-  const latest = db.prepare(`SELECT t.chain,t.contract,t.first_detected_at,t.classification,t.dex_resolved,t.quality_json,
+  const latest = db.prepare(`SELECT t.chain,t.contract,t.first_detected_at,t.first_cg_trending_at,
+      t.first_gt_trending_5m_at,t.first_gt_trending_1h_at,t.classification,t.dex_resolved,t.quality_json,
       o.unique_buyers_250,o.unique_buyers_500,o.smart_wallet_overlap_250,o.historical_hit_overlap_250
     FROM tokens t LEFT JOIN token_observations o ON o.chain=t.chain AND o.contract=t.contract AND o.observed_at=(
       SELECT MAX(o2.observed_at) FROM token_observations o2 WHERE o2.chain=t.chain AND o2.contract=t.contract)` ).all();
@@ -316,6 +415,22 @@ function profileTotals(db) {
     rows: latest };
 }
 
+function summarizeBenchmark(rows, field, bucketMs) {
+  const matched = rows.filter((row) => row[field] && Number.isFinite(Date.parse(row[field])));
+  const leads = matched.map((row) => (Date.parse(row[field]) - Date.parse(row.first_detected_at)) / 3_600_000);
+  let chainDetectiveEarlierCount = 0; let sameBucketCount = 0; let externalEarlierCount = 0;
+  for (const row of matched) {
+    const externalMs = Date.parse(row[field]); const detectedMs = Date.parse(row.first_detected_at);
+    if (Math.floor(externalMs / bucketMs) === Math.floor(detectedMs / bucketMs)) sameBucketCount += 1;
+    else if (detectedMs < externalMs) chainDetectiveEarlierCount += 1;
+    else externalEarlierCount += 1;
+  }
+  return { candidateMatches: matched.length, nLeadTimeObservations: leads.length,
+    min: leads.length ? Math.min(...leads) : null, p25: quantile(leads, 0.25), median: quantile(leads, 0.5),
+    p75: quantile(leads, 0.75), max: leads.length ? Math.max(...leads) : null,
+    chainDetectiveEarlierCount, sameBucketCount, externalSourceEarlierCount: externalEarlierCount };
+}
+
 function makeReport(db, meta) {
   const rawPools = Number(db.prepare('SELECT COUNT(*) AS n FROM factory_pools').get().n);
   const overview = profileTotals(db); const trending = db.prepare('SELECT * FROM coingecko_trending_observations ORDER BY observed_at,rank').all();
@@ -326,6 +441,12 @@ function makeReport(db, meta) {
       .get(row.chain, row.contract).at;
     return first ? (Date.parse(first) - Date.parse(row.first_detected_at)) / 3_600_000 : null;
   }).filter(Number.isFinite);
+  const sourceBenchmarks = {
+    chainDetective: { role: 'PRIMARY ON-CHAIN DISCOVERY', candidateMatches: overview.tokenTargets },
+    geckoTerminalTrending5m: { role: 'DEX ATTENTION BENCHMARK', ...summarizeBenchmark(overview.rows, 'first_gt_trending_5m_at', configInterval(meta.config.geckoterminalPollMs, 5 * 60_000)) },
+    geckoTerminalTrending1h: { role: 'DEX ATTENTION BENCHMARK', ...summarizeBenchmark(overview.rows, 'first_gt_trending_1h_at', configInterval(meta.config.geckoterminalPollMs, 5 * 60_000)) },
+    coingeckoSearchTrending: { role: 'RETAIL / MARKET ATTENTION BENCHMARK', ...summarizeBenchmark(overview.rows, 'first_cg_trending_at', configInterval(meta.config.coingeckoPollMs, 60 * 60_000)) },
+  };
   const byDay = db.prepare(`SELECT substr(first_detected_at,1,10) AS day,COUNT(*) AS candidates,
       SUM(CASE WHEN classification='NEW_TOKEN_CANDIDATE' THEN 1 ELSE 0 END) AS dexCandidates
     FROM tokens GROUP BY day ORDER BY day`).all();
@@ -356,8 +477,11 @@ function makeReport(db, meta) {
     confirmedCandidatesPerDay: byDay.map((day) => ({ day: day.day,
       confirmed: overview.rows.filter((row) => row.first_detected_at.startsWith(day.day) && Number(row.unique_buyers_250) > 0).length })),
     smartWalletOverlapTokens: overview.smartOverlap, historicalHitOverlapTokens: overview.historicalOverlap,
-    coinGeckoTrending: { observations: trending.length, canonicalIdentities: identities.size, candidateMatches: found.length,
-      recall: identities.size ? found.length / identities.size : null },
+    attentionSources: { chainDetectiveRole: 'PRIMARY ON-CHAIN DISCOVERY', geckoTerminalRole: 'DEX ATTENTION BENCHMARK',
+      coingeckoRole: 'RETAIL / MARKET ATTENTION BENCHMARK', geckoTerminalObservations: Number(db.prepare('SELECT COUNT(*) AS n FROM geckoterminal_trending_observations').get().n),
+      coingeckoSearchTrending: { observations: trending.length, canonicalIdentities: identities.size,
+        candidateMatches: found.length, recall: identities.size ? found.length / identities.size : null } },
+    sourceBenchmarks,
     leadTimeHours: { n: leadTimes.length, min: leadTimes.length ? Math.min(...leadTimes) : null,
       p25: quantile(leadTimes, 0.25), median: quantile(leadTimes, 0.5), p75: quantile(leadTimes, 0.75),
       max: leadTimes.length ? Math.max(...leadTimes) : null },
@@ -365,17 +489,40 @@ function makeReport(db, meta) {
     errors: db.prepare('SELECT occurred_at,phase,chain,message FROM pilot_errors ORDER BY id DESC LIMIT 100').all() };
 }
 
-function configInterval(value) { return Number.isSafeInteger(value) && value > 0 ? value : DEFAULT_CONFIG.dexRetryMs; }
+function configInterval(value, fallback = DEFAULT_CONFIG.dexRetryMs) { return Number.isSafeInteger(value) && value > 0 ? value : fallback; }
+
+async function fileExists(path) {
+  try { await access(path); return true; } catch { return false; }
+}
 
 async function setup() {
   await mkdir(OUTPUT_DIR, { recursive: true });
-  let config = DEFAULT_CONFIG;
-  try { config = { ...DEFAULT_CONFIG, ...JSON.parse(await readFile(CONFIG_PATH, 'utf8')) }; }
-  catch { await writeFile(CONFIG_PATH, `${JSON.stringify(DEFAULT_CONFIG, null, 2)}\n`); }
+  const databaseExists = await fileExists(DB_PATH);
+  if (!databaseExists && !args.has('--init')) {
+    throw new Error(`No existing pilot database at ${DB_PATH}. Refusing to create a new pilot. Use --init only to intentionally initialize a new pilot.`);
+  }
+  let diskConfig = DEFAULT_CONFIG;
+  if (await fileExists(CONFIG_PATH)) {
+    try { diskConfig = migratePilotConfig(JSON.parse(await readFile(CONFIG_PATH, 'utf8'))); }
+    catch (error) {
+      if (!databaseExists) throw new Error(`Invalid pilot config ${CONFIG_PATH}: ${error.message}`);
+      diskConfig = DEFAULT_CONFIG;
+    }
+  }
   const db = new DatabaseSync(DB_PATH); createPilotSchema(db);
+  const startedAtRow = db.prepare("SELECT value FROM pilot_meta WHERE key='startedAt'").get();
+  if (databaseExists && !startedAtRow && !args.has('--init')) {
+    db.close();
+    throw new Error(`Pilot database exists but has no startedAt metadata at ${DB_PATH}. Refusing to initialize it without --init.`);
+  }
   const proposedStart = nowIso(); const meta = initializePilotMeta(db, { startedAt: proposedStart,
-    endsAt: new Date(Date.parse(proposedStart) + config.durationDays * DAY).toISOString(), configJson: JSON.stringify(config) });
-  return { db, config: meta.config, meta };
+    endsAt: new Date(Date.parse(proposedStart) + diskConfig.durationDays * DAY).toISOString(), configJson: JSON.stringify(diskConfig) });
+  const config = migratePilotMetaConfig(db, diskConfig);
+  const stableMeta = { ...meta, config };
+  const configTemp = `${CONFIG_PATH}.tmp`;
+  await writeFile(configTemp, `${JSON.stringify(config, null, 2)}\n`);
+  await rename(configTemp, CONFIG_PATH);
+  return { db, config, meta: stableMeta };
 }
 
 async function reportExistingPilot() {
@@ -403,10 +550,12 @@ async function oneCycle(db, config) {
   try { dex = await enrichDueTokens(db, nowMs, config); } catch (error) { errorRow(db, 'dex-enrichment', error); }
   let cg = { entries: 0, canonicalEntries: 0 };
   try { cg = await pollCoinGecko(db, nowMs, config); } catch (error) { errorRow(db, 'coingecko-trending', error); }
+  let gt = { checked: 0, pools: 0, canonicalTargets: 0, observations: [] };
+  try { gt = await pollGeckoTerminal(db, nowMs, config); } catch (error) { errorRow(db, 'geckoterminal-trending', error); }
   let canonical = { candidates: 0 };
   try { canonical = await runResolver(db, nowMs, config); } catch (error) { errorRow(db, 'canonical-resolver', error); }
-  log(`cycle complete ${JSON.stringify({ factory, dex, cg, canonical })}`);
-  return { factory, dex, cg, canonical };
+  log(`cycle complete ${JSON.stringify({ factory, dex, cg, gt, canonical })}`);
+  return { factory, dex, cg, gt, canonical };
 }
 
 async function main() {
@@ -431,4 +580,4 @@ if (import.meta.url === `file://${process.argv[1]?.replaceAll('\\','/')}` || pro
   main().catch((error) => { console.error(error.stack ?? error); process.exitCode = 1; });
 }
 
-export { makeReport, saveDexToken, scanFactoryChain };
+export { makeReport, normalizeGeckoTrending, recordGeckoFirstSeen, saveDexToken, scanFactoryChain, summarizeBenchmark };
