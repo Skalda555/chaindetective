@@ -16,7 +16,8 @@ export function createPilotSchema(db) {
     CREATE TABLE IF NOT EXISTS tokens (
       chain TEXT NOT NULL, contract TEXT NOT NULL, first_detected_at TEXT NOT NULL, oldest_pool_created_at TEXT NOT NULL,
       last_detected_at TEXT NOT NULL, dex_checked_at TEXT, dex_retry_after TEXT, dex_resolved INTEGER NOT NULL DEFAULT 0,
-      classification TEXT NOT NULL DEFAULT 'UNKNOWN', primary_pool_address TEXT, pair_json TEXT, pairs_json TEXT,
+      classification TEXT NOT NULL DEFAULT 'UNKNOWN', primary_pool_address TEXT, primary_factory TEXT, primary_dex_family TEXT,
+      pool_created_at TEXT, pair_json TEXT, pairs_json TEXT,
       quality_json TEXT, first_cg_trending_at TEXT, canonical_checked_at TEXT,
       PRIMARY KEY (chain, contract)
     );
@@ -25,7 +26,7 @@ export function createPilotSchema(db) {
       classification TEXT, price_usd REAL, liquidity_usd REAL, market_cap_usd REAL, fdv_usd REAL,
       volume_h1_usd REAL, volume_h6_usd REAL, volume_h24_usd REAL,
       buys_h1 INTEGER, sells_h1 INTEGER, buys_h6 INTEGER, sells_h6 INTEGER, buys_h24 INTEGER, sells_h24 INTEGER,
-      quality_json TEXT, unique_buyers_250 INTEGER, unique_buyers_500 INTEGER,
+      quality_json TEXT, vol_accel_ratio REAL, unique_buyers_250 INTEGER, unique_buyers_500 INTEGER,
       smart_wallet_overlap_250 INTEGER, smart_wallet_overlap_500 INTEGER,
       historical_hit_overlap_250 INTEGER, historical_hit_overlap_500 INTEGER,
       first_cg_trending_at TEXT, lead_time_hours REAL,
@@ -42,14 +43,19 @@ export function createPilotSchema(db) {
   `);
 }
 
+export function withTransaction(db, operation) {
+  db.exec('BEGIN IMMEDIATE');
+  try { const result = operation(); db.exec('COMMIT'); return result; }
+  catch (error) { try { db.exec('ROLLBACK'); } catch {} throw error; }
+}
+
 export function initializePilotMeta(db, { startedAt, endsAt, configJson }) {
   const get = db.prepare('SELECT value FROM pilot_meta WHERE key=?');
   if (!get.get('startedAt')) {
     const insert = db.prepare('INSERT INTO pilot_meta(key,value) VALUES(?,?)');
-    const tx = db.transaction(() => {
+    withTransaction(db, () => {
       insert.run('startedAt', startedAt); insert.run('endsAt', endsAt); insert.run('config', configJson);
     });
-    tx();
   }
   return { startedAt: get.get('startedAt').value, endsAt: get.get('endsAt').value, config: JSON.parse(get.get('config').value) };
 }
@@ -61,26 +67,25 @@ export function seedFactoryCursor(db, chain, height, now = new Date().toISOStrin
 
 export function commitFactoryRange(db, { chain, expectedFromBlock, toBlock, pools, now = new Date().toISOString() }) {
   if (!Number.isSafeInteger(expectedFromBlock) || !Number.isSafeInteger(toBlock) || toBlock < expectedFromBlock) throw new Error('Invalid factory cursor range.');
-  const insertPool = db.prepare(`INSERT OR IGNORE INTO factory_pools(chain,pool_address,factory,dex_family,token0,token1,created_block,created_at,detected_at,target_contract,quote_contract)
-    VALUES(?,?,?,?,?,?,?,?,?,?,?)`);
+  const insertPool = db.prepare(`INSERT INTO factory_pools(chain,pool_address,factory,dex_family,token0,token1,created_block,created_at,detected_at,target_contract,quote_contract)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(chain,pool_address) DO NOTHING`);
   const insertToken = db.prepare(`INSERT INTO tokens(chain,contract,first_detected_at,oldest_pool_created_at,last_detected_at)
     VALUES(?,?,?,?,?) ON CONFLICT(chain,contract) DO UPDATE SET
       first_detected_at=MIN(tokens.first_detected_at,excluded.first_detected_at),
       oldest_pool_created_at=MIN(tokens.oldest_pool_created_at,excluded.oldest_pool_created_at),
       last_detected_at=MAX(tokens.last_detected_at,excluded.last_detected_at)`);
   const updateCursor = db.prepare(`UPDATE factory_cursors SET last_scanned_block=?,updated_at=? WHERE chain=? AND last_scanned_block=?`);
-  const tx = db.transaction(() => {
+  withTransaction(db, () => {
     const cursor = db.prepare('SELECT last_scanned_block FROM factory_cursors WHERE chain=?').get(chain);
     if (!cursor || Number(cursor.last_scanned_block) !== expectedFromBlock) throw new Error(`Factory cursor changed for ${chain}; expected ${expectedFromBlock}.`);
     for (const pool of pools) {
       insertPool.run(chain, pool.pool_address, pool.factory, pool.dex_family, pool.token0, pool.token1, pool.created_block,
         pool.created_at, now, pool.target_contract ?? null, pool.quote_contract ?? null);
-      if (pool.target_contract) insertToken.run(chain, pool.target_contract, pool.created_at, pool.created_at, now);
+      if (pool.target_contract) insertToken.run(chain, pool.target_contract, now, pool.created_at, now);
     }
     const moved = updateCursor.run(toBlock, now, chain, expectedFromBlock);
     if (Number(moved.changes) !== 1) throw new Error(`Could not atomically advance ${chain} factory cursor.`);
   });
-  tx();
 }
 
 export function upsertTrendingObservation(db, row) {
@@ -92,17 +97,17 @@ export function upsertTrendingObservation(db, row) {
 export function upsertTokenObservation(db, row) {
   const columns = ['chain','contract','observedAt','primaryPoolAddress','classification','priceUsd','liquidityUsd','marketCapUsd','fdvUsd',
     'volumeH1Usd','volumeH6Usd','volumeH24Usd','buysH1','sellsH1','buysH6','sellsH6','buysH24','sellsH24','qualityJson',
-    'uniqueBuyers250','uniqueBuyers500','smartWalletOverlap250','smartWalletOverlap500','historicalHitOverlap250','historicalHitOverlap500','firstCgTrendingAt','leadTimeHours'];
+    'volAccelRatio','uniqueBuyers250','uniqueBuyers500','smartWalletOverlap250','smartWalletOverlap500','historicalHitOverlap250','historicalHitOverlap500','firstCgTrendingAt','leadTimeHours'];
   const values = columns.map((key) => row[key] ?? null);
   db.prepare(`INSERT INTO token_observations(chain,contract,observed_at,primary_pool_address,classification,price_usd,liquidity_usd,market_cap_usd,fdv_usd,
-    volume_h1_usd,volume_h6_usd,volume_h24_usd,buys_h1,sells_h1,buys_h6,sells_h6,buys_h24,sells_h24,quality_json,
+    volume_h1_usd,volume_h6_usd,volume_h24_usd,buys_h1,sells_h1,buys_h6,sells_h6,buys_h24,sells_h24,quality_json,vol_accel_ratio,
     unique_buyers_250,unique_buyers_500,smart_wallet_overlap_250,smart_wallet_overlap_500,historical_hit_overlap_250,historical_hit_overlap_500,first_cg_trending_at,lead_time_hours)
     VALUES(${columns.map(() => '?').join(',')}) ON CONFLICT(chain,contract,observed_at) DO UPDATE SET
     primary_pool_address=excluded.primary_pool_address,classification=excluded.classification,price_usd=excluded.price_usd,
     liquidity_usd=excluded.liquidity_usd,market_cap_usd=excluded.market_cap_usd,fdv_usd=excluded.fdv_usd,
     volume_h1_usd=excluded.volume_h1_usd,volume_h6_usd=excluded.volume_h6_usd,volume_h24_usd=excluded.volume_h24_usd,
     buys_h1=excluded.buys_h1,sells_h1=excluded.sells_h1,buys_h6=excluded.buys_h6,sells_h6=excluded.sells_h6,
-    buys_h24=excluded.buys_h24,sells_h24=excluded.sells_h24,quality_json=excluded.quality_json,
+    buys_h24=excluded.buys_h24,sells_h24=excluded.sells_h24,quality_json=excluded.quality_json,vol_accel_ratio=excluded.vol_accel_ratio,
     unique_buyers_250=COALESCE(excluded.unique_buyers_250,token_observations.unique_buyers_250),
     unique_buyers_500=COALESCE(excluded.unique_buyers_500,token_observations.unique_buyers_500),
     smart_wallet_overlap_250=COALESCE(excluded.smart_wallet_overlap_250,token_observations.smart_wallet_overlap_250),

@@ -11,7 +11,7 @@ import {
 } from './onchain-discovery-core.mjs';
 import {
   commitFactoryRange, createPilotSchema, floorTimeBucket, initializePilotMeta, quantile,
-  seedFactoryCursor, upsertTokenObservation, upsertTrendingObservation,
+  seedFactoryCursor, upsertTokenObservation, upsertTrendingObservation, withTransaction,
 } from './onchain-discovery-longitudinal-store.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -165,12 +165,15 @@ function saveDexToken(db, token, pairs, poolRows, observedAt) {
   const quality = Object.fromEntries(Object.entries(QUALITY_PROFILES).map(([name, profile]) => [name,
     Boolean(primary && applyQualityProfile({ chain: token.chain, newPools: normalized }, profile))]));
   const rawPairByAddress = new Map(exact.map((pair) => [String(pair.pairAddress).toLowerCase(), pair]));
-  const poolMetadata = normalized.map((pair) => ({ ...pair, ...rawPairByAddress.get(pair.pairAddress) }));
   const primaryRaw = primary ? rawPairByAddress.get(primary.pairAddress) : null;
+  const primaryPool = primary ? poolByAddress.get(String(primary.pairAddress).toLowerCase()) : null;
   const serialize = primaryRaw ? JSON.stringify(primaryRaw) : null;
-  db.prepare(`UPDATE tokens SET dex_checked_at=?,dex_retry_after=NULL,dex_resolved=?,classification=?,primary_pool_address=?,pair_json=?,pairs_json=?,quality_json=?
+  db.prepare(`UPDATE tokens SET dex_checked_at=?,dex_retry_after=NULL,dex_resolved=?,classification=?,primary_pool_address=?,primary_factory=?,
+    primary_dex_family=?,pool_created_at=?,pair_json=?,pairs_json=?,quality_json=?
     WHERE chain=? AND contract=?`).run(observedAt, tokenPairs.length ? 1 : 0, classification, primary?.pairAddress ?? null, serialize,
-    JSON.stringify(tokenPairs), JSON.stringify(quality), token.chain, address);
+    primaryPool?.factory ?? null, primaryPool?.dex_family ?? null,
+    primaryPool?.created_at ?? (primary?.pairCreatedAt ? new Date(primary.pairCreatedAt).toISOString() : null),
+    serialize, JSON.stringify(tokenPairs), JSON.stringify(quality), token.chain, address);
   const firstCg = token.first_cg_trending_at ?? null;
   const lead = firstCg ? (Date.parse(firstCg) - Date.parse(token.first_detected_at)) / 3_600_000 : null;
   upsertTokenObservation(db, { chain: token.chain, contract: address, observedAt, primaryPoolAddress: primary?.pairAddress ?? null,
@@ -178,7 +181,7 @@ function saveDexToken(db, token, pairs, poolRows, observedAt) {
     fdvUsd: primary?.fdvUsd, volumeH1Usd: primary?.volumeH1Usd, volumeH6Usd: primary?.volumeH6Usd, volumeH24Usd: primary?.volumeH24Usd,
     buysH1: primary?.buysH1, sellsH1: primary?.sellsH1, buysH6: primary?.buysH6, sellsH6: primary?.sellsH6,
     buysH24: primary?.buysH24, sellsH24: primary?.sellsH24, qualityJson: JSON.stringify(quality),
-    firstCgTrendingAt: firstCg, leadTimeHours: lead });
+    volAccelRatio: primary?.volAccelRatio, firstCgTrendingAt: firstCg, leadTimeHours: lead });
   return { tokenPairs: tokenPairs.length, exactPools: normalized.length, quality, normalized, primary };
 }
 
@@ -228,8 +231,8 @@ async function pollCoinGecko(db, nowMs, config) {
     return { observedAt, rank: index + 1, coinId: String(item.id ?? ''), symbol: String(item.symbol ?? ''),
       chain: canonical?.chain ?? null, contract: canonical?.contract ?? null };
   }).filter((row) => row.coinId);
-  const insert = db.transaction((rows) => {
-    for (const row of rows) {
+  withTransaction(db, () => {
+    for (const row of entries) {
       upsertTrendingObservation(db, row);
       if (!row.chain || !row.contract) continue;
       db.prepare(`UPDATE tokens SET first_cg_trending_at=CASE WHEN first_cg_trending_at IS NULL OR first_cg_trending_at>? THEN ? ELSE first_cg_trending_at END
@@ -240,7 +243,6 @@ async function pollCoinGecko(db, nowMs, config) {
         .run(token?.first_cg_trending_at ?? null, lead, row.chain, row.contract);
     }
   });
-  insert(entries);
   return { observedAt, entries: entries.length, canonicalEntries: entries.filter((row) => row.chain).length };
 }
 
@@ -286,7 +288,7 @@ async function runResolver(db, nowMs, config) {
   const update = db.prepare(`UPDATE token_observations SET unique_buyers_250=?,unique_buyers_500=?,smart_wallet_overlap_250=?,smart_wallet_overlap_500=?,
     historical_hit_overlap_250=?,historical_hit_overlap_500=? WHERE chain=? AND contract=? AND observed_at=?`);
   const updateToken = db.prepare('UPDATE tokens SET canonical_checked_at=? WHERE chain=? AND contract=?');
-  const tx = db.transaction(() => {
+  withTransaction(db, () => {
     for (const row of result.perToken) {
       db.prepare(`INSERT OR IGNORE INTO token_observations(chain,contract,observed_at,classification) VALUES(?,?,?,?)`)
         .run(row.chain, row.contract, observedAt, 'NEW_TOKEN_CANDIDATE');
@@ -295,7 +297,6 @@ async function runResolver(db, nowMs, config) {
       updateToken.run(snapshotAt, row.chain, row.contract);
     }
   });
-  tx();
   return { candidates: result.perToken.length, observedAt, queries: result.diagnostics?.hypersyncQueries ?? null };
 }
 
