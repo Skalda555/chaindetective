@@ -1,6 +1,6 @@
 import '../server/load-env.mjs';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
@@ -170,7 +170,7 @@ function saveDexToken(db, token, pairs, poolRows, observedAt) {
   const serialize = primaryRaw ? JSON.stringify(primaryRaw) : null;
   db.prepare(`UPDATE tokens SET dex_checked_at=?,dex_retry_after=NULL,dex_resolved=?,classification=?,primary_pool_address=?,primary_factory=?,
     primary_dex_family=?,pool_created_at=?,pair_json=?,pairs_json=?,quality_json=?
-    WHERE chain=? AND contract=?`).run(observedAt, tokenPairs.length ? 1 : 0, classification, primary?.pairAddress ?? null, serialize,
+    WHERE chain=? AND contract=?`).run(observedAt, tokenPairs.length ? 1 : 0, classification, primary?.pairAddress ?? null,
     primaryPool?.factory ?? null, primaryPool?.dex_family ?? null,
     primaryPool?.created_at ?? (primary?.pairCreatedAt ? new Date(primary.pairCreatedAt).toISOString() : null),
     serialize, JSON.stringify(tokenPairs), JSON.stringify(quality), token.chain, address);
@@ -378,6 +378,20 @@ async function setup() {
   return { db, config: meta.config, meta };
 }
 
+async function reportExistingPilot() {
+  await access(DB_PATH);
+  const db = new DatabaseSync(DB_PATH, { readOnly: true });
+  try {
+    const get = db.prepare('SELECT value FROM pilot_meta WHERE key=?');
+    const meta = { startedAt: get.get('startedAt')?.value, endsAt: get.get('endsAt')?.value,
+      config: JSON.parse(get.get('config')?.value ?? '{}') };
+    if (!meta.startedAt || !meta.endsAt) throw new Error('Existing pilot database has incomplete metadata.');
+    const report = makeReport(db, meta);
+    await writeFile(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
+    console.log(JSON.stringify(report, null, 2));
+  } finally { db.close(); }
+}
+
 async function oneCycle(db, config) {
   const nowMs = Date.now();
   const factory = [];
@@ -396,12 +410,9 @@ async function oneCycle(db, config) {
 }
 
 async function main() {
+  if (REPORT_ONLY) return reportExistingPilot();
   const { db, config, meta } = await setup();
   try {
-    if (REPORT_ONLY) {
-      const report = makeReport(db, meta); await writeFile(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
-      console.log(JSON.stringify(report, null, 2)); return;
-    }
     if (!process.env.ENVIO_API_TOKEN) throw new Error('ENVIO_API_TOKEN is required for the longitudinal worker.');
     log(`14-day isolated discovery pilot started=${meta.startedAt} ends=${meta.endsAt} database=${DB_PATH}`);
     do {

@@ -22,17 +22,22 @@ assert.throws(() => commitFactoryRange(db, { chain: 'base', expectedFromBlock: 1
 assert.equal(Number(db.prepare('SELECT last_scanned_block AS n FROM factory_cursors WHERE chain=?').get('base').n), 100,
   'failed range transaction never advances cursor');
 assert.equal(Number(db.prepare('SELECT COUNT(*) AS n FROM factory_pools').get().n), 0, 'failed range transaction rolls back inserted pools');
-commitFactoryRange(db, { chain: 'base', expectedFromBlock: 100, toBlock: 120, pools: [pool] });
+commitFactoryRange(db, { chain: 'base', expectedFromBlock: 100, toBlock: 120, pools: [pool], now: '2026-10-16T00:05:00.000Z' });
 assert.equal(Number(db.prepare('SELECT last_scanned_block AS n FROM factory_cursors WHERE chain=?').get('base').n), 120);
+const tokenTimes = db.prepare('SELECT first_detected_at,oldest_pool_created_at FROM tokens WHERE chain=? AND contract=?')
+  .get('base', pool.target_contract);
+assert.equal(tokenTimes.first_detected_at, '2026-10-16T00:05:00.000Z', 'first detected records when the worker observed the factory log');
+assert.equal(tokenTimes.oldest_pool_created_at, pool.created_at, 'pool creation time remains a separate field');
 commitFactoryRange(db, { chain: 'base', expectedFromBlock: 120, toBlock: 120, pools: [pool] });
 assert.equal(Number(db.prepare('SELECT COUNT(*) AS n FROM factory_pools').get().n), 1, 'replayed factory logs are idempotent');
 
 const observation = { chain: 'base', contract: pool.target_contract, observedAt: '2026-10-16T00:30:00.000Z',
-  primaryPoolAddress: pool.pool_address, classification: 'NEW_TOKEN_CANDIDATE', liquidityUsd: 15_000, qualityJson: '{"LOOSE":true}' };
+  primaryPoolAddress: pool.pool_address, classification: 'NEW_TOKEN_CANDIDATE', liquidityUsd: 15_000, qualityJson: '{"LOOSE":true}', volAccelRatio: 2.5 };
 upsertTokenObservation(db, observation);
 upsertTokenObservation(db, { ...observation, liquidityUsd: 20_000 });
 assert.equal(Number(db.prepare('SELECT COUNT(*) AS n FROM token_observations').get().n), 1, 'same observation bucket upserts once');
 assert.equal(Number(db.prepare('SELECT liquidity_usd AS n FROM token_observations').get().n), 20_000);
+assert.equal(Number(db.prepare('SELECT vol_accel_ratio AS n FROM token_observations').get().n), 2.5, 'volume acceleration is persisted in the observation');
 upsertTrendingObservation(db, { observedAt: observation.observedAt, rank: 1, coinId: 'test-coin', symbol: 'TST', chain: 'base', contract: pool.target_contract });
 upsertTrendingObservation(db, { observedAt: observation.observedAt, rank: 2, coinId: 'test-coin', symbol: 'TST', chain: 'base', contract: pool.target_contract });
 assert.equal(Number(db.prepare('SELECT COUNT(*) AS n FROM coingecko_trending_observations').get().n), 1, 'same CoinGecko time bucket upserts once');
