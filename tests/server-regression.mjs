@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,rm} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import http from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
 import {setTimeout as delay} from 'node:timers/promises';
 import {ScanEngine,ScanStore,validateQuery} from '../server/scans.mjs';
@@ -433,5 +434,27 @@ try{
  assert.equal((await provider.page({kind:'holders',chainId:'robinhood',address:TA,cursor:null})).items.length,1);
  assert.equal((await provider.page({kind:'wallets',chainId:'robinhood',address:A,cursor:null})).items.length,1);
  assert.deepEqual(routes.map(url=>new URL(url).pathname),[`/api/v2/tokens/${TA}`,`/api/v2/tokens/${TA}/holders`,`/api/v2/addresses/${A}/tokens`]);
+}
+
+// LAN deployment is opt-in; enabling it permits same-origin hostnames without weakening Origin validation.
+{
+ const previousLan=process.env.CHAINDETECTIVE_ALLOW_LAN,previousVercel=process.env.VERCEL;
+ const requestHost=(port,host,origin)=>new Promise((resolve,reject)=>{
+  const headers={Host:host};if(origin!==undefined)headers.Origin=origin;
+  const request=http.request({hostname:'127.0.0.1',port,path:'/api/health',headers},response=>{response.resume();response.on('end',()=>resolve(response.statusCode));});
+  request.on('error',reject);request.end();
+ });
+ async function serve(dbName){const app=createApp({dbPath:path.join(temp,dbName)});await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));return app;}
+ try{
+  delete process.env.VERCEL;process.env.CHAINDETECTIVE_ALLOW_LAN='0';
+  const local=await serve('lan-disabled.sqlite');
+  try{const port=local.server.address().port;assert.equal(await requestHost(port,`192.168.1.20:${port}`,`http://192.168.1.20:${port}`),403,'LAN hostnames are denied by default');assert.equal(await fetch(`http://127.0.0.1:${port}/api/health`).then(response=>response.status),200,'localhost remains available without the LAN switch');}finally{await local.close();}
+  process.env.CHAINDETECTIVE_ALLOW_LAN='1';
+  const lan=await serve('lan-enabled.sqlite');
+  try{const port=lan.server.address().port,host=`nas.local:${port}`,sameOrigin=`http://${host}`;assert.equal(await requestHost(port,host,sameOrigin),200,'same-origin LAN API request is allowed');assert.equal(await requestHost(port,host,'http://attacker.example'),403,'cross-origin requests remain rejected when LAN access is enabled');}finally{await lan.close();}
+ }finally{
+  if(previousLan===undefined)delete process.env.CHAINDETECTIVE_ALLOW_LAN;else process.env.CHAINDETECTIVE_ALLOW_LAN=previousLan;
+  if(previousVercel===undefined)delete process.env.VERCEL;else process.env.VERCEL=previousVercel;
+ }
 }
 console.log('Server regressions passed: late AND matches, unlimited pages, cache, SQLite resume, pause, API errors, cursor loops, deduplication and HTTP isolation.');

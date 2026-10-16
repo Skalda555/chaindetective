@@ -20,6 +20,7 @@ async function body(request){
 }
 export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'),provider,cacheMs,moniOptions,aixbtOptions}={}){
  const scans=new ScanEngine({filename:dbPath,provider,cacheMs});
+ const allowLan=process.env.CHAINDETECTIVE_ALLOW_LAN==='1';
  const smartWallets=new SmartWalletStore(scans.store.db);
  const earlyBuyers=new EarlyBuyerService(scans.store.db);
  const moni=new MoniService(scans.store.db,moniOptions);
@@ -30,7 +31,7 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
   try{
    const url=new URL(request.url,'http://'+request.headers.host);
    if(url.pathname.startsWith('/api/')){
-    if((!process.env.VERCEL&&!['localhost','127.0.0.1','[::1]'].includes(url.hostname))||request.headers.origin&&request.headers.origin!==url.origin){await json(403,{error:'API přijímá pouze požadavky z místní aplikace.'});return;}
+    if((!process.env.VERCEL&&!allowLan&&!['localhost','127.0.0.1','[::1]'].includes(url.hostname))||request.headers.origin&&request.headers.origin!==url.origin){await json(403,{error:'API přijímá pouze požadavky z místní aplikace.'});return;}
     if(request.method==='GET'&&url.pathname==='/api/health'){await json(200,{service:'chaindetective',backendVersion:2});return;}
     if(request.method==='GET'&&url.pathname==='/api/providers'){await json(200,scans.provider.status?.()||{});return;}
     if(request.method==='GET'&&url.pathname==='/api/early-buyers'){await json(200,earlyBuyers.results({snapshotId:url.searchParams.get('snapshot')||null,threshold:url.searchParams.get('threshold')||250}));return;}
@@ -101,8 +102,8 @@ export default function handler(request,response){
  vercelApp.server.emit('request',request,response);
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const app=createApp();const port=Number(process.env.PORT||4173);
- app.server.listen(port,'127.0.0.1',()=>console.log(`ChainDetective v0.3 · Local: http://127.0.0.1:${port} · PID ${process.pid}`));
+ const app=createApp();const port=Number(process.env.PORT||4173),host=process.env.HOST||'127.0.0.1';
+ app.server.listen(port,host,()=>console.log(`ChainDetective v0.3 · Listening: http://${host}:${port} · PID ${process.pid}`));
  let closing=false;const shutdown=async()=>{if(closing)return;closing=true;await app.close();process.exit(0);};
  process.on('SIGINT',shutdown);process.on('SIGTERM',shutdown);
 }

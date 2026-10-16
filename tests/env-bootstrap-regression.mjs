@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {cp,mkdir,mkdtemp,rm,writeFile} from 'node:fs/promises';
+import {cp,mkdir,mkdtemp,rm,stat,writeFile} from 'node:fs/promises';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -9,7 +9,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 const projectRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const temporaryRoot=await mkdtemp(path.join(os.tmpdir(),'chaindetective-env-'));
 const cleanEnv={...process.env};
-for(const name of ['SCAN_MAX_WALLETS','SCAN_TASK_CONCURRENCY','ALCHEMY_REQUEST_CONCURRENCY','ALCHEMY_MIN_REQUEST_INTERVAL_MS','BLOCKSCOUT_REQUEST_CONCURRENCY','BLOCKSCOUT_MIN_REQUEST_INTERVAL_MS','ALCHEMY_API_KEY','BLOCKSCOUT_API_KEY','MONI_API_KEY','MONI_MONTHLY_BUDGET','MONI_DASHBOARD_TTL','CHAINDETECTIVE_ENV_FILE','PORT'])delete cleanEnv[name];
+for(const name of ['SCAN_MAX_WALLETS','SCAN_TASK_CONCURRENCY','ALCHEMY_REQUEST_CONCURRENCY','ALCHEMY_MIN_REQUEST_INTERVAL_MS','BLOCKSCOUT_REQUEST_CONCURRENCY','BLOCKSCOUT_MIN_REQUEST_INTERVAL_MS','ALCHEMY_API_KEY','BLOCKSCOUT_API_KEY','MONI_API_KEY','MONI_MONTHLY_BUDGET','MONI_DASHBOARD_TTL','CHAINDETECTIVE_ENV_FILE','HOST','PORT','CHAINDETECTIVE_ALLOW_LAN'])delete cleanEnv[name];
 const scanModule=pathToFileURL(path.join(projectRoot,'server','scans.mjs')).href;
 const providerModule=pathToFileURL(path.join(projectRoot,'server','wallet-provider.mjs')).href;
 const moniModule=pathToFileURL(path.join(projectRoot,'server','moni.mjs')).href;
@@ -65,6 +65,8 @@ try{
  }
  assert.deepEqual(health,{service:'chaindetective',backendVersion:2},`standard server startup smoke failed: ${output}`);
  assert.match(output,/ChainDetective v0\.3/,'standard entrypoint reached listening state');
+ assert.match(output,/Listening: http:\/\/127\.0\.0\.1:/,'default HOST keeps the standard server loopback-only');
+ assert.ok((await stat(path.join(isolatedProject,'.data','chaindetective.sqlite'))).size>0,'default SQLite storage creates .data and preserves the production path when it does not exist');
  child.kill('SIGTERM');await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('isolated server did not stop')),5000);child.once('exit',()=>{clearTimeout(timer);resolve();});});
  console.log('Env bootstrap regressions passed: dotenv-before-import overrides, provider credentials (boolean only), defaults, invalid-value fallback, and isolated standard server startup/health/shutdown.');
 }finally{
