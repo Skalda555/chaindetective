@@ -1,0 +1,257 @@
+{
+  "chain": "base",
+  "window": {
+    "snapshotAt": "2026-10-16T14:05:24.408Z",
+    "windowStart": "2026-10-14T14:05:24.408Z",
+    "windowEnd": "2026-10-15T14:05:24.408Z",
+    "bounds": {
+      "base": {
+        "fromBlock": 52598689,
+        "toBlock": 52641889,
+        "windowStart": "2026-10-14T14:05:24.408Z",
+        "windowEndExclusive": "2026-10-15T14:05:24.408Z"
+      }
+    }
+  },
+  "tokens": [
+    {
+      "tokenSymbol": "DRV",
+      "tokenContract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "poolAddress": "0x9011cbf8d2900908286c9bf4d5d1644ece7b684a",
+      "quoteTokenContract": "0x4200000000000000000000000000000000000006"
+    },
+    {
+      "tokenSymbol": "AERO",
+      "tokenContract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "poolAddress": "0x3d5d143381916280ff91407febeb52f2b60f33cf",
+      "quoteTokenContract": "0x4200000000000000000000000000000000000006"
+    }
+  ],
+  "candidateCount": 1197,
+  "exactCandidateSet": true,
+  "context": {
+    "exactContextMatch": true,
+    "comparisonScope": "exact logs consumed by resolver (supported pool swap/liquidity topics and target/quote ERC-20 transfers)",
+    "contextMismatches": 0,
+    "missingInNew": 0,
+    "extraInNew": 0,
+    "diffs": []
+  },
+  "resolver": {
+    "oldOutcomeCount": 1199,
+    "newOutcomeCount": 1199,
+    "verdictMatches": 1199,
+    "verdictMismatches": 0,
+    "walletMismatches": 0,
+    "reasonMismatches": 0,
+    "amountMismatches": 0,
+    "byReason": {
+      "old": {
+        "CONFIRMED": 91,
+        "liquidity_event": 12,
+        "multihop_ambiguous": 1007,
+        "multiple_possible_recipients": 68,
+        "smart_account": 7,
+        "unpriced": 14
+      },
+      "new": {
+        "CONFIRMED": 91,
+        "liquidity_event": 12,
+        "multihop_ambiguous": 1007,
+        "multiple_possible_recipients": 68,
+        "smart_account": 7,
+        "unpriced": 14
+      }
+    },
+    "diffs": []
+  },
+  "performance": {
+    "legacy": {
+      "queries": 20,
+      "pages": 16,
+      "fullRangeTransferLogs": 550162,
+      "responseBytes": 288548756,
+      "totalMs": 59582,
+      "transferMs": 56546
+    },
+    "optimized": {
+      "queries": 4,
+      "pages": 4,
+      "candidateContextLogs": 9624,
+      "relevantTransferLogs": 5386,
+      "responseBytes": 37719348,
+      "totalMs": 5479,
+      "transferMs": 0
+    }
+  },
+  "memory": {
+    "old": {
+      "start": {
+        "at": "2026-10-16T15:23:16.484Z",
+        "rssBytes": 130179072,
+        "heapUsedBytes": 28278328,
+        "heapTotalBytes": 57753600,
+        "externalBytes": 7301777,
+        "arrayBuffersBytes": 3206521,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 129056
+      },
+      "peakRssBytes": 319926272,
+      "peakHeapUsedBytes": 114565736,
+      "peakExternalBytes": 63416645,
+      "peakArrayBuffersBytes": 24624442,
+      "samples": 66,
+      "boundaries": [
+        {
+          "phase": "scan-start",
+          "at": "2026-10-16T15:23:16.484Z",
+          "rssBytes": 130179072,
+          "heapUsedBytes": 28115920,
+          "heapTotalBytes": 57753600,
+          "externalBytes": 7301777,
+          "arrayBuffersBytes": 3206521,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 129056
+        },
+        {
+          "phase": "discovery-complete",
+          "at": "2026-10-16T15:23:16.540Z",
+          "rssBytes": 130510848,
+          "heapUsedBytes": 28800000,
+          "heapTotalBytes": 57753600,
+          "externalBytes": 7322195,
+          "arrayBuffersBytes": 3221987,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 129056
+        },
+        {
+          "phase": "retrieval-complete",
+          "at": "2026-10-16T15:24:15.660Z",
+          "rssBytes": 293867520,
+          "heapUsedBytes": 48847536,
+          "heapTotalBytes": 181317632,
+          "externalBytes": 39626307,
+          "arrayBuffersBytes": 24624086,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        },
+        {
+          "phase": "aggregation-complete",
+          "at": "2026-10-16T15:24:16.061Z",
+          "rssBytes": 300167168,
+          "heapUsedBytes": 82864400,
+          "heapTotalBytes": 182628352,
+          "externalBytes": 38418816,
+          "arrayBuffersBytes": 23416595,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        },
+        {
+          "phase": "scan-complete",
+          "at": "2026-10-16T15:24:16.061Z",
+          "rssBytes": 300175360,
+          "heapUsedBytes": 82924880,
+          "heapTotalBytes": 182628352,
+          "externalBytes": 38418816,
+          "arrayBuffersBytes": 23416595,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        }
+      ],
+      "final": {
+        "at": "2026-10-16T15:24:16.066Z",
+        "rssBytes": 302174208,
+        "heapUsedBytes": 85005112,
+        "heapTotalBytes": 182628352,
+        "externalBytes": 38418816,
+        "arrayBuffersBytes": 23416595,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 374220
+      }
+    },
+    "optimized": {
+      "start": {
+        "at": "2026-10-16T15:24:16.067Z",
+        "rssBytes": 302252032,
+        "heapUsedBytes": 85034000,
+        "heapTotalBytes": 182628352,
+        "externalBytes": 38418816,
+        "arrayBuffersBytes": 23416595,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 374220
+      },
+      "peakRssBytes": 312426496,
+      "peakHeapUsedBytes": 85438672,
+      "peakExternalBytes": 40997157,
+      "peakArrayBuffersBytes": 27837962,
+      "samples": 12,
+      "boundaries": [
+        {
+          "phase": "scan-start",
+          "at": "2026-10-16T15:24:16.067Z",
+          "rssBytes": 302252032,
+          "heapUsedBytes": 85037040,
+          "heapTotalBytes": 182628352,
+          "externalBytes": 38418816,
+          "arrayBuffersBytes": 23416595,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        },
+        {
+          "phase": "discovery-complete",
+          "at": "2026-10-16T15:24:16.318Z",
+          "rssBytes": 302514176,
+          "heapUsedBytes": 85349240,
+          "heapTotalBytes": 182628352,
+          "externalBytes": 38504753,
+          "arrayBuffersBytes": 23497580,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        },
+        {
+          "phase": "retrieval-complete",
+          "at": "2026-10-16T15:24:21.169Z",
+          "rssBytes": 301764608,
+          "heapUsedBytes": 83566384,
+          "heapTotalBytes": 214835200,
+          "externalBytes": 40997157,
+          "arrayBuffersBytes": 27837962,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        },
+        {
+          "phase": "aggregation-complete",
+          "at": "2026-10-16T15:24:21.540Z",
+          "rssBytes": 309694464,
+          "heapUsedBytes": 39131568,
+          "heapTotalBytes": 190291968,
+          "externalBytes": 5914746,
+          "arrayBuffersBytes": 334385,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        },
+        {
+          "phase": "scan-complete",
+          "at": "2026-10-16T15:24:21.541Z",
+          "rssBytes": 309698560,
+          "heapUsedBytes": 39176864,
+          "heapTotalBytes": 190291968,
+          "externalBytes": 5914746,
+          "arrayBuffersBytes": 334385,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 374220
+        }
+      ],
+      "final": {
+        "at": "2026-10-16T15:24:21.546Z",
+        "rssBytes": 309739520,
+        "heapUsedBytes": 41942200,
+        "heapTotalBytes": 190291968,
+        "externalBytes": 5914746,
+        "arrayBuffersBytes": 334385,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 374220
+      }
+    }
+  }
+}

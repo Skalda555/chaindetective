@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 import {ScanEngine,SCAN_CONFIG,validateQuery} from '../server/scans.mjs';
-import {ZERO_ADDRESS,isSystemWalletAddress} from '../dist/data.js';
+import {ZERO_ADDRESS,DEAD_ADDRESS,isIgnoredWalletAddress,isSystemWalletAddress} from '../dist/data.js';
 
 const address=i=>'0x'+i.toString(16).padStart(40,'0');
 const chains=['ethereum','base','optimism','arbitrum'];
@@ -10,19 +10,19 @@ const fixtureToken=chainId=>({address_hash:contract,decimals:'0',symbol:'SHARED'
 const finished=async(engine,id)=>{await engine.active.get(id)?.promise;return engine.store.describe(id);};
 const addressesFor=n=>Array.from({length:n},(_,i)=>address(100000+i));
 assert.equal(SCAN_CONFIG.maxWallets,500);assert.equal(SCAN_CONFIG.taskConcurrency,4);
-assert.equal(isSystemWalletAddress(ZERO_ADDRESS),true);assert.equal(isSystemWalletAddress(address(1)),false,'an address is not rejected merely for its leading zeroes');
+assert.equal(isIgnoredWalletAddress(ZERO_ADDRESS),true);assert.equal(isIgnoredWalletAddress(DEAD_ADDRESS),true);assert.equal(isIgnoredWalletAddress('0x000000000000000000000000000000000000dEaD'),true);assert.equal(isSystemWalletAddress(address(1)),false,'an address is not rejected merely for its leading zeroes');
 for(const count of [1,20,100,214])assert.equal(validateQuery({kind:'wallets',chainIds:['base'],addresses:addressesFor(count)}).addresses.length,count);
 assert.equal(validateQuery({kind:'wallets',chainIds:['base'],addresses:[...addressesFor(500),addressesFor(1)[0]]}).addresses.length,500,'duplicates do not consume the unique-address limit');
 assert.throws(()=>validateQuery({kind:'wallets',chainIds:['base'],addresses:addressesFor(501)}),/500/);
 
-// A zero address never creates a provider task; mixed scans keep valid wallets and report the exclusion.
+// Burn/dead addresses never create provider tasks; mixed scans keep valid wallets and report the exclusion.
 {
  let requested=[];const systemEngine=new ScanEngine({filename:':memory:',provider:{metadata:async()=>null,page:async task=>{requested.push(task.address);return {items:[],cursor:null};}}});
  try{
-  assert.throws(()=>systemEngine.start({kind:'wallets',chainIds:['base'],addresses:[ZERO_ADDRESS]}),/Neplatná systémová adresa.*zero address/);
+  assert.throws(()=>systemEngine.start({kind:'wallets',chainIds:['base'],addresses:[DEAD_ADDRESS]}),/burn\/dead/);
   assert.equal(systemEngine.store.db.prepare('SELECT COUNT(*) AS n FROM scans').get().n,0);assert.equal(systemEngine.store.db.prepare('SELECT COUNT(*) AS n FROM tasks').get().n,0);assert.deepEqual(requested,[]);
-  const mixed=systemEngine.start({kind:'wallets',chainIds:['base'],addresses:[ZERO_ADDRESS,addressesFor(1)[0]]});assert.equal(mixed.taskCount,1);assert.deepEqual(mixed.query.addresses,[addressesFor(1)[0]]);assert.deepEqual(mixed.query.excludedSystemAddresses,[ZERO_ADDRESS]);
-  await finished(systemEngine,mixed.id);const result=systemEngine.result(mixed.id);assert.deepEqual(requested,[addressesFor(1)[0]]);assert.ok(result.warnings.some(w=>/Neplatná systémová adresa \(zero address\) byla přeskočena/.test(w)));
+  const mixed=systemEngine.start({kind:'wallets',chainIds:['base'],addresses:[ZERO_ADDRESS,DEAD_ADDRESS,addressesFor(1)[0]]});assert.equal(mixed.taskCount,1);assert.deepEqual(mixed.query.addresses,[addressesFor(1)[0]]);assert.deepEqual(mixed.query.excludedSystemAddresses,[ZERO_ADDRESS,DEAD_ADDRESS]);
+  await finished(systemEngine,mixed.id);const result=systemEngine.result(mixed.id);assert.deepEqual(requested,[addressesFor(1)[0]]);assert.ok(result.warnings.some(w=>/burn\/dead/.test(w)));
  }finally{await systemEngine.close();}
 }
 

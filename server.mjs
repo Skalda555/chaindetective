@@ -7,6 +7,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ScanEngine} from './server/scans.mjs';
 import {SmartWalletStore} from './server/smart-wallets.mjs';
+import {EarlyBuyerService} from './server/early-buyers.mjs';
 import {MoniService} from './server/moni.mjs';
 import {DashboardService,AixbtService} from './server/dashboard.mjs';
 
@@ -20,9 +21,10 @@ async function body(request){
 export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'),provider,cacheMs,moniOptions,aixbtOptions}={}){
  const scans=new ScanEngine({filename:dbPath,provider,cacheMs});
  const smartWallets=new SmartWalletStore(scans.store.db);
+ const earlyBuyers=new EarlyBuyerService(scans.store.db);
  const moni=new MoniService(scans.store.db,moniOptions);
  const dashboard=new DashboardService({store:scans.store,engine:scans,moni});
- const aixbt=new AixbtService(aixbtOptions);
+ const aixbt=new AixbtService({...aixbtOptions,db:scans.store.db});
  const server=http.createServer(async(request,response)=>{
   const json=async(status,data)=>{let bytes=Buffer.from(JSON.stringify(data));const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Vary':'Accept-Encoding'};if(bytes.length>2048&&/\bgzip\b/.test(request.headers['accept-encoding']||'')){bytes=await zip(bytes);headers['Content-Encoding']='gzip';}response.writeHead(status,headers);response.end(bytes);};
   try{
@@ -31,9 +33,18 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
     if((!process.env.VERCEL&&!['localhost','127.0.0.1','[::1]'].includes(url.hostname))||request.headers.origin&&request.headers.origin!==url.origin){await json(403,{error:'API přijímá pouze požadavky z místní aplikace.'});return;}
     if(request.method==='GET'&&url.pathname==='/api/health'){await json(200,{service:'chaindetective',backendVersion:2});return;}
     if(request.method==='GET'&&url.pathname==='/api/providers'){await json(200,scans.provider.status?.()||{});return;}
+    if(request.method==='GET'&&url.pathname==='/api/early-buyers'){await json(200,earlyBuyers.results({snapshotId:url.searchParams.get('snapshot')||null,threshold:url.searchParams.get('threshold')||250}));return;}
+    if(request.method==='GET'&&url.pathname==='/api/early-buyers/status'){await json(200,{job:earlyBuyers.status()});return;}
+    if(request.method==='POST'&&url.pathname==='/api/early-buyers/scan'){
+     const input=await body(request);const result=await earlyBuyers.start({excludeTop100:input.excludeTop100!==false});await json(result.existing?200:202,result);return;
+    }
+    const earlySnapshot=url.pathname.match(/^\/api\/early-buyers\/snapshots\/([a-f0-9-]{36})$/);
+    if(earlySnapshot&&request.method==='GET'){const result=earlyBuyers.results({snapshotId:earlySnapshot[1],threshold:url.searchParams.get('threshold')||250});if(!result.snapshot){await json(404,{error:'Snapshot nebyl nalezen.'});return;}await json(200,result);return;}
+    if(earlySnapshot&&request.method==='DELETE'){await json(200,earlyBuyers.removeSnapshot(earlySnapshot[1]));return;}
     if(request.method==='GET'&&url.pathname==='/api/dashboard'){const view=url.searchParams.get('view')||'growing',orders={growing:'SCORE_CHANGE',top:'SCORE',new:'CREATED_AT'};if(!Object.hasOwn(orders,view))throw Object.assign(new Error('Neznámý MONI discovery pohled.'),{status:400});const filters={endpointMode:'curated',feedTimeframe:'D7',changesTimeframe:'H24',orderBy:orders[view],orderByDirection:'DESC',limit:10,offset:0};const [overview,feed]=await Promise.all([Promise.resolve(dashboard.overview(filters)),moni.dashboardFeed(filters)]);overview.moni.trending=feed;await json(200,overview);return;}
+    if(request.method==='GET'&&url.pathname==='/api/dashboard/wallet-analysis/rescan-candidates'){const limit=Number(url.searchParams.get('limit'))||500,offset=Number(url.searchParams.get('offset'))||0;await json(200,dashboard.walletRescanCandidates({limit,offset}));return;}
     if(request.method==='POST'&&url.pathname==='/api/dashboard/moni/projects'){const input=await body(request),feed=await moni.dashboardFeed(input.filters||{endpointMode:'curated',feedTimeframe:'D7',changesTimeframe:'H24',orderBy:'SCORE_CHANGE',orderByDirection:'DESC',limit:10,offset:0},{force:true});if(feed.refreshError)throw Object.assign(new Error(feed.refreshError),{status:502});await json(200,feed);return;}
-    if(request.method==='GET'&&url.pathname==='/api/dashboard/topics'){await json(200,await aixbt.topics(url.searchParams.get('limit')));return;}
+    if(request.method==='GET'&&url.pathname==='/api/dashboard/topics'){const language=url.searchParams.get('language')==='cs'?'cs':'en';await json(200,await aixbt.topics(url.searchParams.get('limit'),language));return;}
     const aixbtTopic=url.pathname.match(/^\/api\/dashboard\/topics\/([a-zA-Z0-9_-]{1,120})$/);
     if(request.method==='GET'&&aixbtTopic){await json(200,await aixbt.topic(decodeURIComponent(aixbtTopic[1])));return;}
     if(url.pathname==='/api/socials/watchlist'){
@@ -47,6 +58,7 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
     if(url.pathname==='/api/socials/moni/projects'&&request.method==='POST'){const input=await body(request);await json(200,await moni.get('all','projects',{filters:input.query||input.filters,force:true}));return;}
     if(request.method==='POST'&&url.pathname==='/api/socials/moni/account'){const input=await body(request);await json(200,await moni.get(input.handle,input.part));return;}
     if(request.method==='POST'&&url.pathname==='/api/smart-wallets/import-preview'){await json(200,smartWallets.previewImport(await body(request)));return;}
+    if(request.method==='POST'&&url.pathname==='/api/smart-wallets/quick-add'){await json(201,smartWallets.quickAdd(await body(request)));return;}
     if(url.pathname==='/api/smart-wallets'){
      if(request.method==='GET'){await json(200,{wallets:smartWallets.list()});return;}
      if(request.method==='POST'){await json(201,smartWallets.add(await body(request)));return;}
@@ -78,7 +90,7 @@ export function createApp({dbPath=path.join(base,'.data','chaindetective.sqlite'
    const bytes=await readFile(file);response.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});response.end(request.method==='HEAD'?undefined:bytes);
   }catch(error){if(!response.headersSent)await json(request.url.startsWith('/api/')?(error.status||400):404,{error:error.message});else response.end();}
  });
- return {server,scans,moni,dashboard,aixbt,async close(){await moni.close();await scans.close();await new Promise((resolve,reject)=>server.close(error=>error?reject(error):resolve()));}};
+ return {server,scans,moni,dashboard,aixbt,earlyBuyers,async close(){await earlyBuyers.close();await moni.close();await scans.close();await new Promise((resolve,reject)=>server.close(error=>error?reject(error):resolve()));}};
 }
 let vercelApp;
 export default function handler(request,response){

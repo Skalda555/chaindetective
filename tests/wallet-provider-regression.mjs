@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {AlchemyWalletProvider,WalletProviderRouter,PROVIDER_LIMITS} from '../server/wallet-provider.mjs';
-import {BlockscoutProvider,decodeHolding,decodeToken} from '../server/provider.mjs';
-import {aggregateHoldings} from '../dist/data.js';
+import {BlockscoutProvider,BlockscoutLegacyHolderProvider,BLOCKSCOUT_LEGACY_HOLDER_PAGE_SIZE,decodeHolding,decodeToken} from '../server/provider.mjs';
+import {DEAD_ADDRESS,aggregateHoldings} from '../dist/data.js';
 import {ScanEngine} from '../server/scans.mjs';
 import {createApp} from '../server.mjs';
 import {mkdtemp,rm} from 'node:fs/promises';
@@ -20,6 +20,14 @@ const alchemyToken=(network='eth-mainnet',contract=tokenAddress)=>({address:owne
 const payload=(network='eth-mainnet',contract=tokenAddress)=>({data:{tokens:[alchemyToken(network,contract)]}});
 const emptyAlchemy=provider(async()=>response(200,{data:{tokens:[]}}));
 
+// Legacy PRO holder responses are normalized and resume with a typed, sequential page cursor.
+{
+ const legacyKey='legacy-test-key-never-expose',calls=[],legacy=new BlockscoutLegacyHolderProvider({apiKey:legacyKey,timeoutMs:1000,retries:0,fetchImpl:async url=>{const parsed=new URL(url);calls.push(parsed);assert.equal(parsed.hostname,'api.blockscout.com');assert.equal(parsed.pathname,'/1/api');assert.equal(parsed.searchParams.get('module'),'token');assert.equal(parsed.searchParams.get('action'),'getTokenHolders');assert.equal(parsed.searchParams.get('contractaddress'),tokenAddress);assert.equal(parsed.searchParams.get('offset'),'1000');assert.equal(parsed.searchParams.get('apikey'),legacyKey);const page=Number(parsed.searchParams.get('page'));return response(200,{status:'1',message:'OK',result:page===1?Array.from({length:1000},(_,i)=>({TokenHolderAddress:address(i+1),TokenHolderQuantity:String(2000-i)})):[{address:owner,balance:'1'}]});}});
+ const first=await legacy.page({kind:'holders',chainId:'ethereum',address:tokenAddress,provider:'blockscout_legacy',cursor:null});assert.equal(first.items.length,BLOCKSCOUT_LEGACY_HOLDER_PAGE_SIZE);assert.deepEqual(first.items[0],{address:{hash:address(1)},value:'2000'});assert.deepEqual(first.cursor,{mode:'blockscout_legacy',page:2,pageSize:1000});
+ const second=await legacy.page({kind:'holders',chainId:'ethereum',address:tokenAddress,provider:'blockscout_legacy',cursor:first.cursor});assert.equal(calls[1].searchParams.get('page'),'2');assert.equal(second.items.length,1);assert.equal(second.items[0].address.hash,owner);assert.equal(second.items[0].value,'1');assert.equal(second.cursor,null);
+ assert.equal(legacy.supports('holders','ethereum'),true);assert.equal(legacy.supports('holders','base'),false);assert.equal(new BlockscoutLegacyHolderProvider({apiKey:''}).supports('holders','ethereum'),false);
+}
+
 // Provider-wide request gates pace requests and cap active Alchemy calls, even when scans queue work concurrently.
 {
  let active=0,peak=0;const starts=[];const adapter=provider(async()=>{starts.push(Date.now());active++;peak=Math.max(peak,active);await new Promise(resolve=>setTimeout(resolve,320));active--;return response(200,{data:{tokens:[]}});});
@@ -29,6 +37,29 @@ const emptyAlchemy=provider(async()=>response(200,{data:{tokens:[]}}));
  for(let i=1;i<starts.length;i++)assert.ok(starts[i]-starts[i-1]>=PROVIDER_LIMITS.alchemy.intervalMs-20,'Alchemy requests respect the configured minimum interval');
 }
 const backup=(pageImpl=async()=>({items:[],cursor:null}),{allowed=['ethereum','optimism','arbitrum','robinhood','base']}={})=>({supports:(operation,chainId)=>['wallets','holders'].includes(operation)&&allowed.includes(chainId),page:pageImpl,metadata:async()=>{throw Error('Holder token metadata should stay on Blockscout');}});
+{
+ let requests=0;const router=new WalletProviderRouter({alchemy:provider(async()=>{requests++;return response(200,{data:{tokens:[]}});}),blockscout:backup(async()=>{requests++;return {items:[],cursor:null};})});
+ await assert.rejects(router.page({kind:'wallets',chainId:'ethereum',address:DEAD_ADDRESS,provider:'alchemy'}),/burn\/dead/);assert.equal(requests,0,'ignored wallets are rejected before any provider request');
+}
+for(const match of ['all','any']){
+ const realHolder=address(2),provider={metadata:async task=>({id:`${task.chainId}:${task.address}`,chainId:task.chainId,address:task.address,symbol:'FIX',name:'Holder fixture',decimals:0,price:null}),page:async()=>({items:[{address:{hash:DEAD_ADDRESS.toUpperCase().replace(/^0X/,'0x')},value:'10'},{address:{hash:realHolder},value:'9'}],cursor:null})};
+ const engine=new ScanEngine({filename:':memory:',provider});try{const result=await done(engine,engine.start({kind:'holders',chainIds:['ethereum'],tokens:[{chainId:'ethereum',address:tokenAddress},{chainId:'ethereum',address:fresh}],match,holderCap:0}).id);assert.deepEqual(result.wallets.map(wallet=>wallet.address),[realHolder],`${match} aggregation excludes the dead address`);assert.equal(engine.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(result.job.id).n,2,'new holder results do not persist ignored wallets as interpreted positions');}finally{await engine.close();}
+}
+{
+ const realHolder=address(3),engine=new ScanEngine({filename:':memory:',provider:{metadata:async task=>({id:`${task.chainId}:${task.address}`,chainId:task.chainId,address:task.address,symbol:'FIX',name:'Holder fixture',decimals:0,price:null}),page:async()=>({items:[{address:{hash:realHolder},value:'9'}],cursor:null})}});
+ try{const initial=await done(engine,engine.start({kind:'holders',chainIds:['ethereum'],tokens:[{chainId:'ethereum',address:tokenAddress}],holderCap:0}).id),task=initial.job.tasks[0],rawDead=DEAD_ADDRESS.toUpperCase().replace(/^0X/,'0x');engine.store.db.prepare('INSERT INTO positions(scan_id,task_key,owner,token_id,holding) VALUES(?,?,?,?,?)').run(initial.job.id,task.key,rawDead,task.token.id,JSON.stringify({...task.token,tokenId:task.token.id,amount:7,value:7}));const result=engine.result(initial.job.id);assert.equal(engine.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=? AND lower(trim(owner))=?').get(initial.job.id,DEAD_ADDRESS).n,1,'historical raw dead facts remain stored');assert.equal(result.job.positions,1,'historical dead facts are omitted from presented position totals');assert.deepEqual(result.wallets.map(wallet=>wallet.address),[realHolder],'historical dead holders remain excluded from wallet results');}finally{await engine.close();}
+}
+
+// Legacy routing is enabled only for the keyed, benchmark-verified holder networks.
+{
+ const legacy={supports:(operation,chainId)=>operation==='holders'&&['ethereum','optimism','robinhood'].includes(chainId),page:async()=>({items:[],cursor:null})};
+ const scout=new BlockscoutProvider({proApiKey:'route-test-key',intervalMs:0,retries:0,fetchImpl:async()=>response(200,{items:[],next_page_params:null})});
+ const router=new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:scout,blockscoutLegacy:legacy});
+ for(const chainId of ['ethereum','optimism','robinhood'])assert.equal(router.route({kind:'holders',chainId}).provider,'blockscout_legacy');
+ for(const chainId of ['base','arbitrum'])assert.equal(router.route({kind:'holders',chainId}).provider,'blockscout','Base and Arbitrum stay on the existing REST provider');
+ const noKey=new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:new BlockscoutProvider({proApiKey:'',intervalMs:0,retries:0}),blockscoutLegacy:new BlockscoutLegacyHolderProvider({apiKey:''})});
+ assert.equal(noKey.route({kind:'holders',chainId:'ethereum'}).provider,'blockscout');assert.equal(noKey.route({kind:'holders',chainId:'robinhood'}).provider,'blockscout');
+}
 
 // Blockscout Pro upgrades public-host 403s and keeps credentials out of cursors/results.
 const blockscoutCalls=[],blockscoutKey='blockscout-test-key-never-expose';
@@ -173,7 +204,7 @@ try{
 // A multi-network scan uses independent providers, retains successes, and reports per-network provenance.
 const seen=[];const multiRouter=new WalletProviderRouter({alchemy:provider(async(_url,options)=>{const id=JSON.parse(options.body).addresses[0].networks[0];seen.push(['alchemy',id]);if(id==='base-mainnet')return response(429,{error:'rate limit'});return response(200,{data:{tokens:[alchemyToken(id)]}});},{retries:0}),blockscout:backup(async task=>{seen.push(['blockscout',task.chainId]);return {items:[{token:{address_hash:fresh,decimals:0,symbol:'RH',exchange_rate:'1'},value:'1'}],cursor:null};})});
 const multiEngine=new ScanEngine({filename:':memory:',provider:multiRouter});try{
- const result=await done(multiEngine,multiEngine.start(query(['ethereum','base','optimism','arbitrum','robinhood'])).id);assert.equal(result.job.status,'partial');assert.deepEqual(result.job.tasks.map(t=>[t.chainId,t.provider]),[['arbitrum','alchemy'],['base','alchemy'],['ethereum','alchemy'],['optimism','alchemy'],['robinhood','blockscout']]);assert.equal(result.coverage.providerLabel,'Alchemy + Blockscout','scan summary names only providers that actually returned data');assert.equal(result.wallets.length,1);assert.deepEqual(result.wallets[0].chainIds.sort(),['arbitrum','ethereum','optimism','robinhood'].sort());assert.equal(result.coverage.provenance.length,5);assert.deepEqual(result.coverage.provenance.find(p=>p.chainId==='base').providerAttempts.map(({provider,status})=>({provider,status})),[{provider:'alchemy',status:'failure'}]);assert.ok(result.coverage.provenance.find(p=>p.chainId==='base'&&p.status==='error'));assert.ok(seen.some(x=>x[0]==='blockscout'&&x[1]==='robinhood'));assert.ok(!seen.some(x=>x[0]==='blockscout'&&x[1]==='base'));
+ const result=await done(multiEngine,multiEngine.start(query(['ethereum','base','optimism','arbitrum','robinhood'])).id);assert.equal(result.job.status,'partial');assert.deepEqual(result.job.tasks.map(t=>[t.chainId,t.provider]),[['arbitrum','alchemy'],['base','alchemy'],['ethereum','alchemy'],['optimism','alchemy'],['robinhood','blockscout']]);assert.equal(result.coverage.providerLabel,'Alchemy + Blockscout REST v2','scan summary differentiates the REST v2 adapter');assert.equal(result.wallets.length,1);assert.deepEqual(result.wallets[0].chainIds.sort(),['arbitrum','ethereum','optimism','robinhood'].sort());assert.equal(result.coverage.provenance.length,5);assert.deepEqual(result.coverage.provenance.find(p=>p.chainId==='base').providerAttempts.map(({provider,status})=>({provider,status})),[{provider:'alchemy',status:'failure'}]);assert.ok(result.coverage.provenance.find(p=>p.chainId==='base'&&p.status==='error'));assert.ok(seen.some(x=>x[0]==='blockscout'&&x[1]==='robinhood'));assert.ok(!seen.some(x=>x[0]==='blockscout'&&x[1]==='base'));
 }finally{await multiEngine.close();}
 
 // A paused fallback retains provider/provenance/cursor across SQLite restart.
@@ -190,5 +221,49 @@ try{
 const apiRouter=new WalletProviderRouter({alchemy:provider(async()=>response(200,{data:{tokens:[]}})),blockscout:new BlockscoutProvider({proApiKey:blockscoutKey})});
 const app=createApp({dbPath:':memory:',provider:apiRouter});await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));
 try{const config=await fetch(`http://127.0.0.1:${app.server.address().port}/api/providers`).then(r=>r.json());assert.equal(config.walletProfiler.alchemyConfigured,true);assert.deepEqual(config.walletProfiler.alchemyChains,['ethereum','base','optimism','arbitrum']);assert.deepEqual(config.walletProfiler.blockscoutChains,['ethereum','optimism','arbitrum','robinhood']);assert.deepEqual(config.walletProfiler.fallbackChains,['ethereum','optimism','arbitrum']);assert.equal(config.walletProfiler.routes.find(r=>r.chainId==='base').provider,'alchemy');assert.ok(!JSON.stringify(config).includes(secret));assert.ok(!JSON.stringify(config).includes(blockscoutKey));}finally{await app.close();}
+
+// Legacy scan uses the typed cursor, validates page ordering, and safely applies the USD boundary.
+{
+ const calls=[],metadata=async task=>({id:`${task.chainId}:${task.address}`,chainId:task.chainId,address:task.address,symbol:'LEG',name:'Legacy fixture',decimals:0,price:null});
+ const legacy={supports:(operation,chainId)=>operation==='holders'&&['ethereum','optimism','robinhood'].includes(chainId),async page(task){calls.push(task.cursor?.page||1);const page=task.cursor?.page||1,items=Array.from({length:1000},(_,i)=>({address:{hash:address(30000+(page-1)*1000+i+1)},value:String(page===1?2000-i:Math.max(0,500-i))}));return {items,cursor:{mode:'blockscout_legacy',page:page+1,pageSize:1000}};}};
+ const scout={...backup(),proApiKey:'fixture-key',metadata};const router=new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:scout,blockscoutLegacy:legacy});
+ const engine=new ScanEngine({filename:':memory:',provider:router,priceResolver:async()=>({priceUsd:1,priceSource:'fixture',priceAsOf:'2026-10-16T00:00:00.000Z'})});
+ try{const result=await done(engine,engine.start({kind:'holders',chainIds:['ethereum'],tokens:[{chainId:'ethereum',address:tokenAddress}],match:'all',minPositionUsd:500,holderCap:0}).id),task=result.job.tasks[0];assert.deepEqual(calls,[1,2]);assert.equal(task.provider,'blockscout_legacy');assert.equal(task.completionReason,'usd_threshold');assert.equal(task.status,'complete');assert.equal(task.token.orderingVerified,true);assert.equal(task.pages,2);assert.equal(engine.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(result.job.id).n,1500,'raw positions are retained while below-threshold rows are excluded from correlation');assert.equal(engine.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=? AND threshold_eligible=1').get(result.job.id).n,1001);assert.equal(result.coverage.providerLabel,'Blockscout Legacy PRO');assert.deepEqual(task.providerAttempts.map(({provider,status})=>({provider,status})),[{provider:'blockscout_legacy',status:'success'}]);}finally{await engine.close();}
+}
+
+// The configured Top-N cap stops at exactly 10,000 unique Legacy holders; invalid ordering disables that cap.
+{
+ const cap=10000,calls=[],metadata=async task=>({id:`${task.chainId}:${task.address}`,chainId:task.chainId,address:task.address,symbol:'LEG',name:'Legacy fixture',decimals:0,price:null}),legacy={supports:(operation,chainId)=>operation==='holders'&&chainId==='ethereum',async page(task){const page=task.cursor?.page||1;calls.push(page);const items=Array.from({length:1000},(_,i)=>({address:{hash:address(50000+(page-1)*1000+i+1)},value:String(20000-(page-1)*1000-i)}));if(page===1)items[0]={address:{hash:DEAD_ADDRESS},value:'21000'};return {items,cursor:{mode:'blockscout_legacy',page:page+1,pageSize:1000}};}};
+ const scout={...backup(),proApiKey:'fixture-key',metadata},engine=new ScanEngine({filename:':memory:',provider:new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:scout,blockscoutLegacy:legacy})});
+ try{const result=await done(engine,engine.start({kind:'holders',chainIds:['ethereum'],tokens:[{chainId:'ethereum',address:tokenAddress}],holderCap:cap}).id),task=result.job.tasks[0];assert.equal(calls.length,11);assert.deepEqual(calls,[1,2,3,4,5,6,7,8,9,10,11]);assert.equal(task.completionReason,'holder_cap');assert.equal(task.status,'complete');assert.equal(task.token.holdersAccepted,cap,'dead holder does not consume a slot in the 10,000 holder cap');assert.equal(task.token.truncatedByHolderCap,true);assert.equal(engine.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(result.job.id).n,cap);assert.equal(result.pagination.total,cap);assert.equal(result.wallets.some(wallet=>wallet.address===DEAD_ADDRESS),false);assert.equal(result.job.status,'complete');}finally{await engine.close();}
+ const brokenLegacy={supports:legacy.supports,async page(){return {items:[{address:{hash:address(60001)},value:'1'},{address:{hash:address(60002)},value:'2'}],cursor:null};}};const unsafe=new ScanEngine({filename:':memory:',provider:new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:scout,blockscoutLegacy:brokenLegacy})});
+ try{const result=await done(unsafe,unsafe.start({kind:'holders',chainIds:['ethereum'],tokens:[{chainId:'ethereum',address:tokenAddress}],holderCap:10000}).id),task=result.job.tasks[0];assert.equal(task.completionReason,'all_holders');assert.equal(task.token.truncatedByHolderCap,false);assert.equal(task.token.orderingVerified,false);assert.match(task.token.holderCapDisabledReason,/sestupné/);assert.equal(unsafe.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(result.job.id).n,2);}finally{await unsafe.close();}
+}
+
+// A later Legacy failure clears its pages and typed cursor before REST v2 fallback, so provider rows never mix.
+{
+ let legacyCalls=0,restCalls=0;const metadata=async task=>({id:`${task.chainId}:${task.address}`,chainId:task.chainId,address:task.address,symbol:'LEG',name:'Legacy fixture',decimals:0,price:null});
+ const legacy={supports:(operation,chainId)=>operation==='holders'&&chainId==='ethereum',async page(task){legacyCalls++;if(task.cursor){const error=Error('Legacy page 2 unavailable');error.retryable=true;throw error;}return {items:Array.from({length:1000},(_,i)=>({address:{hash:address(40000+i+1)},value:'1000'})),cursor:{mode:'blockscout_legacy',page:2,pageSize:1000}};}};
+ const scout={...backup(async task=>{restCalls++;assert.equal(task.cursor,null,'REST fallback restarts at page 1, never with a Legacy cursor');return {items:[{address:{hash:owner},value:'5'}],cursor:null};}),proApiKey:'fixture-key',metadata};
+ const engine=new ScanEngine({filename:':memory:',provider:new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:scout,blockscoutLegacy:legacy})});
+ try{const result=await done(engine,engine.start({kind:'holders',chainIds:['ethereum'],tokens:[{chainId:'ethereum',address:tokenAddress}],match:'all',holderCap:0}).id),task=result.job.tasks[0],count=engine.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(result.job.id).n;assert.equal(legacyCalls,2);assert.equal(restCalls,1);assert.equal(count,1,'old Legacy page rows were removed before the REST page was committed');assert.equal(task.pages,1);assert.equal(task.provider,'blockscout');assert.equal(task.fallbackFrom,'blockscout_legacy');assert.deepEqual(task.providerAttempts.map(({provider,status})=>({provider,status})),[{provider:'blockscout_legacy',status:'retryable_failure'},{provider:'blockscout',status:'success'}]);assert.equal(result.coverage.providerLabel,'Blockscout REST v2');}finally{await engine.close();}
+}
+
+// A first-page Legacy failure falls back immediately and reports both actual providers.
+{
+ const metadata=async task=>({id:`${task.chainId}:${task.address}`,chainId:task.chainId,address:task.address,symbol:'LEG',name:'Legacy fixture',decimals:0,price:null}),legacy={supports:(operation,chainId)=>operation==='holders'&&chainId==='optimism',async page(){const error=Error('Legacy first page temporary error');error.retryable=true;throw error;}},scout={...backup(async task=>{assert.equal(task.cursor,null);return {items:[{address:{hash:owner},value:'5'}],cursor:null};}),proApiKey:'fixture-key',metadata};
+ const engine=new ScanEngine({filename:':memory:',provider:new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:scout,blockscoutLegacy:legacy})});
+ try{const result=await done(engine,engine.start({kind:'holders',chainIds:['optimism'],tokens:[{chainId:'optimism',address:tokenAddress}],holderCap:0}).id),task=result.job.tasks[0];assert.equal(task.status,'complete');assert.equal(task.provider,'blockscout');assert.equal(task.fallbackFrom,'blockscout_legacy');assert.equal(result.coverage.providerLabel,'Blockscout REST v2');assert.deepEqual(task.providerAttempts.map(({provider,status})=>({provider,status})),[{provider:'blockscout_legacy',status:'retryable_failure'},{provider:'blockscout',status:'success'}]);assert.equal(engine.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(result.job.id).n,1);}finally{await engine.close();}
+}
+
+// Pause/restart resumes the exact Legacy page number rather than replaying page 1.
+{
+ const folder=await mkdtemp(path.join(tmpdir(),'chaindetective-legacy-cursor-')),filename=path.join(folder,'scan.sqlite'),metadata=async task=>({id:`${task.chainId}:${task.address}`,chainId:task.chainId,address:task.address,symbol:'LEG',name:'Legacy fixture',decimals:0,price:null});let releaseFirst,entered,firstClosed=false;const waiting=new Promise(resolve=>entered=resolve);
+ const legacyOne={supports:(operation,chainId)=>operation==='holders'&&chainId==='ethereum',async page(task,signal){if(!task.cursor)return {items:[{address:{hash:owner},value:'10'}],cursor:{mode:'blockscout_legacy',page:2,pageSize:1000}};assert.deepEqual(task.cursor,{mode:'blockscout_legacy',page:2,pageSize:1000});entered();return new Promise((resolve,reject)=>{releaseFirst=resolve;signal.addEventListener('abort',()=>reject(signal.reason),{once:true});});}};
+ const makeScout=()=>({...backup(),proApiKey:'fixture-key',metadata}),first=new ScanEngine({filename,provider:new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:makeScout(),blockscoutLegacy:legacyOne})});
+  try{const job=first.start({kind:'holders',chainIds:['ethereum'],tokens:[{chainId:'ethereum',address:tokenAddress}],holderCap:0});await waiting;await first.pause(job.id);const saved=first.store.tasks(job.id)[0];assert.equal(saved.status,'pending');assert.deepEqual(saved.cursor,{mode:'blockscout_legacy',page:2,pageSize:1000});await first.close();firstClosed=true;
+  let resumedCalls=0;const legacyTwo={supports:legacyOne.supports,async page(task){resumedCalls++;assert.deepEqual(task.cursor,{mode:'blockscout_legacy',page:2,pageSize:1000});return {items:[{address:{hash:fresh},value:'9'}],cursor:null};}};const resumed=new ScanEngine({filename,provider:new WalletProviderRouter({alchemy:new AlchemyWalletProvider(),blockscout:makeScout(),blockscoutLegacy:legacyTwo})});try{resumed.resume(job.id);const result=await done(resumed,job.id);assert.equal(result.job.status,'complete');assert.equal(resumedCalls,1);assert.equal(result.job.tasks[0].pages,2);assert.equal(result.job.tasks[0].provider,'blockscout_legacy');assert.equal(resumed.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(job.id).n,2);}finally{await resumed.close();}
+ }finally{releaseFirst?.({items:[],cursor:null});if(!firstClosed)await first.close();await rm(folder,{recursive:true,force:true});}
+}
 
 console.log('Wallet provider regressions passed: routing, atomic task claims, in-task fallback ownership, pause/resume, network-isolated circuit breakers, provenance, and secret-free diagnostics.');

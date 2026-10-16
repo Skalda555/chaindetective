@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { NETWORKS, LEGACY_NETWORKS, getNetwork, isSupportedNetwork, TOKENS, DEMO_WALLETS, searchHolders, analyzeWallets, aggregateHoldings, isAddress, debankProfileUrl, ZERO_ADDRESS, isSystemWalletAddress, readServerScanResult, openServerScan, classifyTokenSpam, SPAM_TOKEN_NAME_MAX_LENGTH } from '../dist/data.js';
+import { NETWORKS, LEGACY_NETWORKS, getNetwork, isSupportedNetwork, TOKENS, DEMO_WALLETS, searchHolders, analyzeWallets, aggregateHoldings, isAddress, debankProfileUrl, ZERO_ADDRESS, DEAD_ADDRESS, isIgnoredWalletAddress, isSystemWalletAddress, normalizeAddress, readServerScanResult, openServerScan, classifyTokenSpam, SPAM_TOKEN_NAME_MAX_LENGTH } from '../dist/data.js';
 
 const A = '0x1111111111111111111111111111111111111111';
 const B = '0x2222222222222222222222222222222222222222';
@@ -24,7 +24,7 @@ for(const [name,symbol,expected] of [
 assert.deepEqual(classifyTokenSpam({name:'Claim at example.com',symbol:'CLAIM'}).spamReasons,['url-in-name','keyword:claim']);
 assert.equal(debankProfileUrl('0xAbCd000000000000000000000000000000001234'),'https://debank.com/profile/0xAbCd000000000000000000000000000000001234','DeBank URL preserves the exact EVM address');
 assert.equal(debankProfileUrl('not-an-EVM-address'),null,'invalid and non-EVM addresses never receive a DeBank profile URL');
-assert.equal(isSystemWalletAddress(ZERO_ADDRESS),true);assert.equal(isSystemWalletAddress('0x0000000000000000000000000000000000000001'),false);
+assert.equal(isIgnoredWalletAddress(ZERO_ADDRESS),true);assert.equal(isIgnoredWalletAddress(DEAD_ADDRESS),true);assert.equal(isIgnoredWalletAddress('0x000000000000000000000000000000000000dEaD'),true);assert.equal(isIgnoredWalletAddress(` 0X${DEAD_ADDRESS.slice(2).toUpperCase()} `),true);assert.equal(isSystemWalletAddress(ZERO_ADDRESS),true);assert.equal(isSystemWalletAddress('0x0000000000000000000000000000000000000001'),false);assert.equal(isIgnoredWalletAddress(`${DEAD_ADDRESS}x`),false);assert.equal(normalizeAddress(' 0X0000000000000000000000000000000000000001 '),'0x0000000000000000000000000000000000000001');
 assert.deepEqual(NETWORKS.map(n=>n.name),['Ethereum','Base','Optimism','Arbitrum','Robinhood Chain']);
 assert.ok(NETWORKS.every(n=>n.live&&n.api?.startsWith('https://')),'all selectable networks have a live Blockscout API');
 assert.equal(LEGACY_NETWORKS.length,3);assert.ok(LEGACY_NETWORKS.every(n=>getNetwork(n.id)?.legacy&&!isSupportedNetwork(n.id)),'retired chains stay resolvable but are not selectable');
@@ -47,8 +47,8 @@ assert.ok(unknown.warnings.length);
 const unknownWallet = await analyzeWallets({ addresses: [UNKNOWN], chainIds: ['base'] });
 assert.equal(unknownWallet.tokens.length, 0);
 assert.ok(unknownWallet.warnings.length);
-const mixedSystemWallets=await analyzeWallets({addresses:[ZERO_ADDRESS,A],chainIds:['base']});assert.ok(mixedSystemWallets.warnings.some(w=>/Neplatná systémová adresa \(zero address\) byla přeskočena/.test(w)));
-await assert.rejects(analyzeWallets({addresses:[ZERO_ADDRESS],chainIds:['base']}),/Nebyla spuštěna žádná portfolio analýza/);
+const mixedSystemWallets=await analyzeWallets({addresses:[ZERO_ADDRESS,DEAD_ADDRESS,A],chainIds:['base']});assert.ok(mixedSystemWallets.warnings.some(w=>/burn\/dead/.test(w)));
+await assert.rejects(analyzeWallets({addresses:[DEAD_ADDRESS],chainIds:['base']}),/burn\/dead.*portfolio analýza/);
 
 const holding = (t, amount, value) => ({ ...t, tokenId: t.id, amount, value });
 const grouped = aggregateHoldings([

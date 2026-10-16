@@ -22,8 +22,12 @@ export function classifyTokenSpam(token={}){
  const uniqueReasons=[...new Set(spamReasons)];return {likelySpam:uniqueReasons.length>0,spamReasons:uniqueReasons};
 }
 export const ZERO_ADDRESS='0x0000000000000000000000000000000000000000';
-export const SYSTEM_WALLET_ADDRESSES=Object.freeze([ZERO_ADDRESS]);
-export const isSystemWalletAddress=value=>SYSTEM_WALLET_ADDRESSES.includes(String(value||'').toLowerCase());
+export const DEAD_ADDRESS='0x000000000000000000000000000000000000dead';
+export const SYSTEM_WALLET_ADDRESSES=Object.freeze([ZERO_ADDRESS,DEAD_ADDRESS]);
+export const IGNORED_WALLET_ADDRESS_ERROR='Tato adresa je systémová burn/dead adresa a nelze ji přidat jako peněženku.';
+export const normalizeAddress=value=>{const trimmed=typeof value==='string'?value.trim():'';const address=trimmed.replace(/^0X/,'0x');return isAddress(address)?address.toLowerCase():null;};
+export const isIgnoredWalletAddress=value=>{const address=normalizeAddress(value);return address!==null&&SYSTEM_WALLET_ADDRESSES.includes(address);};
+export const isSystemWalletAddress=isIgnoredWalletAddress;
 // Retired networks stay resolvable for old scan results and saved Smart wallets.
 // They are intentionally excluded from NETWORKS and all new input validation.
 export const LEGACY_NETWORKS = [
@@ -88,7 +92,6 @@ export function resolveAixbtTopicText(topic={},language='en'){
  return {name,summary,translated:!!(localized&&(localized.name||localized.summary))};
 }
 export const debankProfileUrl = value => isAddress(value)?`https://debank.com/profile/${value}`:null;
-export const normalizeAddress = value => isAddress(value)?value.toLowerCase():null;
 export const getToken = (address,chainId) => TOKENS.find(t=>t.chainId===chainId&&t.address===String(address).toLowerCase());
 export const getNetwork = id => [...NETWORKS,...LEGACY_NETWORKS].find(n=>n.id===id||n.chainId===Number(id));
 export const isSupportedNetwork = id => NETWORKS.some(n=>n.id===id||n.chainId===Number(id));
@@ -141,9 +144,9 @@ export async function analyzeWallets({addresses,chainIds,source='demo',onProgres
  if(!allSubmitted.length)throw new Error('Vložte alespoň jednu adresu peněženky.');
  if(allSubmitted.length>MAX_WALLET_SCAN)throw new Error(`Lze analyzovat nejvýše ${MAX_WALLET_SCAN} adres v jednom skenu.`);
  if(allSubmitted.some(a=>!isAddress(a)))throw new Error('V seznamu je neplatná EVM adresa.');
- const excludedSystemAddresses=allSubmitted.filter(isSystemWalletAddress),submitted=allSubmitted.filter(a=>!isSystemWalletAddress(a));
- if(!submitted.length)throw new Error('Neplatná systémová adresa (zero address). Nebyla spuštěna žádná portfolio analýza.');
- const systemWarnings=excludedSystemAddresses.length?[`Neplatná systémová adresa (zero address) byla přeskočena; portfolio sken se spustil pouze pro ostatní adresy.`]:[];
+ const excludedSystemAddresses=allSubmitted.filter(isIgnoredWalletAddress),submitted=allSubmitted.filter(a=>!isIgnoredWalletAddress(a));
+ if(!submitted.length)throw new Error('Systémovou burn/dead adresu nelze analyzovat; nebyla spuštěna žádná portfolio analýza.');
+ const systemWarnings=excludedSystemAddresses.length?[`Systémová burn/dead adresa (zero address nebo dead address) byla přeskočena; portfolio sken se spustil pouze pro ostatní adresy.`]:[];
  if(!['demo','live'].includes(source))throw new Error('Neznámý zdroj dat.');
  if(source==='demo'){
   const wallets=DEMO_WALLETS.filter(w=>submitted.includes(w.address)).map(w=>{const holdings=w.holdings.filter(h=>selectedChains.includes(h.chainId));return {...w,holdings,chainIds:chainList(holdings),value:sumKnown(holdings)};});
@@ -151,7 +154,7 @@ export async function analyzeWallets({addresses,chainIds,source='demo',onProgres
   progress(onProgress,'Ukázkové pozice jsou připravené.',submitted.length,submitted.length);
   return {wallets,tokens:aggregateHoldings(wallets,wallets.length),source,warnings:[...systemWarnings,...(unknown.length?[`${unknown.length} adres není součástí demo datasetu. Nejsou jim přiřazeny žádné vymyšlené pozice; pro vlastní adresy použijte Live API.`]:[])],coverage:makeCoverage(source,`Syntetická analýza ${wallets.length} známých demo adres z ${submitted.length} zadaných. Podíl používá počet adres nalezených v demo datasetu. Zůstatky a USD ceny jsou ilustrační.`)};
  }
- const result=await runServerScan('wallets',{addresses:submitted,chainIds:selectedChains,walletMetadata:walletMetadata.filter(w=>!isSystemWalletAddress(w.address)),refresh,onProgress,signal,provider});
+ const result=await runServerScan('wallets',{addresses:submitted,chainIds:selectedChains,walletMetadata:walletMetadata.filter(w=>!isIgnoredWalletAddress(w.address)),refresh,onProgress,signal,provider});
  return systemWarnings.length?{...result,warnings:[...systemWarnings,...(result.warnings||[])]}:result;
 }
 
@@ -178,7 +181,7 @@ const dashboardMoniQuery=view=>`?view=${encodeURIComponent(['growing','top','new
 const dashboardMoniFilters=view=>({endpointMode:'curated',feedTimeframe:'D7',changesTimeframe:'H24',orderBy:({growing:'SCORE_CHANGE',top:'SCORE',new:'CREATED_AT'})[view]||'SCORE_CHANGE',orderByDirection:'DESC',limit:10,offset:0});
 export const getDashboard=view=>dashboardApi(dashboardMoniQuery(view));
 export const loadDashboardMoniProjects=filters=>dashboardApi('/moni/projects',{body:{filters}});
-export const getDashboardTopics=()=>dashboardApi('/topics?limit=25');
+export const getDashboardTopics=(language='en')=>dashboardApi(`/topics?limit=25&language=${language==='cz'?'cs':'en'}`);
 export const getDashboardTopic=id=>dashboardApi('/topics/'+encodeURIComponent(id));
 function pollingDelay(signal,interval=3000){return new Promise((resolve,reject)=>{const finish=()=>{signal?.removeEventListener('abort',cancel);resolve();};const timer=setTimeout(finish,interval);const cancel=()=>{clearTimeout(timer);reject(signal.reason||new DOMException('Zrušeno','AbortError'));};if(signal?.aborted)cancel();else signal?.addEventListener('abort',cancel,{once:true});});}
 async function readServerResult(job,{onProgress,signal}={}){

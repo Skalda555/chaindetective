@@ -1,0 +1,2712 @@
+{
+  "sourceArtifact": "tmp/trending-early-buyers-hypersync-poc.json",
+  "seed": "0x43484149",
+  "randomUniqueTransactionSample": 50,
+  "topReasons": [
+    "multihop_ambiguous",
+    "multiple_possible_recipients",
+    "smart_account"
+  ],
+  "categoryValidationSampleCounts": {
+    "multihop_ambiguous": 10,
+    "multiple_possible_recipients": 10,
+    "smart_account": 10
+  },
+  "txFromAudit": {
+    "lookedUp": 50,
+    "eoa": 48,
+    "contract": 2,
+    "contractStatusUnknown": 0,
+    "knownRouter": 0,
+    "aggregatorTransaction": 12,
+    "smartAccountOrBundlerEvidence": 3,
+    "txFromEqualsUniqueTerminalRecipient": 6
+  },
+  "reviews": [
+    {
+      "txHash": "0x5ed2ba9fd16e45070c899c7671c2eba6988aa00c052a9f9a789e9269b1a95be8",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-11T07:26:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "2055868695784927069718"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 12
+    },
+    {
+      "txHash": "0x066f90820135fd15c31d09cdad8f79cc7a953c8998b051b69d1665cfa6ba34d5",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x18dd3c14e34c1bc379f7538068c59160d9f68e25",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-13T04:33:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xe29a4060649393a38652f17537987ca0b5eca4df",
+          "isContract": true,
+          "totalReceivedRaw": "380168724166407647367"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 7
+    },
+    {
+      "txHash": "0xbd6533775df9a502e9d0d5c2e4c31058f5ac77ab66b130ade7684552e962565f",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x0fce13e03eb59f815c8bf25c51fc6e7645c47947",
+      "txFromIsContract": false,
+      "txTo": "0x4313c378cc91ea583c91387b9216e2c03096b27f",
+      "txToName": "TransparentUpgradeableProxy",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-11T09:44:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "449525595109686668928"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 5
+    },
+    {
+      "txHash": "0x4b8432274a2e03a11762464f2578fa929102db1f3fb9201dbead2ae4ce76e1dc",
+      "reasonCode": "multihop_ambiguous",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0xeabd88c92324b709ddc8955ae1ac615c6590da9c",
+      "txFromIsContract": false,
+      "txTo": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+      "txToName": null,
+      "method": "0x42e3dcf3",
+      "status": "ok",
+      "timestamp": "2026-10-13T18:01:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "isContract": true,
+          "totalReceivedRaw": "5171290827173614687"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x9616b49be01c11475e1d5dcfe52eb9d3b6623ee908b88b0d9edf84f725917a60",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x817281a78a53456c59920909a45410217e521e1e",
+      "txFromIsContract": false,
+      "txTo": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+      "txToName": "DexRouter",
+      "method": "dagSwapTo",
+      "status": "ok",
+      "timestamp": "2026-10-10T03:10:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x7797c4a7f786f77dbce13d71d2c710310cb92aa3",
+          "isContract": false,
+          "totalReceivedRaw": "16398874512390455342"
+        },
+        {
+          "address": "0x817281a78a53456c59920909a45410217e521e1e",
+          "isContract": false,
+          "totalReceivedRaw": "16382475637878064887393"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 19
+    },
+    {
+      "txHash": "0x6cb5f4fdc4745d4baeb53ad75394ebb3cfb2a15760180630e7884b4a7eb960bb",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-14T12:39:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "18826310856823404707905"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 42
+    },
+    {
+      "txHash": "0xe64e10b3265498cd62bcd866c11a3c0076e408298af84f78ac8a8bfe661a2c0b",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x1e3616d96d403567c96e49f2e91fa122ce088a33",
+      "txFromIsContract": false,
+      "txTo": "0x0c8c5891a41078cef36970932d5c05dc1de7288b",
+      "txToName": null,
+      "method": "0x02331b00",
+      "status": "ok",
+      "timestamp": "2026-10-14T04:22:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "52894215083072656756"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x6e63b003e5f7372160db8e2ff45117b0144bb5072d3c6e81c900a6805c8ee978",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xbee771bdfd802a8a6e3c040902aec1be1a11b006",
+      "txFromIsContract": false,
+      "txTo": "0xbee3211ab312a8d065c4fef0247448e17a8da000",
+      "txToName": "TransparentUpgradeableProxy",
+      "method": "0x4cf3fe9c",
+      "status": "ok",
+      "timestamp": "2026-10-15T09:39:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbee3211ab312a8d065c4fef0247448e17a8da000",
+          "isContract": true,
+          "totalReceivedRaw": "649678261791284808902"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 3
+    },
+    {
+      "txHash": "0x67d62d329ff39cc2b92252196afb66981cd7625d24c2371cd8e8018630e635c9",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xabb2acd3be814a80e502575d6c1dc5f789e9cd10",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-11T23:03:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x8010a34b00126fefd32db3a83e72858875f0a877",
+          "isContract": false,
+          "totalReceivedRaw": "14381184306522529791"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x8010a34b00126fefd32db3a83e72858875f0a877",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 9
+    },
+    {
+      "txHash": "0xd95808efa7b1650a149f3d17a0152c8f8dc2374a149575a103345fa694e1ab0b",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xaec6b91789adc38d6cdbea0b9c4d0b828708d5ec",
+      "txFromIsContract": false,
+      "txTo": "0x111111125421ca6dc452d289314280a0f8842a65",
+      "txToName": "AggregationRouterV6",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-11T01:44:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": true,
+      "recipientEvidence": [
+        {
+          "address": "0xaec6b91789adc38d6cdbea0b9c4d0b828708d5ec",
+          "isContract": false,
+          "totalReceivedRaw": "964455808284489165835"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0xaec6b91789adc38d6cdbea0b9c4d0b828708d5ec",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 13
+    },
+    {
+      "txHash": "0xbd3f9ddb3e92986fca793aa05c5f2eec6f5f31d5b8390f31eabfe7e3b234287f",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xa419ca5b8e79bb2f80a129b26b2a898193e89cb4",
+      "txFromIsContract": false,
+      "txTo": "0x4313c378cc91ea583c91387b9216e2c03096b27f",
+      "txToName": "TransparentUpgradeableProxy",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-12T13:48:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "421379735235917543921"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 5
+    },
+    {
+      "txHash": "0x65cb747372ac9af72c499fbf69342c52ba1f57718d033ac0037110416607e331",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-13T22:44:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "1021744635746435566412"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 16
+    },
+    {
+      "txHash": "0x589fee8176789fe25732e48218a01fe6f0c2dca616e0a198058b362a8158edf6",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xeec6b0fa5e217f8886bc8bf10191768f0b3ee6d2",
+      "txFromIsContract": false,
+      "txTo": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+      "txToName": null,
+      "method": "0x42e3dcf3",
+      "status": "ok",
+      "timestamp": "2026-10-15T08:46:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "isContract": true,
+          "totalReceivedRaw": "1514472941808939385457"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x5f3fb5f99c797908eb7d1f76bfe869647814d565d84b65a983890fa892356b79",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x0e16ac2db2be57888dd653a1921d7e9d8f466cde",
+      "txFromIsContract": false,
+      "txTo": "0xbadc0de76438f9524d42c219b390636196bfbdfc",
+      "txToName": null,
+      "method": "IGotRektZ5534023222745275079",
+      "status": "ok",
+      "timestamp": "2026-10-10T19:38:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "19476233207692706816602"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 5
+    },
+    {
+      "txHash": "0xfdf77ca1e2af8b83be6fbf85f0bf8f30bf9466b7f09f66c2173720e9b0c9b4d1",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xeec6b0fa5e217f8886bc8bf10191768f0b3ee6d2",
+      "txFromIsContract": false,
+      "txTo": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+      "txToName": null,
+      "method": "0x42e3dcf3",
+      "status": "ok",
+      "timestamp": "2026-10-14T12:10:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "isContract": true,
+          "totalReceivedRaw": "1376234780207044624482"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0xc6f5e14d7cb4e9353a1a1193367c8f463e9d318a0f1e5f5727081fb6abd2ab78",
+      "reasonCode": "multihop_ambiguous",
+      "token": "LIT",
+      "tokenContract": "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+      "candidatePool": "0xcd4abaf39691dcbb877165b7ba6d04ec6436c22a",
+      "txFrom": "0xf8108bc1a9de692161b232e16d2b4e1924757ffd",
+      "txFromIsContract": false,
+      "txTo": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+      "txToName": null,
+      "method": "0x771d503f",
+      "status": "ok",
+      "timestamp": "2026-10-10T10:17:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "isContract": true,
+          "totalReceivedRaw": "28486201225443775205"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0xe2ca5bf835a78cae92c944b5f1c1b8ce1d8351a99f90dfe2f26a5c973b6b779e",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-09T14:30:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "779244895069106072963"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 140
+    },
+    {
+      "txHash": "0xa4333b1799091fa136d74f525d19a9cec11a12b7827460ca927ed8725e18eb04",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-15T05:38:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "13484038916106532128280"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 70
+    },
+    {
+      "txHash": "0xc73581034001b4ecdb22bcd8fa2a4a6ce56fbf7cdb29e6ee15acde2714ae1891",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xb0b25ad063fd8f10c5941eac04aa94106b69b85c",
+      "txFromIsContract": false,
+      "txTo": "0xd8faff6fb258492bca8951031a1c58825a401d38",
+      "txToName": null,
+      "method": "0x00000001",
+      "status": "ok",
+      "timestamp": "2026-10-13T00:01:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x670e862b82cbca8a9ecf5cbe28ddd85f93c7e2d0",
+          "isContract": false,
+          "totalReceivedRaw": "862394013758227444363"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x670e862b82cbca8a9ecf5cbe28ddd85f93c7e2d0",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0xad842c2a95573c6017decd285f66325edb52c23e8eb9e3d1e3838bbfdec3973c",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xabb2acd3be814a80e502575d6c1dc5f789e9cd10",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-11T02:33:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x8b3c35391a25cd6051bb443b464c3e71246e0d8b",
+          "isContract": true,
+          "totalReceivedRaw": "4227797887989334096595"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 16
+    },
+    {
+      "txHash": "0x7f40613047852c4677aad2470378f289f6b2f6b79f532366fd3df211d7253882",
+      "reasonCode": "multihop_ambiguous",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0x0d3dffd4b52bc33263ee9a45e52935de59e1d487",
+      "txFromIsContract": false,
+      "txTo": "0x23617e59a5925b2a4bf75d73ff6711cd0b29de85",
+      "txToName": "UniversalRouter",
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-13T17:58:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": true,
+      "recipientEvidence": [
+        {
+          "address": "0x0d3dffd4b52bc33263ee9a45e52935de59e1d487",
+          "isContract": false,
+          "totalReceivedRaw": "337529966504280737635"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x0d3dffd4b52bc33263ee9a45e52935de59e1d487",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 12
+    },
+    {
+      "txHash": "0x95e52329ef91b2e414a3d6eafb61837220cfce90bef3514386030e0bb4073b04",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-10T14:16:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "3259410608030385811033"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 14
+    },
+    {
+      "txHash": "0xc9f5d46e43abd0a6bcf62c9bca8d63336541c319f356969c203bf7538622c38f",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x3c5edfaaff8ad2ce4c8aa0da929c1d119386448e",
+      "txFromIsContract": false,
+      "txTo": "0x0c8c5891a41078cef36970932d5c05dc1de7288b",
+      "txToName": null,
+      "method": "0x0c331b00",
+      "status": "ok",
+      "timestamp": "2026-10-10T13:20:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "422114086452969011783"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 3
+    },
+    {
+      "txHash": "0x33c9e8ca29d2e011f58ab849757fb8e22b2430f86b8460617ffe2e1bcc27111b",
+      "reasonCode": "multihop_ambiguous",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0x0f5db30885d49f9c77ed81de51fd6ef77dde6715",
+      "txFromIsContract": true,
+      "txTo": "0x0f5db30885d49f9c77ed81de51fd6ef77dde6715",
+      "txToName": null,
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-15T05:31:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": true,
+      "recipientEvidence": [
+        {
+          "address": "0x0f5db30885d49f9c77ed81de51fd6ef77dde6715",
+          "isContract": true,
+          "totalReceivedRaw": "132633675324369129453"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x0f5db30885d49f9c77ed81de51fd6ef77dde6715",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 15
+    },
+    {
+      "txHash": "0xe71a3910aeed165339dc96e59c34df5147dfe9703895af5aea6f25ca7db80991",
+      "reasonCode": "multihop_ambiguous",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0xa9ee875e08e5c8f62d402d4ac4cb75658180f50a",
+      "txFromIsContract": true,
+      "txTo": "0x23617e59a5925b2a4bf75d73ff6711cd0b29de85",
+      "txToName": "UniversalRouter",
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-10T16:31:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": true,
+      "recipientEvidence": [
+        {
+          "address": "0xa9ee875e08e5c8f62d402d4ac4cb75658180f50a",
+          "isContract": true,
+          "totalReceivedRaw": "60000000000000000256"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0xa9ee875e08e5c8f62d402d4ac4cb75658180f50a",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 10
+    },
+    {
+      "txHash": "0xcb789de4cb336ff768cb874ee8a6751ce45209f90c046d849bd9cd0fc88296a7",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-15T00:47:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "218778333585687716808"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 32
+    },
+    {
+      "txHash": "0x1a7d358f3908b55a7f57207e955b82bcaa141b9133787207549ed3a1ffc0db0f",
+      "reasonCode": "smart_account",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0x8f47a238c7701247ee8469ddc37ac1df121cfcce",
+      "txFromIsContract": false,
+      "txTo": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+      "txToName": "EntryPoint",
+      "method": "handleOps",
+      "status": "ok",
+      "timestamp": "2026-10-09T16:53:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xaa658bd3bb2ef566128c5eb89aa75402f50b8a5a",
+          "isContract": true,
+          "totalReceivedRaw": "10104708595875438848"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 7
+    },
+    {
+      "txHash": "0xefaf70f39c1274a87278e168f95c7423836b0cf73469b694ffb78d33a57d40af",
+      "reasonCode": "multihop_ambiguous",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0xeabd88c92324b709ddc8955ae1ac615c6590da9c",
+      "txFromIsContract": false,
+      "txTo": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+      "txToName": null,
+      "method": "0x42e3dcf3",
+      "status": "ok",
+      "timestamp": "2026-10-12T07:06:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "isContract": true,
+          "totalReceivedRaw": "8984543664255207398"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0xe2bc4c7e127a31f893d69e831b4f111a1388a98446b27f54a3f9fbdfd43763fc",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x10bfb75b436156a18d9e4630d8bf7e529015a8e9",
+      "txFromIsContract": false,
+      "txTo": "0xd8faff6fb258492bca8951031a1c58825a401d38",
+      "txToName": null,
+      "method": "0x00000001",
+      "status": "ok",
+      "timestamp": "2026-10-10T01:48:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x670e862b82cbca8a9ecf5cbe28ddd85f93c7e2d0",
+          "isContract": false,
+          "totalReceivedRaw": "411269658154664435855"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x670e862b82cbca8a9ecf5cbe28ddd85f93c7e2d0",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x77c92ea6bbe62b7aa018f52810f8fdefdd88e5f7ce8ec302cfd3af029ff70378",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x98331c06e7ee23ecdc6d95fb4b51b332d71199d7",
+      "txFromIsContract": false,
+      "txTo": "0x4313c378cc91ea583c91387b9216e2c03096b27f",
+      "txToName": "TransparentUpgradeableProxy",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-11T14:17:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "218475958968480524151"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 5
+    },
+    {
+      "txHash": "0x405a009dd9781286984b9baef12b4a0f08d31a91adab75e9ba6356ccd11fe130",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-15T02:32:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "39130469668812818421312"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 35
+    },
+    {
+      "txHash": "0xafa646f98b6a0472b0b90fb16134d9821df425820f557b0e810a812b9ee80a72",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x9e954ef6a88a85a8fc203148c360af5a4efa3640",
+      "txFromIsContract": false,
+      "txTo": "0x111111125421ca6dc452d289314280a0f8842a65",
+      "txToName": "AggregationRouterV6",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-11T01:58:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": true,
+      "recipientEvidence": [
+        {
+          "address": "0x9e954ef6a88a85a8fc203148c360af5a4efa3640",
+          "isContract": false,
+          "totalReceivedRaw": "1266220644889636370053"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x9e954ef6a88a85a8fc203148c360af5a4efa3640",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 13
+    },
+    {
+      "txHash": "0xcb71548d4680a043545a1655fb5c53ff190456878d677d36ac803dc2a882e034",
+      "reasonCode": "multihop_ambiguous",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0xeabd88c92324b709ddc8955ae1ac615c6590da9c",
+      "txFromIsContract": false,
+      "txTo": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+      "txToName": null,
+      "method": "0x42e3dcf3",
+      "status": "ok",
+      "timestamp": "2026-10-13T07:47:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "isContract": true,
+          "totalReceivedRaw": "7762436375067925130"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x43fa9207ff6549179b8ddf1f7f242e1cff2bff913a20e5f72125dce74639e043",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x08b00ceee2fb66029b53d76110b19eeaabfd1e65",
+      "txFromIsContract": false,
+      "txTo": "0x02e5be68d46dac0b524905bff209cf47ee6db2a9",
+      "txToName": "SwapProxy",
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-12T12:46:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x2fc617e933a52713247ce25730f6695920b3befe",
+          "isContract": false,
+          "totalReceivedRaw": "234675305928572656929"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x2fc617e933a52713247ce25730f6695920b3befe",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 3
+    },
+    {
+      "txHash": "0xdfe1be9fac194e476dcf77ace8d88d5a739fcb4a0b4ad07e1fc95005ffa76fd7",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xf6f757c34a8b699deeb2f54fb7545cb100db52dd",
+      "txFromIsContract": false,
+      "txTo": "0x950fd558f47e234a2fde23b7d61f7ccdbcb4a86f",
+      "txToName": null,
+      "method": "0xdd225095",
+      "status": "ok",
+      "timestamp": "2026-10-11T03:52:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xdaf9a5464df8b90a4a04c2dc0978dfaa982bb8af",
+          "isContract": false,
+          "totalReceivedRaw": "979137888720067042360"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0xdaf9a5464df8b90a4a04c2dc0978dfaa982bb8af",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 10
+    },
+    {
+      "txHash": "0x1eaa7f82e6d5b0a80e621f1cea2ebb5fbb34db23ba5150568e4c3eae9ccbec65",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x370a7e2d300c14d79d4a7ee07aaca46c4b3012cf",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-11T14:32:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x54daeee38303858ef031cf3ba3eb822b0bac104b",
+          "isContract": true,
+          "totalReceivedRaw": "216712353402531544633"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 7
+    },
+    {
+      "txHash": "0xfea5262260e418fecf8b7ea400b03c723da8518e495e93a98e2558fc63bcf8d4",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xbf567b7c88b73f2c5ada6f352452641a94c47fe4",
+      "txFromIsContract": false,
+      "txTo": "0x111111125421ca6dc452d289314280a0f8842a65",
+      "txToName": "AggregationRouterV6",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-11T22:39:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": true,
+      "recipientEvidence": [
+        {
+          "address": "0xbf567b7c88b73f2c5ada6f352452641a94c47fe4",
+          "isContract": false,
+          "totalReceivedRaw": "855869313782378186360512"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0xbf567b7c88b73f2c5ada6f352452641a94c47fe4",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 15
+    },
+    {
+      "txHash": "0xc38c40a980e2d02bb9b372b58cfe17ed672cad4f9345400401fa8b249520c76c",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x785bbe379a16e1cf922ce4dfb20ef927c399c55b",
+      "txFromIsContract": false,
+      "txTo": "0xeff6cb8b614999d130e537751ee99724d01aa167",
+      "txToName": null,
+      "method": "0xa90bc6eb",
+      "status": "ok",
+      "timestamp": "2026-10-10T01:49:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xeff6cb8b614999d130e537751ee99724d01aa167",
+          "isContract": true,
+          "totalReceivedRaw": "814711148241244150251"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x36cef8c7c3900761d52994b11685c8bd67fa45c056b65d49cc9b9399976ad4e8",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-12T18:14:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "290663378058734786570"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 50
+    },
+    {
+      "txHash": "0x590cbf85001199532b3654465316744946cecfeae370195ebd0d78246211eb4c",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x08b00ceee2fb66029b53d76110b19eeaabfd1e65",
+      "txFromIsContract": false,
+      "txTo": "0x02e5be68d46dac0b524905bff209cf47ee6db2a9",
+      "txToName": "SwapProxy",
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-10T20:23:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x2fc617e933a52713247ce25730f6695920b3befe",
+          "isContract": false,
+          "totalReceivedRaw": "66477585911500607779"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x2fc617e933a52713247ce25730f6695920b3befe",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 3
+    },
+    {
+      "txHash": "0xb9cbdfe550b7785209226c37202887245572b890e76fcbcdbf2b692c00d42e8b",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xeec6b0fa5e217f8886bc8bf10191768f0b3ee6d2",
+      "txFromIsContract": false,
+      "txTo": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+      "txToName": null,
+      "method": "0x42e3dcf3",
+      "status": "ok",
+      "timestamp": "2026-10-14T12:01:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "isContract": true,
+          "totalReceivedRaw": "826779383364149068660"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0xc2b288904d525a6df7effbb05d40928a31a14ead67791f0f1b774e438760b79d",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x331d9a049d496385998067abf6cbb6371c8d2466",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-10T14:49:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x25c922463603b2e6a23eb6721ab9499c00ce01d1",
+          "isContract": true,
+          "totalReceivedRaw": "11782942252844752110644"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 16
+    },
+    {
+      "txHash": "0x5e1af4c1c975b26e18199d23d7f5a54403f529e3447156fb796535f581063004",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x91aae0aafd9d2d730111b395c6871f248d7bd728",
+      "txFromIsContract": false,
+      "txTo": "0x98c3d3183c4b8a650614ad179a1a98be0a8d6b8e",
+      "txToName": null,
+      "method": "0x49c36c07",
+      "status": "ok",
+      "timestamp": "2026-10-15T10:57:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x98c3d3183c4b8a650614ad179a1a98be0a8d6b8e",
+          "isContract": true,
+          "totalReceivedRaw": "3175003563055673360410"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x8e8beeeee3631a48846b2f45ede0390010fa5408bf862328e49a9a0dfa0b5c8c",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x0bc9936aa6e801d5f99e0d98395128c5eabff04d",
+      "txFromIsContract": false,
+      "txTo": "0x8cc5c24a1666d3214340050315b82b2b6b0d9027",
+      "txToName": "Swap",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-11T01:19:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x7833341fff5bbbac5a0bd0ca28d6d9fa7d094601",
+          "isContract": false,
+          "totalReceivedRaw": "1859699777864512129958"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x7833341fff5bbbac5a0bd0ca28d6d9fa7d094601",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x5563bab15c8f03375cb33a319f725c6747fa11c980913b0d5f4e9c33bcf78625",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x370a7e2d300c14d79d4a7ee07aaca46c4b3012cf",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-11T03:01:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x0b4db02f88d134e4bd0e67d36471874a95e60ec9",
+          "isContract": true,
+          "totalReceivedRaw": "398456278951203235547"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 6
+    },
+    {
+      "txHash": "0x4f989dfee1b44ef300e9e85f9edea26533f789f78ab9cdce5e2ac42c1b285bd1",
+      "reasonCode": "multihop_ambiguous",
+      "token": "LIT",
+      "tokenContract": "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+      "candidatePool": "0xcd4abaf39691dcbb877165b7ba6d04ec6436c22a",
+      "txFrom": "0x4fa75ea1571010b0b6327fc39101be4baec37cce",
+      "txFromIsContract": false,
+      "txTo": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+      "txToName": null,
+      "method": "0x771d503f",
+      "status": "ok",
+      "timestamp": "2026-10-14T16:33:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "isContract": true,
+          "totalReceivedRaw": "81138693468625313906"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0xd952b8c2a43bc73b88ef6f7c4e4779b792f0586aa51f38acfeef4f14ccec8bed",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xeec6b0fa5e217f8886bc8bf10191768f0b3ee6d2",
+      "txFromIsContract": false,
+      "txTo": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+      "txToName": null,
+      "method": "0x42e3dcf3",
+      "status": "ok",
+      "timestamp": "2026-10-12T23:05:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "isContract": true,
+          "totalReceivedRaw": "1330640615965260799277"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x70b8d16c5a44f5e1261a18e011caf64667233f53e4246bad861e7794a784adbd",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x363f5345d09f6d7e04c0be8233a65c0601b6d19c",
+      "txFromIsContract": false,
+      "txTo": "0x976fa9f4d8aabdac3cfb7c357d69f620e8f86caf",
+      "txToName": null,
+      "method": "0x0ab35bb0",
+      "status": "ok",
+      "timestamp": "2026-10-12T13:09:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "741083947697673601024"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 5
+    },
+    {
+      "txHash": "0x199652e5ad8522ce80794793a6bfa4e925531a6e879ac1e0272ad856550812f4",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xbf01769271bafa9cbd01d5d4660c30e6723cada4",
+      "txFromIsContract": false,
+      "txTo": "0x881d40237659c251811cec9c364ef91dc08d300c",
+      "txToName": "MetaSwap",
+      "method": "swap",
+      "status": "ok",
+      "timestamp": "2026-10-10T16:49:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "774548929601510807279"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 13
+    },
+    {
+      "txHash": "0xc1e5f893d4ab74e241f819abca800adfb81b8bd40a2a15020a97104ea73c234c",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x331d9a049d496385998067abf6cbb6371c8d2466",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-11T07:07:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xa6c42ba076ad32eb9e33c3dc63329699626621dd",
+          "isContract": true,
+          "totalReceivedRaw": "322357142163592299703"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": true,
+      "topCategorySamples": [],
+      "explorerTransferCount": 7
+    },
+    {
+      "txHash": "0xddf2dfca4a9baf3424b6d2e7fe63ba8a9fd8dc46ae52d03ab005eab242c35fc3",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-15T09:38:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "19942315072608908093998"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 71
+    },
+    {
+      "txHash": "0x4f201f2b8ca6b13222aea62b2fc7efa8aa52249378881a1c640cfacad54b3ae8",
+      "reasonCode": "multihop_ambiguous",
+      "token": "LIT",
+      "tokenContract": "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+      "candidatePool": "0xcd4abaf39691dcbb877165b7ba6d04ec6436c22a",
+      "txFrom": "0xa87eb9f2e6edc1297c0bf99393235503cb8b5023",
+      "txFromIsContract": false,
+      "txTo": "0x2786ed4ce17214579e359064827715ad2acb1477",
+      "txToName": null,
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-13T16:20:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x37d7c0df983ac172752ed2121f81670007a9b120",
+          "isContract": false,
+          "totalReceivedRaw": "2004454092445032832418"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x37d7c0df983ac172752ed2121f81670007a9b120",
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": true,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 20
+    },
+    {
+      "txHash": "0x15cd262ab174ef543eb95b1d327f4d2530c217438c071faab22c0674f2a7cc7b",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-11T14:09:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "1237001026680621834283"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 8
+    },
+    {
+      "txHash": "0x32e682361137ccd3277932b2c8f9aaacf8d073b0b8c056ac410b315b760b124d",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x109681b2489354903b968e555c4bfe7552596288",
+      "txFromIsContract": false,
+      "txTo": "0xeff6cb8b614999d130e537751ee99724d01aa167",
+      "txToName": null,
+      "method": "0xa90bc6eb",
+      "status": "ok",
+      "timestamp": "2026-10-11T02:47:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xeff6cb8b614999d130e537751ee99724d01aa167",
+          "isContract": true,
+          "totalReceivedRaw": "546287449276199940090"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0xe26be5c31bb0754bb104c94dc4cb6b0f798b78b9005ab640d94eaaabf161e14d",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xbc7b4ec075e50f40616d2570ac658fa97ada0000",
+      "txFromIsContract": false,
+      "txTo": "0xa661cc0ee3988a6e3c34136e74111f5db34d6dd7",
+      "txToName": null,
+      "method": "0x0a550b17",
+      "status": "ok",
+      "timestamp": "2026-10-12T03:01:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "719468334859521286564"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 11
+    },
+    {
+      "txHash": "0xa5078308cc902fe424c6d4270410d7fd667f0f30ffcc453e231ef766a033717d",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x70e59f9c304e4d5096bd408b571e2dcd99c3120b",
+      "txFromIsContract": false,
+      "txTo": "0xad3b67bca8935cb510c8d18bd45f0b94f54a968f",
+      "txToName": "TransparentUpgradeableProxy",
+      "method": "0x146ee74d",
+      "status": "ok",
+      "timestamp": "2026-10-11T23:42:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "337247422439558312324"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 28
+    },
+    {
+      "txHash": "0xb994533f7cec8b02e5682d892f5c2243e4c14d96e460c214d494e746842e98d0",
+      "reasonCode": "multihop_ambiguous",
+      "token": "LIT",
+      "tokenContract": "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+      "candidatePool": "0xcd4abaf39691dcbb877165b7ba6d04ec6436c22a",
+      "txFrom": "0x5b43453fce04b92e190f391a83136bfbecedefd1",
+      "txFromIsContract": false,
+      "txTo": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+      "txToName": null,
+      "method": "0x000000c3",
+      "status": "ok",
+      "timestamp": "2026-10-11T14:51:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "isContract": true,
+          "totalReceivedRaw": "227424852594657877972"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 16
+    },
+    {
+      "txHash": "0x37a10c1cd9ccabb5bf25dd22ae6c660853d05315eb1593a88413b470c0442c08",
+      "reasonCode": "multihop_ambiguous",
+      "token": "LIT",
+      "tokenContract": "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+      "candidatePool": "0xcd4abaf39691dcbb877165b7ba6d04ec6436c22a",
+      "txFrom": "0x4fa75ea1571010b0b6327fc39101be4baec37cce",
+      "txFromIsContract": false,
+      "txTo": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+      "txToName": null,
+      "method": "0x771d503f",
+      "status": "ok",
+      "timestamp": "2026-10-14T17:51:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "isContract": true,
+          "totalReceivedRaw": "164799200458090639275"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 2
+    },
+    {
+      "txHash": "0x08761a08d67a18acfa51e2d77e041e80f9950e3c224595e0be0b4ce5bfc67209",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x7b49bc3ebbdf7322f31c6449320382bbec3be1b6",
+      "txFromIsContract": false,
+      "txTo": "0xad3b67bca8935cb510c8d18bd45f0b94f54a968f",
+      "txToName": "TransparentUpgradeableProxy",
+      "method": "0x146ee74d",
+      "status": "ok",
+      "timestamp": "2026-10-13T23:15:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xbee3211ab312a8d065c4fef0247448e17a8da000",
+          "isContract": true,
+          "totalReceivedRaw": "553988806315740384756"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 27
+    },
+    {
+      "txHash": "0x9e01f1bed8a9fb4cafc219d2c66b3b5e9f7a2f2e763306c7891adbf413a4ea61",
+      "reasonCode": "multihop_ambiguous",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x3763760eabe7a2a9231c9f91b2e856cb1eac7ecf",
+      "txFromIsContract": true,
+      "txTo": "0x3763760eabe7a2a9231c9f91b2e856cb1eac7ecf",
+      "txToName": null,
+      "method": "0x09c5eabe",
+      "status": "ok",
+      "timestamp": "2026-10-09T16:45:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "3651025417688578212949"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multihop_ambiguous",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multihop_ambiguous"
+      ],
+      "explorerTransferCount": 4
+    },
+    {
+      "txHash": "0x0ff9abe408054eb3ba3c14ae2434bc8fb34de1eda297b25c2d5915625661e673",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x4e6024de6a1d457b990b27abd357aad65cf74ce7",
+      "txFromIsContract": false,
+      "txTo": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+      "txToName": "DexRouter",
+      "method": "uniswapV3SwapTo",
+      "status": "ok",
+      "timestamp": "2026-10-12T12:42:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x478a964d99e7a783feaff9f01ca335dbd4df1b5f",
+          "isContract": false,
+          "totalReceivedRaw": "18596039094687158"
+        },
+        {
+          "address": "0x4e6024de6a1d457b990b27abd357aad65cf74ce7",
+          "isContract": false,
+          "totalReceivedRaw": "53083570216947781416"
+        },
+        {
+          "address": "0x7797c4a7f786f77dbce13d71d2c710310cb92aa3",
+          "isContract": false,
+          "totalReceivedRaw": "29222210525223764"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 6
+    },
+    {
+      "txHash": "0x2c62a8a9ed42c85a00f4b245f07045bfbc8fa2a10cb91240297fa95078ed93a6",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xa60ded4c899e7560dc4ca56b57fbab25c90addeb",
+      "txFromIsContract": true,
+      "txTo": "0x9008d19f58aabd9ed0d60971565aa8510560ab41",
+      "txToName": "GPv2Settlement",
+      "method": "settle",
+      "status": "ok",
+      "timestamp": "2026-10-12T00:22:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": true,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x9008d19f58aabd9ed0d60971565aa8510560ab41",
+          "isContract": true,
+          "totalReceivedRaw": "121389702152113946687"
+        },
+        {
+          "address": "0xc36f9a10276b3e3983aea61c15759eab644dac28",
+          "isContract": false,
+          "totalReceivedRaw": "119493832622715325668"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 5
+    },
+    {
+      "txHash": "0x2bed36adf7eb5675871d5a268abc30223c701fd6754be2fdd816983f7d6ee02e",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xada5bb90d0de0bd1b6f3938708f49295a8d1f7cb",
+      "txFromIsContract": false,
+      "txTo": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
+      "txToName": "RelayRouterV3",
+      "method": "multicall",
+      "status": "ok",
+      "timestamp": "2026-10-10T21:24:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x1111110f0f73c0b2ef09ec012eae758b3e03a902",
+          "isContract": true,
+          "totalReceivedRaw": "19577157982365470"
+        },
+        {
+          "address": "0xce1337248327742bfc6540e89adb8c39e3914bb3",
+          "isContract": false,
+          "totalReceivedRaw": "8055806203142656771"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 6
+    },
+    {
+      "txHash": "0xdfd3c13e6fadd3e2c6fd41179d083cb007733e687e151a4da63512827cc198ba",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xd2de80b8868b1b1ce863b8e35e80d084d3b06f7f",
+      "txFromIsContract": false,
+      "txTo": "0x337685fdab40d39bd02028545a4ffa7d287cc3e2",
+      "txToName": "MayanForwarder2",
+      "method": "swapAndForwardERC20",
+      "status": "ok",
+      "timestamp": "2026-10-13T11:38:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x264f72f81b6a593b4f7aa08d85ab06dd04761458",
+          "isContract": false,
+          "totalReceivedRaw": "172676199156700611"
+        },
+        {
+          "address": "0x54914a963c4197172130c26d496a367bd6609d88",
+          "isContract": true,
+          "totalReceivedRaw": "5655404536680680067"
+        },
+        {
+          "address": "0xd2de80b8868b1b1ce863b8e35e80d084d3b06f7f",
+          "isContract": false,
+          "totalReceivedRaw": "347807379005861824144"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 11
+    },
+    {
+      "txHash": "0xd7c276de109aa4ee9662a8facd365393c526974fb4c059615c6a9bb3988d6a0b",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x56c262027e0de4aea31d2489529cb25d23e58a8b",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-11T02:51:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xd149a1be999ccbfcf55ffc4b99d6b5d7bf1ca307",
+          "isContract": false,
+          "totalReceivedRaw": "7514579654920896952459"
+        },
+        {
+          "address": "0xf5c4f3dc02c3fb9279495a8fef7b0741da956157",
+          "isContract": false,
+          "totalReceivedRaw": "69974957620525104"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 15
+    },
+    {
+      "txHash": "0x8e0486c40aa910ad56f90190fb3d949cbd1306fbf6d186ee46f562c88bcc9d02",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x00000027f490acee7f11ab5fdd47209d6422c5a7",
+      "txFromIsContract": false,
+      "txTo": "0x42e213a3ad048e899b89ea8cb11d21bc97b84748",
+      "txToName": null,
+      "method": "0x2b2f5d2c",
+      "status": "ok",
+      "timestamp": "2026-10-10T20:01:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "314505768359511982080"
+        },
+        {
+          "address": "0x42e213a3ad048e899b89ea8cb11d21bc97b84748",
+          "isContract": true,
+          "totalReceivedRaw": "314505769459023609856"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 5
+    },
+    {
+      "txHash": "0xe84846b3f126343189184f73c28d0d331bcd57b6ed2ef81574ee8ba8d7bbca86",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x08b00ceee2fb66029b53d76110b19eeaabfd1e65",
+      "txFromIsContract": false,
+      "txTo": "0x0000000000001ff3684f28c67538d4d072c22734",
+      "txToName": "AllowanceHolder",
+      "method": "exec",
+      "status": "ok",
+      "timestamp": "2026-10-12T12:42:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x2fc617e933a52713247ce25730f6695920b3befe",
+          "isContract": false,
+          "totalReceivedRaw": "26926086690392314097"
+        },
+        {
+          "address": "0xf5c4f3dc02c3fb9279495a8fef7b0741da956157",
+          "isContract": false,
+          "totalReceivedRaw": "118282215561988303"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 6
+    },
+    {
+      "txHash": "0xedb75058a8ed5c86df7fd3995cab0f29a0bcdf0ccdcb3bfb5096cd1e9e786a41",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xa67d7eb4dc68fa6ce8e34ef8cadaf075b9893fbb",
+      "txFromIsContract": false,
+      "txTo": "0xccc88a9d1b4ed6b0eaba998850414b24f1c315be",
+      "txToName": "RelayApprovalProxyV3",
+      "method": "permit2TransferAndMulticall",
+      "status": "ok",
+      "timestamp": "2026-10-10T18:31:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xe2189111cefa43da3b0d2414b8b1f9c66e92f339",
+          "isContract": false,
+          "totalReceivedRaw": "932156148271346147783"
+        },
+        {
+          "address": "0xf5c4f3dc02c3fb9279495a8fef7b0741da956157",
+          "isContract": false,
+          "totalReceivedRaw": "34054952901802678"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 11
+    },
+    {
+      "txHash": "0x11d8cbbfe214886eb509a82152a7e94f90e60afb9f27bc82b9c1c804fecd36ca",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0xe469ee44d92bb173b7edc576ebb09da55dbfe32e",
+      "txFromIsContract": false,
+      "txTo": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+      "txToName": "EntryPoint",
+      "method": "handleOps",
+      "status": "ok",
+      "timestamp": "2026-10-13T07:14:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xad01c20d5886137e056775af56915de824c8fce5",
+          "isContract": false,
+          "totalReceivedRaw": "14720471643316778"
+        },
+        {
+          "address": "0xfc526aa2aa04b1961aa9b8357adba2418eb31bb7",
+          "isContract": true,
+          "totalReceivedRaw": "29426222814990239374"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 8
+    },
+    {
+      "txHash": "0x53cffd1c77e255d9b22d38884458ad05c6f0fa776be504d3b7f6c543ea5c2ba6",
+      "reasonCode": "multiple_possible_recipients",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0xb98d2db7da42857228b7d44004282888c8110851",
+      "txFromIsContract": false,
+      "txTo": "0x666fedd4cdd4e890a5ad20e7b60975409435a64a",
+      "txToName": "MainnetSettler",
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-11T03:56:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xb98d2db7da42857228b7d44004282888c8110851",
+          "isContract": false,
+          "totalReceivedRaw": "54971187340104222669082"
+        },
+        {
+          "address": "0xf5c4f3dc02c3fb9279495a8fef7b0741da956157",
+          "isContract": false,
+          "totalReceivedRaw": "77558925965810300233"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "multiple_possible_recipients",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "multiple_possible_recipients"
+      ],
+      "explorerTransferCount": 19
+    },
+    {
+      "txHash": "0x4b8501d58d6dbd9b5200c8bf489194e82b70ca9620f6a3fd1a2d4d8191a4716e",
+      "reasonCode": "smart_account",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x05917c2b4811e78deaa4f68f3900242acfb9beab",
+      "txFromIsContract": false,
+      "txTo": "0xf67e35af6a18a01702e6c2f1e18a63c2fc3a528c",
+      "txToName": "Tangem7702GaslessEntryPoint",
+      "method": "executeTransaction",
+      "status": "ok",
+      "timestamp": "2026-10-11T01:11:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "72745344104283004716"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 17
+    },
+    {
+      "txHash": "0x1804ff893761bdba0bdb5cb50fcbaf52c579eed3c038c0db831d8bd9e5536c85",
+      "reasonCode": "smart_account",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x43370108f30ee5ed54a9565f37af3be8502903f5",
+      "txFromIsContract": false,
+      "txTo": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+      "txToName": "EntryPoint",
+      "method": "handleOps",
+      "status": "ok",
+      "timestamp": "2026-10-11T19:50:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x75eb148a61619be9882ca2d2c41e1cee85ddffa7",
+          "isContract": true,
+          "totalReceivedRaw": "1425469870444232698"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 11
+    },
+    {
+      "txHash": "0x3adc29a0a5495d72d62d1757e6cf4cadb4b7871c38be12a8e4ec3db4e1508309",
+      "reasonCode": "smart_account",
+      "token": "LIT",
+      "tokenContract": "0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+      "candidatePool": "0xcd4abaf39691dcbb877165b7ba6d04ec6436c22a",
+      "txFrom": "0xe469ee44d92bb173b7edc576ebb09da55dbfe32e",
+      "txFromIsContract": false,
+      "txTo": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+      "txToName": "EntryPoint",
+      "method": "handleOps",
+      "status": "ok",
+      "timestamp": "2026-10-13T00:14:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x8d6f04b4e2231e458719820c2a8447cf6ade1309",
+          "isContract": true,
+          "totalReceivedRaw": "3973729297434998831650"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 22
+    },
+    {
+      "txHash": "0x17b4227047d11a312de9d1b0d96ea68ea05cce169922732e6710d249bceb7cb4",
+      "reasonCode": "smart_account",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x4337004ec9c1417f1c7a26ebd4b4fbed6acf9e5d",
+      "txFromIsContract": false,
+      "txTo": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+      "txToName": "EntryPoint",
+      "method": "handleOps",
+      "status": "ok",
+      "timestamp": "2026-10-11T19:51:59.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x75eb148a61619be9882ca2d2c41e1cee85ddffa7",
+          "isContract": true,
+          "totalReceivedRaw": "1722230333510476320"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 11
+    },
+    {
+      "txHash": "0x8719e2cddf488f6cec688b3ac3f11af03366a1771506bbf3700648bdcd2fc48d",
+      "reasonCode": "smart_account",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5cbb37c6ff1b0ba190baa10de611de2555b0987a",
+      "txFromIsContract": false,
+      "txTo": "0xd124a15c0a823b128ed6ce0034f15354624f5b14",
+      "txToName": null,
+      "method": "0xc3c16ee4",
+      "status": "ok",
+      "timestamp": "2026-10-14T21:09:47.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x698b6cfcdaba662f44f1b4dab9f9ce1923ab9fa0",
+          "isContract": false,
+          "totalReceivedRaw": "306606124397758604653"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x698b6cfcdaba662f44f1b4dab9f9ce1923ab9fa0",
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": true,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 8
+    },
+    {
+      "txHash": "0xac812c53e210f95ef1fea9832f12e75684efe168d1d872df9d4207624f68a52e",
+      "reasonCode": "smart_account",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0xac4fd96fcf729390a3c8044422a529028ec36751",
+      "txFrom": "0x8f47a238c7701247ee8469ddc37ac1df121cfcce",
+      "txFromIsContract": false,
+      "txTo": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+      "txToName": "EntryPoint",
+      "method": "handleOps",
+      "status": "ok",
+      "timestamp": "2026-10-10T18:58:11.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x7d8eb200c45c273e3bef1bc55c09f76805158e96",
+          "isContract": false,
+          "totalReceivedRaw": "810929130568078703"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x7d8eb200c45c273e3bef1bc55c09f76805158e96",
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": true,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 4
+    },
+    {
+      "txHash": "0xc199d0c46bf9af596358777fa8a657a0db53f420501bbdb9183fd81a52b15e40",
+      "reasonCode": "smart_account",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x05917c2b4811e78deaa4f68f3900242acfb9beab",
+      "txFromIsContract": false,
+      "txTo": "0xf67e35af6a18a01702e6c2f1e18a63c2fc3a528c",
+      "txToName": "Tangem7702GaslessEntryPoint",
+      "method": "executeTransaction",
+      "status": "ok",
+      "timestamp": "2026-10-10T18:52:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+          "isContract": true,
+          "totalReceivedRaw": "291009127418366984363"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 17
+    },
+    {
+      "txHash": "0x6e824274d86826bfb8b43f20c0653fd358909c32dbb49406eca2eb304de9d204",
+      "reasonCode": "smart_account",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0xe469ee44d92bb173b7edc576ebb09da55dbfe32e",
+      "txFromIsContract": false,
+      "txTo": "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789",
+      "txToName": "EntryPoint",
+      "method": "handleOps",
+      "status": "ok",
+      "timestamp": "2026-10-14T00:24:35.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0xe835dbed56e2d5fd58cc316c4e783408b99d1793",
+          "isContract": true,
+          "totalReceivedRaw": "30643622181898706299"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": null,
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": false,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 17
+    },
+    {
+      "txHash": "0x624cada54e570ecf045f8f6907029c1b64bf063813bae2c47557125127568a88",
+      "reasonCode": "smart_account",
+      "token": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "candidatePool": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "txFrom": "0x000c13c51b0fcd8a83b0d99707aa137ac9937c7c",
+      "txFromIsContract": true,
+      "txTo": "0x000c13c51b0fcd8a83b0d99707aa137ac9937c7c",
+      "txToName": null,
+      "method": "execute",
+      "status": "ok",
+      "timestamp": "2026-10-15T08:47:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": true,
+      "txFromMatchesUniqueTerminalRecipient": true,
+      "recipientEvidence": [
+        {
+          "address": "0x000c13c51b0fcd8a83b0d99707aa137ac9937c7c",
+          "isContract": true,
+          "totalReceivedRaw": "34978937276462824276"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x000c13c51b0fcd8a83b0d99707aa137ac9937c7c",
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": true,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 6
+    },
+    {
+      "txHash": "0x561d2054676aea951639860058bd14ba5bc9fddf2b96c71f9a3e785623f60a59",
+      "reasonCode": "smart_account",
+      "token": "STRK",
+      "tokenContract": "0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+      "candidatePool": "0x311ce099976d72f9e093690fd1408a14ad4ed4da",
+      "txFrom": "0x5cbb37c6ff1b0ba190baa10de611de2555b0987a",
+      "txFromIsContract": false,
+      "txTo": "0x6e2dd65e46d1c5d3bbd924aff132f6c7392bd7ea",
+      "txToName": null,
+      "method": "0xc3c16ee4",
+      "status": "ok",
+      "timestamp": "2026-10-12T21:32:23.000000Z",
+      "knownRouterTxFrom": false,
+      "aggregatorEvidence": false,
+      "smartAccountOrBundlerEvidence": false,
+      "txFromMatchesUniqueTerminalRecipient": false,
+      "recipientEvidence": [
+        {
+          "address": "0x56ff855746ecec6777dffef1d417c751c324bd6d",
+          "isContract": false,
+          "totalReceivedRaw": "51142123014155698839"
+        }
+      ],
+      "actualBuy": true,
+      "actualWallet": "0x56ff855746ecec6777dffef1d417c751c324bd6d",
+      "oldClassifierFailure": "smart_account",
+      "safeToAutomate": true,
+      "random50": false,
+      "topCategorySamples": [
+        "smart_account"
+      ],
+      "explorerTransferCount": 8
+    }
+  ]
+}

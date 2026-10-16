@@ -1,0 +1,247 @@
+{
+  "chain": "ethereum",
+  "window": {
+    "snapshotAt": "2026-10-16T12:38:19.949Z",
+    "windowStart": "2026-10-14T12:38:19.949Z",
+    "windowEnd": "2026-10-15T12:38:19.949Z",
+    "bounds": {
+      "ethereum": {
+        "fromBlock": 26190789,
+        "toBlock": 26197964,
+        "windowStart": "2026-10-14T12:38:19.949Z",
+        "windowEndExclusive": "2026-10-15T12:38:19.949Z"
+      }
+    }
+  },
+  "tokens": [
+    {
+      "tokenSymbol": "INJ",
+      "tokenContract": "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+      "poolAddress": "0x6c063a6e8cd45869b5eb75291e65a3de298f3aa8",
+      "quoteTokenContract": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+    }
+  ],
+  "candidateCount": 63,
+  "exactCandidateSet": true,
+  "context": {
+    "exactContextMatch": true,
+    "comparisonScope": "exact logs consumed by resolver (supported pool swap/liquidity topics and target/quote ERC-20 transfers)",
+    "contextMismatches": 0,
+    "missingInNew": 0,
+    "extraInNew": 0,
+    "diffs": []
+  },
+  "resolver": {
+    "oldOutcomeCount": 63,
+    "newOutcomeCount": 63,
+    "verdictMatches": 63,
+    "verdictMismatches": 0,
+    "walletMismatches": 0,
+    "reasonMismatches": 0,
+    "amountMismatches": 0,
+    "byReason": {
+      "old": {
+        "CONFIRMED": 18,
+        "multihop_ambiguous": 43,
+        "multiple_possible_recipients": 1,
+        "smart_account": 1
+      },
+      "new": {
+        "CONFIRMED": 18,
+        "multihop_ambiguous": 43,
+        "multiple_possible_recipients": 1,
+        "smart_account": 1
+      }
+    },
+    "diffs": []
+  },
+  "performance": {
+    "legacy": {
+      "queries": 4,
+      "pages": 4,
+      "fullRangeTransferLogs": 1326,
+      "responseBytes": 836577,
+      "totalMs": 1912,
+      "transferMs": 708
+    },
+    "optimized": {
+      "queries": 2,
+      "pages": 2,
+      "candidateContextLogs": 1556,
+      "relevantTransferLogs": 956,
+      "responseBytes": 2399136,
+      "totalMs": 951,
+      "transferMs": 0
+    }
+  },
+  "memory": {
+    "old": {
+      "start": {
+        "at": "2026-10-16T15:22:58.386Z",
+        "rssBytes": 99471360,
+        "heapUsedBytes": 17186592,
+        "heapTotalBytes": 36007936,
+        "externalBytes": 4633775,
+        "arrayBuffersBytes": 538519,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 114896
+      },
+      "peakRssBytes": 106319872,
+      "peakHeapUsedBytes": 20625696,
+      "peakExternalBytes": 6868915,
+      "peakArrayBuffersBytes": 2672455,
+      "samples": 8,
+      "boundaries": [
+        {
+          "phase": "scan-start",
+          "at": "2026-10-16T15:22:58.386Z",
+          "rssBytes": 99471360,
+          "heapUsedBytes": 17189272,
+          "heapTotalBytes": 36007936,
+          "externalBytes": 4633775,
+          "arrayBuffersBytes": 538519,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "discovery-complete",
+          "at": "2026-10-16T15:22:58.412Z",
+          "rssBytes": 99508224,
+          "heapUsedBytes": 17338264,
+          "heapTotalBytes": 36007936,
+          "externalBytes": 4636863,
+          "arrayBuffersBytes": 541607,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "retrieval-complete",
+          "at": "2026-10-16T15:22:59.974Z",
+          "rssBytes": 106319872,
+          "heapUsedBytes": 20625696,
+          "heapTotalBytes": 36958208,
+          "externalBytes": 6767711,
+          "arrayBuffersBytes": 2672455,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "aggregation-complete",
+          "at": "2026-10-16T15:23:00.297Z",
+          "rssBytes": 104513536,
+          "heapUsedBytes": 18262920,
+          "heapTotalBytes": 36270080,
+          "externalBytes": 6868915,
+          "arrayBuffersBytes": 740064,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "scan-complete",
+          "at": "2026-10-16T15:23:00.297Z",
+          "rssBytes": 104550400,
+          "heapUsedBytes": 18292576,
+          "heapTotalBytes": 36270080,
+          "externalBytes": 6868915,
+          "arrayBuffersBytes": 740064,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        }
+      ],
+      "final": {
+        "at": "2026-10-16T15:23:00.299Z",
+        "rssBytes": 104603648,
+        "heapUsedBytes": 18447248,
+        "heapTotalBytes": 36270080,
+        "externalBytes": 6868915,
+        "arrayBuffersBytes": 740064,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 114896
+      }
+    },
+    "optimized": {
+      "start": {
+        "at": "2026-10-16T15:23:00.299Z",
+        "rssBytes": 104607744,
+        "heapUsedBytes": 18468032,
+        "heapTotalBytes": 36270080,
+        "externalBytes": 6868915,
+        "arrayBuffersBytes": 740064,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 114896
+      },
+      "peakRssBytes": 115994624,
+      "peakHeapUsedBytes": 26278304,
+      "peakExternalBytes": 13553307,
+      "peakArrayBuffersBytes": 7179547,
+      "samples": 7,
+      "boundaries": [
+        {
+          "phase": "scan-start",
+          "at": "2026-10-16T15:23:00.299Z",
+          "rssBytes": 104607744,
+          "heapUsedBytes": 18471072,
+          "heapTotalBytes": 36270080,
+          "externalBytes": 6868915,
+          "arrayBuffersBytes": 740064,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "discovery-complete",
+          "at": "2026-10-16T15:23:00.323Z",
+          "rssBytes": 104816640,
+          "heapUsedBytes": 18607584,
+          "heapTotalBytes": 36270080,
+          "externalBytes": 4903943,
+          "arrayBuffersBytes": 808687,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "retrieval-complete",
+          "at": "2026-10-16T15:23:01.185Z",
+          "rssBytes": 113307648,
+          "heapUsedBytes": 24170024,
+          "heapTotalBytes": 36532224,
+          "externalBytes": 13553307,
+          "arrayBuffersBytes": 7179547,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "aggregation-complete",
+          "at": "2026-10-16T15:23:01.249Z",
+          "rssBytes": 115613696,
+          "heapUsedBytes": 25947624,
+          "heapTotalBytes": 54358016,
+          "externalBytes": 4623363,
+          "arrayBuffersBytes": 528107,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        },
+        {
+          "phase": "scan-complete",
+          "at": "2026-10-16T15:23:01.249Z",
+          "rssBytes": 115638272,
+          "heapUsedBytes": 25971744,
+          "heapTotalBytes": 54358016,
+          "externalBytes": 4623363,
+          "arrayBuffersBytes": 528107,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114896
+        }
+      ],
+      "final": {
+        "at": "2026-10-16T15:23:01.250Z",
+        "rssBytes": 115994624,
+        "heapUsedBytes": 26278304,
+        "heapTotalBytes": 54358016,
+        "externalBytes": 4623363,
+        "arrayBuffersBytes": 528107,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 114896
+      }
+    }
+  }
+}

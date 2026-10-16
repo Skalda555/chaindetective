@@ -1,0 +1,282 @@
+{
+  "sourceRun": "2026-10-16T160211-275Z",
+  "auditedAt": "2026-10-16T16:17:11.092Z",
+  "window": {
+    "days": 7,
+    "start": "2026-10-09T16:02:11.273Z",
+    "endExclusive": "2026-10-16T16:02:11.273Z"
+  },
+  "queryDiagnostics": {
+    "queries": 12,
+    "responseBytes": 24209412,
+    "memory": {
+      "start": {
+        "at": "2026-10-16T16:17:00.987Z",
+        "rssBytes": 108417024,
+        "heapUsedBytes": 34085288,
+        "heapTotalBytes": 64868352,
+        "externalBytes": 3222931,
+        "arrayBuffersBytes": 841054,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 106368
+      },
+      "peakRssBytes": 291622912,
+      "peakHeapUsedBytes": 98674936,
+      "peakExternalBytes": 26307274,
+      "peakArrayBuffersBytes": 16829538,
+      "samples": 16,
+      "boundaries": [
+        {
+          "phase": "scan-start",
+          "at": "2026-10-16T16:17:00.989Z",
+          "rssBytes": 108511232,
+          "heapUsedBytes": 34148592,
+          "heapTotalBytes": 64868352,
+          "externalBytes": 3222971,
+          "arrayBuffersBytes": 841054,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 106368
+        },
+        {
+          "phase": "discovery-complete",
+          "at": "2026-10-16T16:17:01.009Z",
+          "rssBytes": 112009216,
+          "heapUsedBytes": 37440144,
+          "heapTotalBytes": 66179072,
+          "externalBytes": 4803622,
+          "arrayBuffersBytes": 852154,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 109384
+        },
+        {
+          "phase": "retrieval-complete",
+          "at": "2026-10-16T16:17:10.414Z",
+          "rssBytes": 222752768,
+          "heapUsedBytes": 58124616,
+          "heapTotalBytes": 192757760,
+          "externalBytes": 26307274,
+          "arrayBuffersBytes": 16829538,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 218396
+        },
+        {
+          "phase": "aggregation-complete",
+          "at": "2026-10-16T16:17:11.058Z",
+          "rssBytes": 290918400,
+          "heapUsedBytes": 91215968,
+          "heapTotalBytes": 198262784,
+          "externalBytes": 23416477,
+          "arrayBuffersBytes": 12512717,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 293704
+        },
+        {
+          "phase": "scan-complete",
+          "at": "2026-10-16T16:17:11.060Z",
+          "rssBytes": 291033088,
+          "heapUsedBytes": 91409464,
+          "heapTotalBytes": 198262784,
+          "externalBytes": 23416477,
+          "arrayBuffersBytes": 12512717,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 293704
+        }
+      ],
+      "final": {
+        "at": "2026-10-16T16:17:11.070Z",
+        "rssBytes": 291622912,
+        "heapUsedBytes": 98674936,
+        "heapTotalBytes": 198524928,
+        "externalBytes": 23416477,
+        "arrayBuffersBytes": 12512717,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 293704
+      }
+    }
+  },
+  "totals": {
+    "outcomes": {
+      "CONFIRMED": 3716,
+      "UNCERTAIN": 296,
+      "REJECTED": 25
+    },
+    "confirmedBuy250": 2286,
+    "confirmedBuy500": 1702,
+    "uniqueWallets250": 1311,
+    "uniqueWallets500": 1067,
+    "multiPoolTokens": 0
+  },
+  "tokens": [
+    {
+      "chain": "base",
+      "contract": "0xb34f05a3c0e54c54a3094e2868b4be01a63b4536",
+      "symbol": "FTR",
+      "pool": "0xe69bc5f3eb55a9d90e711f117db6b037388d8e3f",
+      "outcomes": {
+        "CONFIRMED": 81,
+        "UNCERTAIN": 2,
+        "REJECTED": 4
+      },
+      "confirmedBuy250": 81,
+      "uniqueWallets250": 81,
+      "confirmedBuy500": 78,
+      "uniqueWallets500": 78,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0xe69bc5f3eb55a9d90e711f117db6b037388d8e3f"
+      ]
+    },
+    {
+      "chain": "base",
+      "contract": "0xce7a6169246082c6659e23197893cf508b975876",
+      "symbol": "ASI_AI",
+      "pool": "0xa0f5cca6b3ca4154841ee1dc6a38f9ceaf1fbb21",
+      "outcomes": {
+        "CONFIRMED": 914,
+        "UNCERTAIN": 280,
+        "REJECTED": 0
+      },
+      "confirmedBuy250": 13,
+      "uniqueWallets250": 4,
+      "confirmedBuy500": 11,
+      "uniqueWallets500": 3,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0xa0f5cca6b3ca4154841ee1dc6a38f9ceaf1fbb21"
+      ]
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x03107702bdf02500a0a51cef2e4d2d5a5bea9fab",
+      "symbol": "INJ",
+      "pool": "0x84dd09c93e9e8c882f456fffb0dd6e2f33ae5656",
+      "outcomes": {
+        "CONFIRMED": 19,
+        "UNCERTAIN": 0,
+        "REJECTED": 0
+      },
+      "confirmedBuy250": 12,
+      "uniqueWallets250": 1,
+      "confirmedBuy500": 11,
+      "uniqueWallets500": 1,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0x84dd09c93e9e8c882f456fffb0dd6e2f33ae5656"
+      ]
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x1055694a1eb36a969c62546b0f45af24a37ada28",
+      "symbol": "SEPOLIA",
+      "pool": "0xfe759ede5d7c88e2ffb773c711741a8e33156fe3",
+      "outcomes": {
+        "CONFIRMED": 29,
+        "UNCERTAIN": 0,
+        "REJECTED": 0
+      },
+      "confirmedBuy250": 25,
+      "uniqueWallets250": 18,
+      "confirmedBuy500": 17,
+      "uniqueWallets500": 13,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0xfe759ede5d7c88e2ffb773c711741a8e33156fe3"
+      ]
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x20d73bda0727dd493352d981ebb7efb22565ebae",
+      "symbol": " 1 TRUMP",
+      "pool": "0xad33ae123c2c702b529e89e487c53477545cc408",
+      "outcomes": {
+        "CONFIRMED": 20,
+        "UNCERTAIN": 0,
+        "REJECTED": 6
+      },
+      "confirmedBuy250": 9,
+      "uniqueWallets250": 1,
+      "confirmedBuy500": 9,
+      "uniqueWallets500": 1,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0xad33ae123c2c702b529e89e487c53477545cc408"
+      ]
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x41abbc49f6e5329647033e36ea00101e27292336",
+      "symbol": "HOOKSA",
+      "pool": "0x74d0b5303f8f5743a6f366aa99a7298c4457aca9",
+      "outcomes": {
+        "CONFIRMED": 69,
+        "UNCERTAIN": 0,
+        "REJECTED": 0
+      },
+      "confirmedBuy250": 27,
+      "uniqueWallets250": 15,
+      "confirmedBuy500": 15,
+      "uniqueWallets500": 13,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0x74d0b5303f8f5743a6f366aa99a7298c4457aca9"
+      ]
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0xb3198fd8d281c8536adf2fe00fe2f985fe619000",
+      "symbol": "FTR",
+      "pool": "0xaaf40568a70305979408fe38e913f883034b0f4d",
+      "outcomes": {
+        "CONFIRMED": 2567,
+        "UNCERTAIN": 14,
+        "REJECTED": 15
+      },
+      "confirmedBuy250": 2113,
+      "uniqueWallets250": 1189,
+      "confirmedBuy500": 1555,
+      "uniqueWallets500": 956,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0xaaf40568a70305979408fe38e913f883034b0f4d"
+      ]
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0xb649e26343ec1e43357bcfe5a50b4e287837945c",
+      "symbol": "STREAM",
+      "pool": "0xca7beb7f73f0238025c37d12b50b8cbfa1c30eac",
+      "outcomes": {
+        "CONFIRMED": 12,
+        "UNCERTAIN": 0,
+        "REJECTED": 0
+      },
+      "confirmedBuy250": 3,
+      "uniqueWallets250": 1,
+      "confirmedBuy500": 3,
+      "uniqueWallets500": 1,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0xca7beb7f73f0238025c37d12b50b8cbfa1c30eac"
+      ]
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0xd064c8e0727081bff8062510c7f17214bfe85f15",
+      "symbol": "HBD",
+      "pool": "0x399524af991bd15bbbc175c0af1d6484d512d77d",
+      "outcomes": {
+        "CONFIRMED": 5,
+        "UNCERTAIN": 0,
+        "REJECTED": 0
+      },
+      "confirmedBuy250": 3,
+      "uniqueWallets250": 1,
+      "confirmedBuy500": 3,
+      "uniqueWallets500": 1,
+      "outOfWindowConfirmed": 0,
+      "selectedPools": [
+        "0x399524af991bd15bbbc175c0af1d6484d512d77d"
+      ]
+    }
+  ]
+}

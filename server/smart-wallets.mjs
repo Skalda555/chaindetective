@@ -1,4 +1,4 @@
-import {isAddress,isSystemWalletAddress,NETWORKS} from '../dist/data.js';
+import {IGNORED_WALLET_ADDRESS_ERROR,isAddress,isIgnoredWalletAddress,NETWORKS} from '../dist/data.js';
 
 const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status});};
 const text=(value,max,label)=>{if(value===undefined)return '';if(typeof value!=='string'||value.length>max)fail(`${label}: nejvýše ${max} znaků.`);return value.trim();};
@@ -12,7 +12,7 @@ function addresses(input){
 function importEntries(input){
  const raw=Array.isArray(input?.entries)?input.entries:Array.isArray(input?.addresses)?input.addresses.map(address=>({address})):null;
  if(!raw?.length||raw.length>200||raw.some(entry=>!entry||typeof entry!=='object'||typeof entry.address!=='string'||!isAddress(entry.address)))fail('Vložte 1 až 200 platných EVM adres. Celý seznam musí být platný.');
- const system=raw.find(entry=>isSystemWalletAddress(entry.address));if(system)fail('Neplatná systémová adresa (zero address) nelze importovat jako Smart wallet.');
+ const system=raw.find(entry=>isIgnoredWalletAddress(entry.address));if(system)fail(IGNORED_WALLET_ADDRESS_ERROR);
  const unique=new Map();for(const entry of raw){const address=entry.address.toLowerCase();if(unique.has(address))continue;const name=Object.hasOwn(entry,'name')?text(entry.name,100,'Název'):undefined;unique.set(address,{address,...(name?{name}:{})});}
  return [...unique.values()];
 }
@@ -27,8 +27,8 @@ function fields(input,retainedLegacy=[]){
 export class SmartWalletStore{
  constructor(db){this.db=db;db.exec(`CREATE TABLE IF NOT EXISTS smart_wallets(address TEXT PRIMARY KEY,name TEXT NOT NULL,tags_json TEXT NOT NULL,source TEXT NOT NULL,note TEXT NOT NULL,status TEXT NOT NULL,chains_json TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);`);}
  decode(row){return row?{address:row.address,name:row.name,tags:JSON.parse(row.tags_json),source:row.source,note:row.note,status:row.status,chainIds:JSON.parse(row.chains_json),createdAt:row.created_at,updatedAt:row.updated_at}:null;}
- get(address){return this.decode(this.db.prepare('SELECT * FROM smart_wallets WHERE address=?').get(address.toLowerCase()));}
- list(){return this.db.prepare('SELECT * FROM smart_wallets ORDER BY updated_at DESC,address').all().map(row=>this.decode(row));}
+ get(address){if(isIgnoredWalletAddress(address))return null;return this.decode(this.db.prepare('SELECT * FROM smart_wallets WHERE address=?').get(address.toLowerCase()));}
+ list(){return this.db.prepare('SELECT * FROM smart_wallets ORDER BY updated_at DESC,address').all().filter(row=>!isIgnoredWalletAddress(row.address)).map(row=>this.decode(row));}
  previewImport(input){
   const entries=importEntries(input),existing=this.db.prepare(`SELECT address FROM smart_wallets WHERE address IN (${entries.map(()=>'?').join(',')})`).all(...entries.map(entry=>entry.address));
   return {newCount:entries.length-existing.length,existingCount:existing.length};
@@ -43,6 +43,7 @@ export class SmartWalletStore{
  }
  bulkUpdate(input,changes){
   const selected=addresses(input);
+  if(selected.some(isIgnoredWalletAddress))fail(IGNORED_WALLET_ADDRESS_ERROR);
   if(!changes||typeof changes!=='object'||Array.isArray(changes))fail('Vyberte alespoň jedno pole k hromadné úpravě.');
   const allowed=new Set(['tags','status','source','chainIds','note']),keys=Object.keys(changes);
   if(!keys.length||keys.some(key=>!allowed.has(key)))fail('Hromadná úprava obsahuje nepodporované pole.');
@@ -76,8 +77,9 @@ export class SmartWalletStore{
  add(input){
   const f=fields(input),entries=importEntries(input);
   if(input.updateExisting!==undefined&&typeof input.updateExisting!=='boolean')fail('Neplatná volba pro existující adresy.');
-  if(input.conflictMode!==undefined&&!['merge-tags','keep','update'].includes(input.conflictMode))fail('Neplatný režim existujících adres.');
+  if(input.conflictMode!==undefined&&!['merge-tags','keep','update','quick-add'].includes(input.conflictMode))fail('Neplatný režim existujících adres.');
   const conflictMode=input.conflictMode??(input.updateExisting===true?'update':'keep'),tagsMode=input.tagsMode??'add',networksMode=input.networksMode??'replace';
+  if(conflictMode==='quick-add'&&entries.length!==1)fail('Quick add podporuje vždy jednu peněženku.');
   if(!['add','replace'].includes(tagsMode))fail('Neplatný režim štítků.');
   if(!['add','replace'].includes(networksMode))fail('Neplatný režim sledovaných sítí.');
   const created=[],updated=[],unchanged=[],now=new Date().toISOString();
@@ -96,6 +98,12 @@ export class SmartWalletStore{
      if(JSON.stringify(tags)===JSON.stringify(wallet.tags)){unchanged.push(entry.address);continue;}
      this.db.prepare('UPDATE smart_wallets SET tags_json=?,updated_at=? WHERE address=?').run(JSON.stringify(tags),now,entry.address);updated.push(entry.address);continue;
     }
+    if(conflictMode==='quick-add'){
+     const tags=mergeTags(wallet.tags,f.tags),chainIds=[...new Set([...wallet.chainIds,...f.chainIds])].sort();
+     if(tags.length>12)fail('Doplnění by vytvořilo více než 12 štítků u jedné peněženky.');
+     if(JSON.stringify(tags)===JSON.stringify(wallet.tags)&&JSON.stringify(chainIds)===JSON.stringify(wallet.chainIds)){unchanged.push(entry.address);continue;}
+     this.db.prepare('UPDATE smart_wallets SET tags_json=?,chains_json=?,updated_at=? WHERE address=?').run(JSON.stringify(tags),JSON.stringify(chainIds),now,entry.address);updated.push(entry.address);continue;
+    }
     const name=entry.name||f.name||wallet.name;
     const tags=tagsMode==='replace'?f.tags:mergeTags(wallet.tags,f.tags);
     if(tags.length>12)fail('Aktualizace by vytvořila více než 12 štítků u jedné peněženky.');
@@ -109,8 +117,12 @@ export class SmartWalletStore{
   }catch(error){this.db.exec('ROLLBACK');throw error;}
   return {created,updated,unchanged};
  }
+ quickAdd(input){
+  const result=this.add({...input,conflictMode:'quick-add'}),address=importEntries(input)[0].address;
+  return {...result,wallet:this.get(address)};
+ }
  update(address,input){
-  if(!isAddress(address))fail('Neplatná adresa.');const current=this.get(address);if(!current)fail('Peněženka nebyla nalezena.',404);
+  if(!isAddress(address))fail('Neplatná adresa.');if(isIgnoredWalletAddress(address))fail(IGNORED_WALLET_ADDRESS_ERROR);const current=this.get(address);if(!current)fail('Peněženka nebyla nalezena.',404);
   const retainedLegacy=current.chainIds.filter(id=>!NETWORKS.some(n=>n.id===id));
   const f=fields(input,retainedLegacy);this.db.prepare('UPDATE smart_wallets SET name=?,tags_json=?,source=?,note=?,status=?,chains_json=?,updated_at=? WHERE address=?').run(f.name,JSON.stringify(f.tags),f.source,f.note,f.status,JSON.stringify(f.chainIds),new Date().toISOString(),address.toLowerCase());
   return this.get(address);

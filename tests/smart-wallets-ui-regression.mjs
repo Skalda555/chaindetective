@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {ZERO_ADDRESS,isSystemWalletAddress,debankProfileUrl} from '../dist/data.js';
+import {ZERO_ADDRESS,DEAD_ADDRESS,IGNORED_WALLET_ADDRESS_ERROR,isIgnoredWalletAddress,isSystemWalletAddress,debankProfileUrl} from '../dist/data.js';
 
-const source=(await readFile(new URL('../dist/smart-wallets.js',import.meta.url),'utf8')).replace("import {MAX_WALLET_SCAN,debankProfileUrl,isSystemWalletAddress} from './data.js';",'').replace('export function initSmartWallets','function initSmartWallets');
+const source=(await readFile(new URL('../dist/smart-wallets.js',import.meta.url),'utf8')).replace("import {MAX_WALLET_SCAN,IGNORED_WALLET_ADDRESS_ERROR,debankProfileUrl,isIgnoredWalletAddress} from './data.js';",'').replace('export function initSmartWallets','function initSmartWallets');
 const pickerHtml=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');
 const styles=await readFile(new URL('../dist/style.css',import.meta.url),'utf8');
+assert.match(pickerHtml,/id="smart-delete-impact"[^>]*class="smart-form-hint"/,'Smart-wallet deletion confirmation exposes its scope and impact separately');assert.match(pickerHtml,/class="primary-button destructive-button"[^>]*id="smart-delete-confirm"/,'delete confirmation is visually distinguished as destructive');assert.match(styles,/\.drawer-tools \.drawer-delete-button\{[^}]*color:#d5a39a/,'wallet drawer delete action uses a restrained destructive treatment');
 const pickerOrder=['id="smart-picker-filter-count"','id="smart-picker-summary"','class="smart-picker-selection"','id="smart-picker-list"'].map(id=>pickerHtml.indexOf(id));
 assert.ok(pickerOrder.every((index,i)=>index>=0&&(!i||index>pickerOrder[i-1])),'filter summary, form info, selection toolbar, then independently scrollable wallet list');
 assert.match(pickerHtml,/id="smart-picker-select-filter"[^>]*class="primary-button"|class="primary-button"[^>]*id="smart-picker-select-filter"/);
@@ -15,7 +16,7 @@ assert.match(pickerHtml,/class="smart-picker-selection-actions"><button class="p
 assert.match(pickerHtml,/class="smart-picker-field smart-picker-field-search"[^]*class="smart-picker-field smart-picker-field-tags"[^]*class="smart-picker-field smart-picker-field-count"[^]*class="smart-picker-field smart-picker-field-status"[^]*class="smart-picker-field smart-picker-field-chain"/,'all five picker filters use the same field wrapper structure and requested order');
 assert.equal((pickerHtml.match(/class="smart-picker-filter-control"/g)||[]).length,4,'search and the three select filters share the control class');
 assert.match(styles,/#smart-picker-dialog\[open\]\s*\{[^}]*overflow\s*:\s*visible/,'picker dialog permits its dropdown to extend past the dialog box');
-assert.match(styles,/#smart-picker-dialog\{width:min\(1180px,calc\(100vw - 40px\)\);max-width:1180px/,'picker dialog expands to a readable desktop width and stays viewport-bounded');
+assert.match(styles,/#smart-picker-dialog\{width:min\(1180px,calc\(100vw - 40px\)\);max-width:1180px/,'picker dialog keeps its readable viewport-bounded width');
 assert.match(styles,/\.smart-picker-filters\{[^}]*grid-template-columns:minmax\(260px,1\.25fr\) minmax\(260px,1\.35fr\) minmax\(170px,\.8fr\) minmax\(190px,\.9fr\) minmax\(190px,\.9fr\);gap:16px/,'desktop filters use one stable five-column grid');
 assert.match(styles,/\.smart-picker-filters \.smart-picker-filter-control\{[^}]*height:40px[^}]*border:1px solid[^}]*border-radius:6px/,'search, selects and tag trigger share control height and geometry with selector strength above the generic summary style');
 assert.match(styles,/select\.smart-picker-filter-control\{appearance:none;background-image:var\(--picker-chevron\)/,'select filters use the shared chevron asset');
@@ -24,21 +25,24 @@ assert.match(styles,/@media\(max-width:1100px\)\{\.smart-picker-filters\{grid-te
 assert.doesNotMatch(styles,/\.smart-picker-filters input,\.smart-picker-filters select\{/,'the old broad picker input rule no longer overrides filter controls and checkboxes');
 assert.doesNotMatch(styles,/\.smart-picker-filters \.smart-tag-filter>summary\{/,'the old independent tag-trigger styling was removed');
 assert.doesNotMatch(styles,/\.picker-filter-control/,'the old picker-only wrapper selector was removed');
-assert.match(styles,/\.smart-picker-selection\{grid-template-columns:minmax\(180px,1fr\) auto[^}]*min-height:64px/,'bulk selection toolbar stays compact');
-assert.match(styles,/\.smart-picker-filters \.smart-tag-filter-menu\s*\{[^}]*z-index\s*:\s*23/,'tag dropdown is layered above the picker list');
-assert.match(styles,/\.smart-picker-filters \.smart-tag-filter-menu\{[^}]*border:1px solid var\(--border\)[^}]*background:var\(--panel\)/,'picker tag dropdown uses the app neutral dark panel');
-assert.match(styles,/\.smart-picker-filters \.smart-tag-options input\[type=checkbox\]\{[^}]*appearance:none[^}]*border:1px solid #[0-9a-f]{6}/,'picker tag checkboxes have a visible unchecked outline');
-assert.match(styles,/\.smart-picker-filters \.smart-tag-options input\[type=checkbox\]:checked\{border-color:var\(--lime\);background:var\(--lime\)\}/,'checked picker tag checkboxes use the lime accent');
-assert.match(source,/if\(scope==='picker'\)document\.addEventListener\('pointerdown'/,'outside pointer handling is scoped to the picker tag filter');
-assert.equal(isSystemWalletAddress(ZERO_ADDRESS),true);assert.equal(isSystemWalletAddress('0x0000000000000000000000000000000000000001'),false);
+assert.match(styles,/\.smart-picker-selection\{grid-template-columns:minmax\(180px,1fr\) auto;align-items:center;gap:14px;min-height:64px/,'bulk selection toolbar keeps its compact responsive layout');
+assert.match(styles,/\.smart-tag-filter-menu\{[^}]*z-index:25[^}]*border:1px solid var\(--border\)[^}]*background:var\(--panel\)/,'main and picker tag dropdowns share the same neutral dark shell');
+assert.match(styles,/\.smart-tag-options input\[type=checkbox\]\{appearance:none[^}]*border:1px solid #[0-9a-f]{6}/,'main and picker tag checkboxes share a visible unchecked outline');
+assert.match(styles,/\.smart-tag-options input\[type=checkbox\]:checked\{border-color:var\(--lime\);background:var\(--lime\)\}/,'main and picker checked tag boxes share the lime accent');
+assert.match(styles,/\.smart-tag-options\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,'both dropdowns use the same responsive two-column tag list');
+assert.match(source,/document\.addEventListener\('pointerdown'/,'outside pointer handling is shared by both tag filters');
+assert.match(source,/document\.addEventListener\('keydown',[^]*event\.key!=='Escape'/,'Escape closes either tag dropdown');
+assert.doesNotMatch(styles,/\.smart-filters \.smart-tag-filter>summary:after|\.smart-tag-filter-menu\{[^}]*background:#17201c/,'the old green main dropdown and text chevron rules are gone');
+assert.equal(isIgnoredWalletAddress(ZERO_ADDRESS),true);assert.equal(isIgnoredWalletAddress(DEAD_ADDRESS),true);assert.equal(isSystemWalletAddress('0x0000000000000000000000000000000000000001'),false);
 const address=i=>'0x'+i.toString(16).padStart(40,'0');
 const records=Array.from({length:23},(_,i)=>({address:address(i+10),name:i===0?'ARB Whale':'Wallet '+i,tags:i===0?['DeFi','ARB']:['Other'],status:i===0?'reviewed':i===22?'excluded':'candidate',chainIds:i===22?['linea']:['base'],source:'Fixture',note:'',updatedAt:new Date().toISOString()}));
 
-function harness({base=[],rows=records,fail=false}={}){
+function harness({base=[],rows=records,fail=false,deleteFail=false}={}){
  const elements=new Map(),calls=[],analyses=[],toasts=[],documentListeners=new Map();let serverRows=[...rows];
- const document={getElementById(id){if(!elements.has(id)){const listeners=new Map(),attributes=new Map();elements.set(id,{value:'',innerHTML:'',textContent:'',hidden:false,disabled:false,checked:false,open:false,addEventListener(type,handler){listeners.set(type,handler);},setAttribute(name,value){attributes.set(name,value);},getAttribute(name){return attributes.get(name)||null;},emit(type,target={}){const event={target,...target,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}};return listeners.get(type)?.(event)??event;},showModal(){this.open=true;},close(){this.open=false;},focus(){},reset(){},querySelector(selector){if(selector==='details'&&this.innerHTML.includes('<details')){this.details??={open:false};return this.details;}return null;},contains(target){return target===this||target?.containerId===id||target?.parentElement===this;},querySelectorAll(selector){return id==='smart-chains'&&selector==='input:checked'?[{value:'base'}]:[];}});}return elements.get(id);},addEventListener(type,handler){documentListeners.set(type,handler);}};
- const context=vm.createContext({document,location:{protocol:'http:'},URL,Blob,setTimeout,MAX_WALLET_SCAN:500,isSystemWalletAddress,debankProfileUrl,fetch:async(path,options={})=>{calls.push({path,options});if(fail)throw Error('offline');const payload=options.body?JSON.parse(options.body):{};let result;
+ const document={getElementById(id){if(!elements.has(id)){const listeners=new Map(),attributes=new Map();elements.set(id,{value:'',innerHTML:'',textContent:'',hidden:false,disabled:false,checked:false,open:false,addEventListener(type,handler){listeners.set(type,handler);},setAttribute(name,value){attributes.set(name,value);},getAttribute(name){return attributes.get(name)||null;},emit(type,target={}){const event={target,...target,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}};return listeners.get(type)?.(event)??event;},showModal(){this.open=true;},close(){this.open=false;},focus(){},reset(){},querySelector(selector){if(selector==='details'&&this.innerHTML.includes('<details')){this.details??={open:false};return this.details;}return null;},contains(target){return target===this||target?.containerId===id||target?.parentElement===this;},querySelectorAll(selector){return id==='smart-chains'&&selector==='input:checked'?[{value:'base'}]:[];}});}return elements.get(id);},addEventListener(type,handler){const listeners=documentListeners.get(type)||[];listeners.push(handler);documentListeners.set(type,listeners);}};
+ const context=vm.createContext({document,location:{protocol:'http:'},URL,Blob,setTimeout,MAX_WALLET_SCAN:500,IGNORED_WALLET_ADDRESS_ERROR,isIgnoredWalletAddress,debankProfileUrl,fetch:async(path,options={})=>{calls.push({path,options});if(fail||options.method==='DELETE'&&deleteFail)throw Error('offline');const payload=options.body?JSON.parse(options.body):{};let result;
   if(options.method==='POST'&&path.endsWith('/import-preview')){const existingCount=payload.entries.filter(entry=>serverRows.some(row=>row.address===entry.address)).length;result={newCount:payload.entries.length-existingCount,existingCount};}
+  else if(options.method==='POST'&&path.endsWith('/quick-add')){const entry=payload.entries?.[0]||{address:payload.addresses?.[0]},row=serverRows.find(w=>w.address===entry.address);let created=[],updated=[],unchanged=[];if(!row){created=[entry.address];serverRows.push({address:entry.address,name:'',tags:['research'],source:'Token Screener',note:'',status:'candidate',chainIds:payload.chainIds,updatedAt:new Date().toISOString()});}else{const seen=new Set(row.tags.map(tag=>tag.toLowerCase())),tags=[...row.tags,...payload.tags.filter(tag=>{const key=tag.toLowerCase();if(seen.has(key))return false;seen.add(key);return true;})],chainIds=[...new Set([...row.chainIds,...payload.chainIds])];if(tags.length===row.tags.length&&chainIds.length===row.chainIds.length)unchanged=[entry.address];else{updated=[entry.address];row.tags=tags;row.chainIds=chainIds;}}result={created,updated,unchanged,wallet:serverRows.find(w=>w.address===entry.address)};}
   else if(options.method==='POST'){const created=[],updated=[],unchanged=[];for(const entry of payload.entries){const row=serverRows.find(w=>w.address===entry.address);if(!row){created.push(entry.address);serverRows.push({...entry,name:entry.name||payload.name,tags:payload.tags,source:payload.source,note:payload.note,status:payload.status,chainIds:payload.chainIds});}else if(payload.conflictMode==='merge-tags'){const seen=new Set(row.tags.map(tag=>tag.toLowerCase()));const tags=[...row.tags,...payload.tags.filter(tag=>{const key=tag.toLowerCase();if(seen.has(key))return false;seen.add(key);return true;})];if(tags.length===row.tags.length)unchanged.push(entry.address);else{updated.push(entry.address);row.tags=tags;}}else if(payload.updateExisting){updated.push(entry.address);row.name=entry.name||payload.name||row.name;row.tags=payload.tagsMode==='replace'?payload.tags:[...new Set([...row.tags,...payload.tags])];row.source=payload.source||row.source;row.note=payload.note||row.note;row.status=payload.status;row.chainIds=payload.networksMode==='add'?[...new Set([...row.chainIds,...payload.chainIds])]:payload.chainIds;}else unchanged.push(entry.address);}result={created,updated,unchanged};}
   else if(options.method==='PATCH'){for(const row of serverRows.filter(w=>payload.addresses.includes(w.address))){const change=payload.changes;if(change.tags){if(change.tags.mode==='replace')row.tags=[...change.tags.values];else if(change.tags.mode==='add')row.tags=[...new Set([...row.tags,...change.tags.values])];else row.tags=row.tags.filter(t=>!change.tags.values.includes(t));}for(const key of ['status','source','chainIds','note'])if(Object.hasOwn(change,key))row[key]=change[key];}result={updated:payload.addresses,missing:[]};}
   else if(options.method==='DELETE'){const ids=path==='/api/smart-wallets'?payload.addresses:[path.split('/').at(-1)];const deleted=serverRows.filter(w=>ids.includes(w.address)).map(w=>w.address);serverRows=serverRows.filter(w=>!ids.includes(w.address));result=path==='/api/smart-wallets'?{deleted,missing:ids.filter(id=>!deleted.includes(id))}:{deleted:true,address:deleted[0]};}
@@ -47,14 +51,15 @@ function harness({base=[],rows=records,fail=false}={}){
  const module=context.init({networks:[{id:'ethereum',name:'Ethereum',live:true},{id:'base',name:'Base',live:true},{id:'optimism',name:'Optimism',live:true},{id:'arbitrum',name:'Arbitrum',live:true},{id:'robinhood',name:'Robinhood Chain',live:true}],legacyNetworks:[{id:'linea',name:'Linea',live:false,legacy:true}],toast:x=>toasts.push(x),getLiveWatchlist:()=>[],getAnalysisAddresses:()=>base,supportsWalletChain:id=>['base','ethereum','optimism','arbitrum','robinhood'].includes(id),analyze:(...args)=>{analyses.push(JSON.parse(JSON.stringify(args)));return true;}});
  const get=id=>document.getElementById(id);
  const choose=(id,checked=true,table='smart-picker-list')=>{const target={checked,dataset:table==='smart-picker-list'?{pickerAddress:id}:{smartSelect:id}};get(table).emit('change',target);return target;};
- const click=button=>documentListeners.get('click')?.({target:{closest:()=>button}});
+ const click=button=>documentListeners.get('click')?.forEach(handler=>handler({target:{closest:()=>button}}));
  const tag=(scope,value,checked=true)=>get(scope==='main'?'smart-tags-filter':'smart-picker-tags-filter').emit('change',{dataset:{[scope==='main'?'mainTagOption':'pickerTagOption']:value},checked});
  const enterTag=(id,value)=>{const input=get(id);input.value=value;input.onkeydown({key:'Enter',preventDefault(){},stopPropagation(){}});};
  const mode=(scope,value)=>get(scope==='main'?'smart-tags-filter':'smart-picker-tags-filter').emit('change',{dataset:{[scope==='main'?'mainTagMode':'pickerTagMode']:''},value});
  const removeTag=(scope,value)=>get(scope==='main'?'smart-tags-filter':'smart-picker-tags-filter').emit('click',{dataset:{[scope==='main'?'mainTagRemove':'pickerTagRemove']:value}});
  const clearTags=scope=>get(scope==='main'?'smart-tags-filter':'smart-picker-tags-filter').emit('click',{dataset:{[scope==='main'?'mainTagClear':'pickerTagClear']:''}});
- const pointerdown=target=>documentListeners.get('pointerdown')?.({target,composedPath:()=>[target]});
- return {module,get,calls,analyses,toasts,choose,parse:context.parseBulkWalletEntries,click,getRows:()=>serverRows,tag,mode,removeTag,clearTags,enterTag,pointerdown};
+ const pointerdown=target=>documentListeners.get('pointerdown')?.forEach(handler=>handler({target,composedPath:()=>[target]}));
+ const keydown=key=>documentListeners.get('keydown')?.forEach(handler=>handler({key,preventDefault(){},stopPropagation(){}}));
+ return {module,get,calls,analyses,toasts,choose,parse:context.parseBulkWalletEntries,click,getRows:()=>serverRows,tag,mode,removeTag,clearTags,enterTag,pointerdown,keydown};
 }
 
 // Bulk line parsing retains labels, default-name fallbacks, normalized deduplication and row errors.
@@ -79,6 +84,16 @@ function harness({base=[],rows=records,fail=false}={}){
  const post=h.calls.find(c=>c.options.method==='POST'&&c.path==='/api/smart-wallets');assert.ok(post,`expected successful save; form error: ${h.get('smart-form-error').textContent}`);const body=JSON.parse(post.options.body);
  assert.deepEqual(body.entries,[{address:A,name:'artur2'},{address:B,name:'Spartan group'},{address:C}]);assert.equal(body.name,'DeBank wallet');
  assert.deepEqual(body.tags,['whale','DeFi']);assert.equal(body.source,'DeBank');assert.equal(body.note,'Imported');assert.equal(body.status,'reviewed');assert.deepEqual(body.chainIds,['base']);assert.equal(body.updateExisting,false);assert.ok(h.calls.some(c=>c.path.endsWith('/import-preview')));assert.ok(h.toasts.includes('Přidáno 3, aktualizováno 0, beze změny 0.'));
+}
+
+// Token Screener quick add persists one wallet directly through the canonical Smart-wallet API and never opens a form.
+{
+ const addedAddress=address(95001),h=harness();await h.module.show();h.get('smart-dialog').open=false;
+ const added=await h.module.quickAdd(addedAddress,['robinhood']);assert.equal(added.created,true);assert.equal(h.get('smart-dialog').open,false,'quick add never opens the full add/edit dialog');assert.equal(h.getRows().length,records.length+1);assert.equal(h.get('smart-count').textContent,records.length+1,'a new address updates the Smart-wallet sidebar count');
+ const saved=h.getRows().find(wallet=>wallet.address===addedAddress);assert.equal(saved.status,'candidate');assert.deepEqual(saved.tags,['research']);assert.equal(saved.source,'Token Screener');assert.equal(saved.note,'');assert.deepEqual(saved.chainIds,['robinhood']);assert.deepEqual(h.calls.filter(call=>call.options.method==='POST').map(call=>call.path),['/api/smart-wallets/quick-add'],'quick add uses the dedicated canonical upsert route without an import preview');
+ const existing={...records[0],address:address(95002),name:'Reviewed keeper',tags:['Research','DeFi'],status:'reviewed',source:'Curated list',note:'Keep this note',chainIds:['base']},existingHarness=harness({rows:[existing]});await existingHarness.module.show();const enriched=await existingHarness.module.quickAdd(existing.address,['robinhood']);assert.equal(enriched.created,false);assert.deepEqual(enriched.wallet.tags,['Research','DeFi'],'research tag merges case-insensitively and preserves existing casing');assert.equal(enriched.wallet.name,'Reviewed keeper');assert.equal(enriched.wallet.status,'reviewed');assert.equal(enriched.wallet.source,'Curated list');assert.equal(enriched.wallet.note,'Keep this note');assert.deepEqual(enriched.wallet.chainIds,['base','robinhood']);assert.equal(existingHarness.get('smart-count').textContent,1,'adding metadata to an existing wallet does not increase the count');
+ await assert.rejects(()=>existingHarness.module.quickAdd(ZERO_ADDRESS,['base']),/systémová burn\/dead/,'quick add refuses the zero address before making a request');assert.equal(existingHarness.calls.filter(call=>call.options.method==='POST').length,1);
+ const failed=harness({fail:true});await failed.module.show();const failedCount=failed.get('smart-count').textContent;await assert.rejects(()=>failed.module.quickAdd(addedAddress,['base']),/offline/);assert.equal(failed.get('smart-count').textContent,failedCount,'backend failure does not optimistically increment the count');assert.equal(failed.getRows().length,records.length,'backend failure does not create a local success record');
 }
 
 // Tag input suggests persisted tags, creates new tags on Enter, canonicalizes case, removes chips, and enforces 12.
@@ -156,6 +171,20 @@ function harness({base=[],rows=records,fail=false}={}){
  await h.get('smart-delete-confirm').onclick();const bulkDelete=h.calls.find(c=>c.options.method==='DELETE'&&c.path==='/api/smart-wallets');assert.deepEqual(JSON.parse(bulkDelete.options.body).addresses,[records[1].address,records[2].address]);assert.equal(h.getRows().length,0);assert.equal(h.get('smart-selection').hidden,true);
 }
 
+// The wallet-detail drawer uses the canonical Smart-wallet delete confirmation and leaves the drawer open on API failure.
+{
+ const row={...records[0],status:'candidate'},h=harness({rows:[row]});await h.module.show();let afterSuccess=0;
+ assert.equal(h.module.removeFromDrawer(row.address,{afterSuccess:()=>afterSuccess++}),true);assert.equal(h.get('smart-delete-dialog').open,true);
+ assert.match(h.get('smart-delete-message').textContent,/ARB Whale/);assert.match(h.get('smart-delete-impact').textContent,/pouze evidenční záznam Smart wallets/);assert.match(h.get('smart-delete-impact').textContent,/Historické výsledky skenů zůstanou zachované/);assert.equal(h.get('smart-delete-confirm').textContent,'Smazat peněženku');
+ h.get('smart-delete-cancel').onclick();assert.equal(h.get('smart-delete-dialog').open,false);assert.equal(h.calls.some(call=>call.options.method==='DELETE'),false,'cancel never sends a delete request');assert.equal(afterSuccess,0);
+ h.module.removeFromDrawer(row.address,{afterSuccess:()=>afterSuccess++});await h.get('smart-delete-confirm').onclick();assert.equal(afterSuccess,1,'drawer success callback fires only after the API confirms deletion');assert.equal(h.getRows().length,0);assert.equal(h.get('smart-count').textContent,0,'Smart-wallet sidebar count is refreshed immediately');assert.equal(h.get('smart-delete-dialog').open,false);assert.deepEqual(h.calls.filter(call=>call.options.method==='DELETE').map(call=>call.path),[`/api/smart-wallets/${row.address}`],'deletion targets only the canonical Smart-wallet record endpoint');
+}
+{
+ const row={...records[1],status:'reviewed'},h=harness({rows:[row],deleteFail:true});await h.module.show();let afterSuccess=0;h.module.removeFromDrawer(row.address,{afterSuccess:()=>afterSuccess++});await h.get('smart-delete-confirm').onclick();
+ assert.equal(h.get('smart-delete-dialog').open,true,'backend failure keeps the confirmation surface open');assert.equal(h.get('smart-delete-error').hidden,false);assert.match(h.get('smart-delete-error').textContent,/offline/);assert.equal(h.getRows().length,1,'failed deletion keeps the wallet in the list');assert.equal(h.get('smart-count').textContent,1);assert.equal(afterSuccess,0,'failed deletion cannot close the wallet drawer');
+ assert.equal(h.module.removeFromDrawer('not-an-address'),false,'invalid addresses cannot enter the drawer deletion path');
+}
+
 // Header selects the current page; filtered selection can include matches across pages.
 {
  const h=harness();await h.module.show();const pageToggle=h.get('smart-select-page');assert.equal(pageToggle.disabled,false);pageToggle.onchange({target:{checked:true}});
@@ -183,10 +212,26 @@ function harness({base=[],rows=records,fail=false}={}){
 // The picker tag control clearly summarizes none/one/two/many selections and preserves them after rerenders.
 {
  const h=harness();await h.module.pick();const container=h.get('smart-picker-tags-filter'),control=()=>container.innerHTML,details=()=>container.querySelector('details');
- assert.match(control(),/<details class="smart-tag-filter"><summary class="smart-picker-filter-control"/,'native details keeps the trigger and menu in the shared control component');assert.match(control(),/type="checkbox" data-picker-tag-option="DeFi"/,'tag choices remain real checkbox inputs');
+ assert.match(control(),/<details class="smart-tag-filter smart-tag-filter-picker"><summary class="smart-tag-trigger smart-picker-filter-control"/,'picker uses the common Smart-wallet tag filter component');assert.match(control(),/type="checkbox" data-picker-tag-option="DeFi"/,'tag choices remain real checkbox inputs');
  assert.match(control(),/<span class="smart-picker-filter-summary-text">Všechny štítky<\/span>/,'zero selected tags have a compact empty summary');details().open=true;h.tag('picker','DeFi');assert.match(control(),/<span class="smart-picker-filter-summary-text">DeFi<\/span>/,'one selected tag is named in the trigger');assert.equal(details().open,true,'selecting a tag rerenders options without closing the dropdown');h.tag('picker','ARB');assert.match(control(),/<span class="smart-picker-filter-summary-text">DeFi \+ ARB<\/span>/,'two selected tags are shown together');assert.match(control(),/Alespoň jeden \(ANY\)/);h.mode('picker','all');assert.match(control(),/DeFi \+ ARB/);assert.match(control(),/Všechny \(ALL\)/);h.tag('picker','Other');assert.match(control(),/<span class="smart-picker-filter-summary-text">3 štítky<\/span>/,'three or more tags use a count');h.clearTags('picker');assert.match(control(),/Všechny štítky/);
  details().open=true;h.pointerdown({containerId:'smart-picker-tags-filter'});assert.equal(details().open,true,'pointerdown inside the trigger or dropdown keeps it open');
  for(const outside of ['smart-picker-status','smart-picker-chain','smart-picker-search','smart-picker-list','smart-picker-dialog']){details().open=true;h.pointerdown({containerId:outside});assert.equal(details().open,false,`pointerdown outside closes the picker tag dropdown (${outside})`);}
+}
+
+// The main Smart-wallet filter reuses the picker dropdown shell and keeps its additional controls intact.
+{
+ const h=harness();await h.module.show();const container=h.get('smart-tags-filter'),details=()=>container.querySelector('details');
+ assert.match(container.innerHTML,/<details class="smart-tag-filter smart-tag-filter-main"><summary class="smart-tag-trigger smart-picker-filter-control"/,'main filter uses the same trigger and dropdown component as the picker');
+ assert.match(container.innerHTML,/type="checkbox" data-main-tag-option="DeFi"/,'main filter choices remain native visible checkbox controls');
+ details().open=true;h.pointerdown({containerId:'smart-tags-filter'});assert.equal(details().open,true,'interaction inside the main dropdown leaves it open');
+ h.tag('main','DeFi');h.tag('main','Other');assert.equal(details().open,true,'checking main-filter tags rerenders without closing the menu');h.pointerdown({containerId:'smart-tags-filter'});h.mode('main','all');assert.equal(details().open,true,'using the ANY/ALL selector does not count as outside interaction');
+ for(const outside of ['smart-status-filter','smart-chain-filter','smart-search','smart-table-body']){details().open=true;h.pointerdown({containerId:outside});assert.equal(details().open,false,`outside pointer closes the main tag dropdown (${outside})`);}
+ details().open=true;h.keydown('Escape');assert.equal(details().open,false,'Escape closes the main tag dropdown');
+ h.get('smart-status-filter').value='reviewed';h.get('smart-chain-filter').value='base';h.get('smart-tag-count-filter').value='2';h.get('smart-search').value='Whale';h.clearTags('main');
+ assert.equal(h.get('smart-status-filter').value,'reviewed');assert.equal(h.get('smart-chain-filter').value,'base');assert.equal(h.get('smart-tag-count-filter').value,'2');assert.equal(h.get('smart-search').value,'Whale','clearing tags leaves all other filters unchanged');
+ assert.match(styles,/\.smart-tag-filter-menu\{[^}]*width:max\(100%,min\(360px,calc\(100vw - 32px\)\)\);max-width:calc\(100vw - 32px\)/,'shared dropdown is bounded by the viewport and cannot create page-level horizontal overflow');
+ assert.match(styles,/\.smart-panel\{overflow:visible\}/,'main Smart-wallet panel does not clip the shared dropdown overlay');
+ assert.match(styles,/@media\(max-width:700px\)\{\.smart-tag-filter-main \.smart-tag-filter-menu\{left:auto;right:0\}/,'main dropdown aligns to its trigger within narrow viewports');
 }
 
 // A long selected tag remains available in the title while the shared trigger keeps its text constrained.
@@ -293,8 +338,8 @@ function harness({base=[],rows=records,fail=false}={}){
  const h=harness({fail:true});await h.module.pick();assert.equal(h.get('smart-picker-apply').disabled,true);assert.match(h.get('smart-picker-error').textContent,/nepodařilo/);assert.equal(h.analyses.length,0);
 }
 {
- const h=harness();assert.throws(()=>h.parse(`${ZERO_ADDRESS} Moni Wizards`),/Neplatná systémová adresa \(zero address\) na řádku 1/);
- const legacy=harness({rows:[{...records[0],address:ZERO_ADDRESS,name:'Legacy system row'}]});await legacy.module.show();assert.match(legacy.get('smart-table-body').innerHTML,/Neplatná systémová adresa/);assert.match(legacy.get('smart-table-body').innerHTML,/data-smart-analyze="0x0{40}" disabled/);
- await legacy.module.pick();assert.match(legacy.get('smart-picker-list').innerHTML,/Neplatná systémová adresa · nelze analyzovat/);assert.match(legacy.get('smart-picker-list').innerHTML,/data-picker-address="0x0{40}"[^>]*disabled/);
+ const h=harness();assert.throws(()=>h.parse(`${DEAD_ADDRESS} Moni Wizards`),error=>error.message===IGNORED_WALLET_ADDRESS_ERROR);
+ const legacy=harness({rows:[{...records[0],address:DEAD_ADDRESS,name:'Legacy system row'}]});await legacy.module.show();assert.doesNotMatch(legacy.get('smart-table-body').innerHTML,/Legacy system row|0x0{36}dead/,'persisted burn candidates are hidden from the table');assert.equal(legacy.module.lookup(DEAD_ADDRESS),null);
+ await legacy.module.pick();assert.doesNotMatch(legacy.get('smart-picker-list').innerHTML,/Legacy system row|0x0{36}dead/,'persisted burn candidates are hidden from discovery selection');
 }
 console.log('Smart wallet UI regressions passed: multi-tag ANY/ALL and count filters, cross-page selection, picker limits, network/status/search combinations, supported networks, prefill and identity.');

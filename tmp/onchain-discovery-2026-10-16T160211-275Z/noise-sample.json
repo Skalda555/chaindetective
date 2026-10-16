@@ -1,0 +1,175 @@
+{
+  "LOOSE": [
+    {
+      "chain": "ethereum",
+      "contract": "0x20d73b…65ebae",
+      "symbol": " 1 TRUMP",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 1,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x41abbc…292336",
+      "symbol": "HOOKSA",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 15,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0xb3198f…619000",
+      "symbol": "FTR",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 1189,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0xb649e2…37945c",
+      "symbol": "STREAM",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 1,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "base",
+      "contract": "0xce7a61…975876",
+      "symbol": "ASI_AI",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 4,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0xd064c8…e85f15",
+      "symbol": "HBD",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 1,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "base",
+      "contract": "0xb34f05…3b4536",
+      "symbol": "FTR",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 81,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x105569…7ada28",
+      "symbol": "SEPOLIA",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 18,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x031077…ea9fab",
+      "symbol": "INJ",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 1,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    }
+  ],
+  "BALANCED": [
+    {
+      "chain": "ethereum",
+      "contract": "0xb649e2…37945c",
+      "symbol": "STREAM",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 1,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "base",
+      "contract": "0xce7a61…975876",
+      "symbol": "ASI_AI",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 4,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0xd064c8…e85f15",
+      "symbol": "HBD",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 1,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "base",
+      "contract": "0xb34f05…3b4536",
+      "symbol": "FTR",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 81,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    },
+    {
+      "chain": "ethereum",
+      "contract": "0x105569…7ada28",
+      "symbol": "SEPOLIA",
+      "classification": "NEW_TOKEN_CANDIDATE",
+      "survivedLiquidity": true,
+      "stillTrading": true,
+      "bidirectionalActivity": true,
+      "confirmedBuyers250": 18,
+      "smartWalletOverlap": 0,
+      "laterCoinGeckoTrending": true
+    }
+  ],
+  "STRICT": []
+}

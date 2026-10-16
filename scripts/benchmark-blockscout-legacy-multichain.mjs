@@ -4,12 +4,17 @@ import {performance} from 'node:perf_hooks';
 
 // Read-only, one-off transport benchmark. The API key is only sent in the
 // request query and is never printed or persisted.
-const candidates = [
+const allCandidates = [
+  {network: 'Robinhood', chainId: 4663, symbol: 'PONS', contract: '0x39dbed3a2bd333467115de45665cc57f813c4571', source: 'local scan history'},
   {network: 'Ethereum', chainId: 1, symbol: 'PEAS', contract: '0x02f92800f57bcd74066f5709f1daa1a4302df875', source: 'local scan history'},
   {network: 'Base', chainId: 8453, symbol: 'USDC', contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', source: 'verified canonical contract'},
   {network: 'Optimism', chainId: 10, symbol: 'USDC', contract: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', source: 'verified canonical contract'},
   {network: 'Arbitrum', chainId: 42161, symbol: 'USDC', contract: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', source: 'verified canonical contract'},
 ];
+const verifyOnly = process.argv.includes('--verify-first100');
+const rhHighOnly = process.argv.includes('--rh-high-page');
+const publicFallback = process.argv.includes('--public-fallback');
+const candidates = verifyOnly ? allCandidates.filter(token => [1, 10].includes(token.chainId)) : rhHighOnly ? allCandidates.filter(token => token.chainId === 4663) : publicFallback ? allCandidates.filter(token => [8453, 42161].includes(token.chainId)) : allCandidates;
 const apiKey = process.env.BLOCKSCOUT_API_KEY?.trim() || '';
 if (!apiKey) throw new Error('BLOCKSCOUT_API_KEY není nastaven; benchmark nebyl spuštěn.');
 const timeoutMs = 12_000;
@@ -55,7 +60,8 @@ function compareFirst100(a, b) {
   };
 }
 function makeUrl(chainId, legacy, {page = 1, offset = 100, cursor = null} = {}) {
-  const base = `https://api.blockscout.com/${chainId}/api`;
+  const publicHosts = {1:'https://eth.blockscout.com',8453:'https://base.blockscout.com',10:'https://optimism.blockscout.com',42161:'https://arbitrum.blockscout.com',4663:'https://robinhoodchain.blockscout.com'};
+  const base = publicFallback ? `${publicHosts[chainId]}/api` : `https://api.blockscout.com/${chainId}/api`;
   const url = legacy ? new URL(base) : new URL(`${base}/v2/tokens/${contractForCurrent}/holders`);
   if (legacy) {
     url.searchParams.set('module', 'token');
@@ -66,7 +72,7 @@ function makeUrl(chainId, legacy, {page = 1, offset = 100, cursor = null} = {}) 
   } else if (cursor) {
     for (const [key, value] of Object.entries(cursor)) if (value !== null) url.searchParams.set(key, String(value));
   }
-  url.searchParams.set('apikey', apiKey);
+  if (!publicFallback) url.searchParams.set('apikey', apiKey);
   return url;
 }
 let contractForCurrent = '';
@@ -94,7 +100,7 @@ async function request(label, url, requestedSize = null) {
     contentType: response.headers.get('content-type'),
     rateHeaders: Object.fromEntries(rateHeaderNames.map(name => [name, response.headers.get(name)]).filter(([, value]) => value !== null)),
     apiStatus: body?.status ?? null,
-    apiMessage: body?.message ?? body?.result?.message ?? null,
+    apiMessage: body?.message ?? body?.result?.message ?? body?.error?.message ?? body?.detail ?? null,
     nextCursor: body?.next_page_params ?? null,
     rowCount: rows.length,
     rawItemCount: Array.isArray(body?.items) ? body.items.length : Array.isArray(body?.result) ? body.result.length : 0,
@@ -118,23 +124,23 @@ for (const token of candidates) {
   const rest1 = await request(`${token.network} REST v2 page 1`, makeUrl(token.chainId, false));
   const restSecond = rest1.nextCursor ? await request(`${token.network} REST v2 page 2`, makeUrl(token.chainId, false, {cursor: rest1.nextCursor})) : null;
   const legacyPages = [];
-  for (const offset of [100, 500, 1000]) legacyPages.push(await request(`${token.network} Legacy offset=${offset} page 1`, makeUrl(token.chainId, true, {page: 1, offset}), offset));
+  for (const offset of (verifyOnly ? [100] : rhHighOnly ? [100, 1000] : [100, 500, 1000])) legacyPages.push(await request(`${token.network} Legacy offset=${offset} page 1`, makeUrl(token.chainId, true, {page: 1, offset}), offset));
   const highest = [...legacyPages].reverse().find(result => result.status === 200 && result.rowCount > 0 && result.rowCount === result.requestedSize) ?? [...legacyPages].reverse().find(result => result.status === 200 && result.rowCount > 0);
   const page2 = highest ? await request(`${token.network} Legacy offset=${highest.requestedSize} page 2`, makeUrl(token.chainId, true, {page: 2, offset: highest.requestedSize}), highest.requestedSize) : null;
   report.push({token, rest1, rest2: restSecond, legacyPages, highestWorkingPage: highest?.requestedSize ?? null, legacyPage2: page2,
     orderingAcrossPageBoundary: page2 ? boundaryDescending(highest.rows, page2.rows) : null,
     duplicatesAcrossPages: page2 ? page2.rows.filter(row => highest.rows.some(first => first.address === row.address)).length : null,
-    first100Comparison: compareFirst100(rest1.rows, legacyPages.find(page => page.requestedSize === 100)?.rows ?? []),
+    first100Comparison: compareFirst100([...rest1.rows, ...(restSecond?.rows ?? [])], legacyPages.find(page => page.requestedSize === 100)?.rows ?? []),
   });
 }
 
-const safeRequest = req => ({...req, rows: undefined});
+const safeRequest = req => req ? ({...req, rows: undefined}) : null;
 console.log(JSON.stringify({
   benchmark: 'Blockscout Legacy token holders multi-chain (read-only)',
   apiKeyConfigured: true,
   apiKeyPrinted: false,
   pacingMs: pauseMs,
-  publicHostsTested: false,
+  publicHostsTested: publicFallback,
   requests: allRequests.map(safeRequest),
   chains: report.map(item => ({
     network: item.token.network,

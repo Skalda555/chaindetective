@@ -1,7 +1,7 @@
 import './load-env.mjs';
 import {setTimeout as delay} from 'node:timers/promises';
-import {NETWORKS,getNetwork,isAddress} from '../dist/data.js';
-import {BlockscoutProvider} from './provider.mjs';
+import {IGNORED_WALLET_ADDRESS_ERROR,NETWORKS,getNetwork,isAddress,isIgnoredWalletAddress} from '../dist/data.js';
+import {BlockscoutProvider,BlockscoutLegacyHolderProvider} from './provider.mjs';
 
 const alchemyNetworks={ethereum:'eth-mainnet',base:'base-mainnet',arbitrum:'arb-mainnet',optimism:'opt-mainnet'};
 const fallbackNetworks=new Set(['ethereum','optimism','arbitrum']);
@@ -47,6 +47,7 @@ export class AlchemyWalletProvider{
  supports(operation,chainId){return operation==='wallets'&&this.configured&&!!alchemyNetworks[chainId];}
  async metadata(task){if(!this.supports(task.kind,task.chainId))throw new AlchemyFailure('access','Alchemy není pro tuto operaci a síť nakonfigurované.');return null;}
  async page(task,signal){
+  if(task.kind==='wallets'&&isIgnoredWalletAddress(task.address))throw new Error(IGNORED_WALLET_ADDRESS_ERROR);
   if(!this.supports(task.kind,task.chainId))throw new AlchemyFailure('access','Alchemy není pro tuto operaci a síť nakonfigurované.');
   if(!isAddress(task.address))throw new Error('Neplatná adresa peněženky.');
   if(task.cursor?.pageKey!==undefined&&(typeof task.cursor.pageKey!=='string'||task.cursor.pageKey.length>4096))throw new Error('Neplatný kurzor Alchemy.');
@@ -84,8 +85,9 @@ export class AlchemyWalletProvider{
 const supports=(provider,operation,chainId)=>typeof provider?.supports==='function'?(provider.supports.length>=2?provider.supports(operation,chainId):provider.supports(chainId)):false;
 const breakerKey=(provider,chainId)=>`${provider}:${chainId}`;
 export class WalletProviderRouter{
- constructor({alchemy=new AlchemyWalletProvider({apiKey:process.env.ALCHEMY_API_KEY||''}),blockscout=new BlockscoutProvider(),now=Date.now}={}){
-  this.providers={alchemy,blockscout};this.alchemy=alchemy;this.blockscout=blockscout;this.now=now;this.health=new Map();this.gates=Object.fromEntries(Object.entries(PROVIDER_LIMITS).map(([name,config])=>[name,new ProviderGate(config)]));
+  constructor({alchemy=new AlchemyWalletProvider({apiKey:process.env.ALCHEMY_API_KEY||''}),blockscout=new BlockscoutProvider(),blockscoutLegacy,now=Date.now}={}){
+   const legacy=blockscoutLegacy||new BlockscoutLegacyHolderProvider({apiKey:blockscout.proApiKey||'',fetchImpl:blockscout.fetchImpl||globalThis.fetch,timeoutMs:blockscout.timeoutMs});
+   this.providers={alchemy,blockscout,blockscout_legacy:legacy};this.alchemy=alchemy;this.blockscout=blockscout;this.blockscoutLegacy=legacy;this.now=now;this.health=new Map();this.gates=Object.fromEntries(Object.entries(PROVIDER_LIMITS).map(([name,config])=>[name,new ProviderGate(config)]));
  }
  validate(query){if(query.provider==='alchemy'&&!this.alchemy.configured)throw new Error('Alchemy API klíč není nastavený na serveru.');}
  #state(provider,chainId){const key=breakerKey(provider,chainId),state=this.health.get(key);if(state?.blockedUntil&&state.blockedUntil<=this.now()){const recovered={failures:0,blockedUntil:0,reason:null};this.health.set(key,recovered);return recovered;}return state||{failures:0,blockedUntil:0,reason:null};}
@@ -93,9 +95,9 @@ export class WalletProviderRouter{
  #blockscoutAllowed(operation,chainId){return operation==='wallets'?fallbackNetworks.has(chainId)||chainId==='robinhood'&&supports(this.blockscout,operation,chainId):supports(this.blockscout,operation,chainId);}
  #route(task){
   const operation=task.kind,chainId=task.chainId,requested=task.requestedProvider||'auto';
-  if(requested==='blockscout')return this.#blockscoutAllowed(operation,chainId)?{provider:'blockscout'}:null;
+  if(requested==='blockscout')return this.#blockscoutAllowed(operation,chainId)?{provider:operation==='holders'&&supports(this.blockscoutLegacy,operation,chainId)?'blockscout_legacy':'blockscout'}:null;
   if(requested==='alchemy')return supports(this.alchemy,operation,chainId)?{provider:'alchemy'}:null;
-  if(operation==='holders')return supports(this.blockscout,operation,chainId)?{provider:'blockscout'}:null;
+  if(operation==='holders')return supports(this.blockscoutLegacy,operation,chainId)?{provider:'blockscout_legacy'}:supports(this.blockscout,operation,chainId)?{provider:'blockscout'}:null;
   if(supports(this.alchemy,'wallets',chainId)){
    const opened=this.#open('alchemy',chainId);
    if(opened&&this.#blockscoutAllowed('wallets',chainId))return {provider:'blockscout',fallbackFrom:'alchemy',fallbackReason:opened.reason||'Jistič Alchemy je dočasně otevřen.'};
@@ -107,12 +109,14 @@ export class WalletProviderRouter{
  supports(task){return !!this.#route(task);}
  route(task){return this.#route(task);}
  choose(task){return this.#route(task)?.provider||'blockscout';}
- cacheKey(kind){return kind==='wallets'?`wallet-router-v2:${this.alchemy.configured?'alchemy':'no-alchemy'}:${this.blockscout.proApiKey?'blockscout-pro':'blockscout-public'}`:'';}
+ cacheKey(kind){return kind==='wallets'?`wallet-router-v2:${this.alchemy.configured?'alchemy':'no-alchemy'}:${this.blockscout.proApiKey?'blockscout-pro':'blockscout-public'}`:kind==='holders'?`holder-router-v2:${supports(this.blockscoutLegacy,'holders','ethereum')?'legacy-pro-enabled':'rest-v2-only'}`:'';}
  metadata(task,signal){return this.gates.blockscout.run(()=>this.blockscout.metadata(task,signal),signal);}
  async page(task,signal){
+  if(task.kind==='wallets'&&isIgnoredWalletAddress(task.address))throw new Error(IGNORED_WALLET_ADDRESS_ERROR);
   const adapter=this.providers[task.provider];if(!adapter||!supports(adapter,task.kind,task.chainId))throw new Error(`${task.provider||'Zvolený poskytovatel'} nepodporuje tuto operaci a síť.`);
   const opened=this.#open(task.provider,task.chainId);if(opened)throw new AlchemyFailure('cooldown',opened.reason||'Poskytovatel je dočasně vyřazen z provozu.');
-  try{const page=await this.gates[task.provider].run(()=>adapter.page(task,signal),signal);this.health.delete(breakerKey(task.provider,task.chainId));return page;}
+  const gateName=task.provider==='blockscout_legacy'?'blockscout':task.provider;
+  try{const page=await this.gates[gateName].run(()=>adapter.page(task,signal),signal);this.health.delete(breakerKey(task.provider,task.chainId));return page;}
   catch(error){
    if(signal?.aborted)throw error;
    const key=breakerKey(task.provider,task.chainId),previous=this.#state(task.provider,task.chainId),next={...previous,reason:error.message};
@@ -121,7 +125,7 @@ export class WalletProviderRouter{
    this.health.set(key,next);throw error;
   }
  }
- fallback(task,error){return task.provider==='alchemy'&&this.#blockscoutAllowed('wallets',task.chainId)&&(error.retryable||error.kind==='quota'||error.kind==='protection'||error.kind==='cooldown')?'blockscout':null;}
+ fallback(task,error){if(task.provider==='blockscout_legacy'&&this.#blockscoutAllowed('holders',task.chainId))return 'blockscout';return task.provider==='alchemy'&&this.#blockscoutAllowed('wallets',task.chainId)&&(error.retryable||error.kind==='quota'||error.kind==='protection'||error.kind==='cooldown')?'blockscout':null;}
  fallbackReason(task,error){const state=this.#state(task.provider,task.chainId);return error.kind==='cooldown'?state.reason||error.message:error.message;}
  fallbackUnavailable(task){return task.provider==='alchemy'&&!this.#blockscoutAllowed('wallets',task.chainId)?' Záloha Blockscout pro tuto síť není dostupná.':'';}
  recordFailure(task,error){return this.health.get(breakerKey(task.provider,task.chainId));}

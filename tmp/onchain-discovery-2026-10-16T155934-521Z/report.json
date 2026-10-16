@@ -1,0 +1,522 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-10-16T155934-521Z",
+  "detectionAt": "2026-10-16T15:59:34.519Z",
+  "window": {
+    "days": 7,
+    "start": "2026-10-09T15:59:34.519Z",
+    "endExclusive": "2026-10-16T15:59:34.519Z"
+  },
+  "chainCoverage": {
+    "ethereum": {
+      "matchingFactoryLogs": 1200,
+      "uniquePools": 1200,
+      "knownQuotePairs": 1134,
+      "exoticPairs": 66,
+      "bothKnownQuotes": 0,
+      "uniqueTargetTokens": 1106
+    },
+    "base": {
+      "matchingFactoryLogs": 3182,
+      "uniquePools": 3182,
+      "knownQuotePairs": 2938,
+      "exoticPairs": 244,
+      "bothKnownQuotes": 0,
+      "uniqueTargetTokens": 2929
+    }
+  },
+  "factoryCoverage": {
+    "supported": {
+      "ethereum": {
+        "label": "Ethereum",
+        "hypersync": "https://eth.hypersync.xyz",
+        "factories": [
+          {
+            "address": "0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f",
+            "family": "uniswap-v2"
+          },
+          {
+            "address": "0x1f98431c8ad98523631ae4a59f267346ea31f984",
+            "family": "uniswap-v3"
+          }
+        ],
+        "quotes": {
+          "weth": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "usdc": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "usdt": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+        }
+      },
+      "base": {
+        "label": "Base",
+        "hypersync": "https://base.hypersync.xyz",
+        "factories": [
+          {
+            "address": "0x8909dc15e40173ff4699343b6eb8132c65e18ec6",
+            "family": "uniswap-v2"
+          },
+          {
+            "address": "0x33128a8fc17869897dce68ed026d694621f6fdfd",
+            "family": "uniswap-v3"
+          }
+        ],
+        "quotes": {
+          "weth": "0x4200000000000000000000000000000000000006",
+          "usdc": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+          "usdbc": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca"
+        }
+      }
+    },
+    "unsupported": {
+      "aerodromeBase": "Factory and event semantics were not independently verified for this PoC."
+    },
+    "blockBounds": {
+      "ethereum": {
+        "fromBlock": 26155848,
+        "toBlock": 26206149,
+        "height": 26206149,
+        "avgBlockSeconds": 12.023448949682463
+      },
+      "base": {
+        "fromBlock": 52386113,
+        "toBlock": 52688514,
+        "height": 52688514,
+        "avgBlockSeconds": 2
+      }
+    }
+  },
+  "rawUniverse": {
+    "discoveredTargets": 4035,
+    "uniqueFactoryPools": 4382,
+    "sensitivity": {
+      "liquidity": {
+        "base": {
+          "10000": 72,
+          "20000": 68,
+          "30000": 63
+        },
+        "ethereum": {
+          "20000": 41,
+          "35000": 40,
+          "50000": 39
+        }
+      },
+      "poolAgeHours": {
+        "0": 0,
+        "3": 86,
+        "6": 131,
+        "12": 203,
+        "24": 377
+      },
+      "fdvCeilingUsd": {
+        "20000000": 212,
+        "50000000": 216,
+        "100000000": 221,
+        "none": 452
+      },
+      "sellsH6": {
+        "1": 114,
+        "5": 48
+      },
+      "volumeH6Usd": {
+        "5000": 55,
+        "10000": 38,
+        "25000": 15
+      }
+    },
+    "quoteClassificationCounts": {
+      "ethereum": {
+        "matchingFactoryLogs": 1200,
+        "uniquePools": 1200,
+        "knownQuotePairs": 1134,
+        "exoticPairs": 66,
+        "bothKnownQuotes": 0,
+        "uniqueTargetTokens": 1106
+      },
+      "base": {
+        "matchingFactoryLogs": 3182,
+        "uniquePools": 3182,
+        "knownQuotePairs": 2938,
+        "exoticPairs": 244,
+        "bothKnownQuotes": 0,
+        "uniqueTargetTokens": 2929
+      }
+    }
+  },
+  "dexScreener": {
+    "resolvedTargets": 485,
+    "targetsWithExactNewPool": 452,
+    "responseRequests": 135,
+    "responseBytes": 386225,
+    "retries": 0,
+    "rateLimit": null,
+    "rateRemaining": null,
+    "classificationCounts": {
+      "NEW_TOKEN_CANDIDATE": 452,
+      "NEW_POOL_OLD_TOKEN": 22,
+      "UNKNOWN": 3561
+    }
+  },
+  "funnel": {
+    "discovered": {
+      "count": 4035,
+      "percentOfDiscovered": 100
+    },
+    "dexScreenerResolved": {
+      "count": 485,
+      "percentOfDiscovered": 12.019826517967783
+    },
+    "liquidityGate": {
+      "count": 113,
+      "percentOfDiscovered": 2.8004956629491944
+    },
+    "ageGate": {
+      "count": 77,
+      "percentOfDiscovered": 1.9083023543990087
+    },
+    "activityGate": {
+      "count": 9,
+      "percentOfDiscovered": 0.22304832713754646
+    },
+    "acceleratingDiagnostic": {
+      "count": 3,
+      "percentOfDiscovered": 0.07434944237918216
+    },
+    "canonicalValidated": {
+      "count": 9,
+      "percentOfDiscovered": 0.22304832713754646
+    }
+  },
+  "profiles": [
+    {
+      "profile": "LOOSE",
+      "candidateCount": 9,
+      "candidatesPerDay": 1.2857142857142858,
+      "validatedCandidateCount": 9,
+      "validatedPerDay": 1.2857142857142858,
+      "medianLiquidityUsd": 237247.25,
+      "medianFdvUsd": 1499680,
+      "medianVolumeH6Usd": 36690.7,
+      "medianPoolAgeHours": 3.3831997222222223,
+      "medianConfirmedBuyers250": 4,
+      "smartWalletOverlapTokens": 0,
+      "knownTrendingTokens": 4,
+      "detectedBeforeTrending": 0,
+      "recallPercent": 0,
+      "medianLeadTimeHours": null,
+      "p25LeadTimeHours": null,
+      "p75LeadTimeHours": null
+    },
+    {
+      "profile": "BALANCED",
+      "candidateCount": 5,
+      "candidatesPerDay": 0.7142857142857143,
+      "validatedCandidateCount": 5,
+      "validatedPerDay": 0.7142857142857143,
+      "medianLiquidityUsd": 232858.01,
+      "medianFdvUsd": 1499680,
+      "medianVolumeH6Usd": 20591.22,
+      "medianPoolAgeHours": 1.0198663888888888,
+      "medianConfirmedBuyers250": 4,
+      "smartWalletOverlapTokens": 0,
+      "knownTrendingTokens": 4,
+      "detectedBeforeTrending": 0,
+      "recallPercent": 0,
+      "medianLeadTimeHours": null,
+      "p25LeadTimeHours": null,
+      "p75LeadTimeHours": null
+    },
+    {
+      "profile": "STRICT",
+      "candidateCount": 0,
+      "candidatesPerDay": 0,
+      "validatedCandidateCount": 0,
+      "validatedPerDay": 0,
+      "medianLiquidityUsd": null,
+      "medianFdvUsd": null,
+      "medianVolumeH6Usd": null,
+      "medianPoolAgeHours": null,
+      "medianConfirmedBuyers250": null,
+      "smartWalletOverlapTokens": 0,
+      "knownTrendingTokens": 4,
+      "detectedBeforeTrending": 0,
+      "recallPercent": 0,
+      "medianLeadTimeHours": null,
+      "p25LeadTimeHours": null,
+      "p75LeadTimeHours": null
+    }
+  ],
+  "acceleration": {
+    "formula": "h1 / max((h6 - h1) / 5, $1)",
+    "n": 452,
+    "p50": 0,
+    "p75": 0,
+    "p90": 0.027457899591514318,
+    "p95": 4.124155813171319,
+    "candidatePriceChangeH1": {
+      "n": 50,
+      "p50": -0.07,
+      "p25": -100,
+      "p75": 8.65
+    },
+    "candidatePriceChangeH6": {
+      "n": 130,
+      "p50": -0.45,
+      "p25": -100,
+      "p75": 10.22
+    },
+    "buySellCountRatioH6": {
+      "n": 452,
+      "p50": 0,
+      "p25": 0,
+      "p75": 1.2686567164179106
+    },
+    "rawBuyCountsAreQualityEvidence": false
+  },
+  "canonicalBuyers": {
+    "resolver": "server/early-buyers-engine.mjs runEarlyBuyersScan(captureOracle:true)",
+    "limits": {
+      "selectedCandidateCount": 9,
+      "skippedCandidateCount": 0,
+      "outcomeCounts": {
+        "CONFIRMED": 3704,
+        "UNCERTAIN": 296,
+        "REJECTED": 25
+      },
+      "resolverQueries": 12,
+      "resolverResponseBytes": 24140065,
+      "authVerified": true,
+      "memory": {
+        "peakRssBytes": 208576512,
+        "peakHeapUsedBytes": 82744608,
+        "peakExternalBytes": 25941195,
+        "peakArrayBuffersBytes": 5849053
+      }
+    },
+    "buyerMetricsAvailableFor": 9,
+    "buyWindow": "max(poolCreatedAt, detectionAt - 7d) <= txTimestamp < detectionAt",
+    "confirmedBuy250Count": 2278,
+    "confirmedBuy500Count": 1696,
+    "uniqueConfirmedWallets250AcrossCandidateTokens": 1304,
+    "note": "Smart-wallet and historical-hit matches require canonical CONFIRMED outcomes; UNCERTAIN/REJECTED outcomes are excluded."
+  },
+  "overlaps": {
+    "activeSmartWallets": 922,
+    "historicalHitWallets": 53,
+    "tokensWithSmartOverlap250": 0,
+    "tokensWithHistoricalHitOverlap250": 0
+  },
+  "coingeckoBenchmark": {
+    "historicalSnapshotRows": 7,
+    "snapshotOverview": {
+      "snapshots": 4,
+      "firstAt": "2026-10-16T13:56:54.420Z",
+      "lastAt": "2026-10-16T14:05:24.408Z",
+      "complete": 2
+    },
+    "uniqueSnapshotTimes": 2,
+    "observedSpanHours": 0.08071027777777778,
+    "maxGapHours": 0.08071027777777778,
+    "knownTrendingTokensInWindow": 4,
+    "limitation": "Persisted Early Buyers CoinGecko snapshots are periodic observations of current trending lists, not a complete historical feed; times are first observed only."
+  },
+  "noiseSample": {
+    "LOOSE": [
+      {
+        "chain": "ethereum",
+        "contract": "0x20d73b…65ebae",
+        "symbol": " 1 TRUMP",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 1,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0x41abbc…292336",
+        "symbol": "HOOKSA",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 15,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0xb3198f…619000",
+        "symbol": "FTR",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 1184,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0xb649e2…37945c",
+        "symbol": "STREAM",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 1,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "base",
+        "contract": "0xce7a61…975876",
+        "symbol": "ASI_AI",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 4,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0xd064c8…e85f15",
+        "symbol": "HBD",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 1,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "base",
+        "contract": "0xb34f05…3b4536",
+        "symbol": "FTR",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 81,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0x105569…7ada28",
+        "symbol": "SEPOLIA",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 16,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0x031077…ea9fab",
+        "symbol": "INJ",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 1,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      }
+    ],
+    "BALANCED": [
+      {
+        "chain": "ethereum",
+        "contract": "0xb649e2…37945c",
+        "symbol": "STREAM",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 1,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "base",
+        "contract": "0xce7a61…975876",
+        "symbol": "ASI_AI",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 4,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0xd064c8…e85f15",
+        "symbol": "HBD",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 1,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "base",
+        "contract": "0xb34f05…3b4536",
+        "symbol": "FTR",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 81,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      },
+      {
+        "chain": "ethereum",
+        "contract": "0x105569…7ada28",
+        "symbol": "SEPOLIA",
+        "classification": "NEW_TOKEN_CANDIDATE",
+        "survivedLiquidity": true,
+        "stillTrading": true,
+        "bidirectionalActivity": true,
+        "confirmedBuyers250": 16,
+        "smartWalletOverlap": 0,
+        "laterCoinGeckoTrending": true
+      }
+    ],
+    "STRICT": []
+  },
+  "performance": {
+    "hypersyncRequests": 24,
+    "hypersyncQueryRequests": 22,
+    "hypersyncResponseBytes": 18204662,
+    "dexScreenerRequests": 135,
+    "dexScreenerResponseBytes": 386225,
+    "runtimeMs": 116505,
+    "memory": {
+      "peakRssBytes": 208576512,
+      "peakHeapUsedBytes": 82744608,
+      "peakExternalBytes": 25941195,
+      "peakArrayBuffersBytes": 6127460
+    }
+  },
+  "correctness": {
+    "productionSqliteWrites": false,
+    "historicalHitSemanticsChanged": false,
+    "newBuyerResolverAdded": false,
+    "bidirectionalActivityIsNotHoneypotVerdict": true,
+    "supportedDexFamilies": [
+      "Uniswap V2",
+      "Uniswap V3"
+    ],
+    "canonicalBuyWindowUsesMax": true
+  }
+}

@@ -141,7 +141,7 @@ function seedHolderResult(engine,{id,status,match='all',taskStatuses,ownersByTok
   assert.deepEqual(result.wallets.map(w=>w.address).sort(),[A,B,TB].sort(),'threshold-qualified holders are retained, including a later qualifying row after a lower balance');
   assert.equal(e.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=?').get(j.id).n,5,'raw scan positions stay stored');assert.equal(e.store.db.prepare('SELECT COUNT(*) AS n FROM positions WHERE scan_id=? AND threshold_eligible=1').get(j.id).n,3,'the threshold eligibility marker is separate from raw positions');
   assert.equal(result.job.status,'complete','filtering at the USD threshold does not make the task partial');assert.equal(result.job.tasks[0].token.priceUsd,0.25);assert.equal(result.job.tasks[0].token.priceSource,'defillama');assert.equal(result.job.tasks[0].token.minTokenAmount,'2000');
-  assert.ok(result.warnings.some(w=>/Early-stop používáme pouze pro Robinhood/.test(w)),'the result explains that unverified networks consume every page');
+  assert.ok(result.warnings.some(w=>/Early-stop používá pouze ověřené sestupné pořadí/.test(w)),'the result explains that only verified descending holder routes may stop early');
   assert.equal(result.job.pages,2);
  }finally{await e.close();}
 }
@@ -154,7 +154,7 @@ function seedHolderResult(engine,{id,status,match='all',taskStatuses,ownersByTok
   assert.equal(pageCalls,2,'pagination ends on the page that crosses the threshold');assert.equal(task.pages,2);assert.equal(task.status,'complete');assert.equal(task.completionReason,'usd_threshold');
   assert.deepEqual(result.wallets.map(w=>w.address).sort(),[A,B,address(5)].sort());assert.equal(task.token.thresholdDiagnostics.holdersAccepted,3);assert.equal(task.token.thresholdDiagnostics.pagesFetched,2);assert.equal(task.token.thresholdDiagnostics.orderingVerified,true);
   assert.equal(e.store.db.prepare('SELECT completion_reason FROM tasks WHERE scan_id=?').get(j.id).completion_reason,'usd_threshold','threshold completion reason is persisted in SQLite');
-  assert.ok(result.warnings.some(w=>/ukončil 1 Robinhood tokenových úloh/.test(w)));
+  assert.ok(result.warnings.some(w=>/ukončil 1 tokenových úloh po ověření sestupného pořadí/.test(w)));
  }finally{await e.close();}
 }
 {

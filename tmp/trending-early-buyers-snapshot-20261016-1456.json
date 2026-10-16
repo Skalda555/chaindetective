@@ -1,0 +1,421 @@
+{
+  "schemaVersion": 1,
+  "snapshotAt": "2026-10-16T14:56:52.670Z",
+  "windowStart": "2026-10-09T14:56:52.670Z",
+  "excludeTop100": true,
+  "windowEnd": "2026-10-15T14:56:52.670Z",
+  "tokens": [
+    {
+      "rank": 15,
+      "id": "derive",
+      "name": "Derive",
+      "symbol": "DRV",
+      "marketCapRank": 125,
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "pools": [
+        {
+          "pairAddress": "0x9011Cbf8D2900908286c9Bf4D5d1644ece7B684A",
+          "dexId": "uniswap",
+          "decoder": "uniswap-v3",
+          "liquidityUsd": 75722.94,
+          "volume24hUsd": 196688.74,
+          "quoteToken": {
+            "address": "0x4200000000000000000000000000000000000006",
+            "name": "Wrapped Ether",
+            "symbol": "WETH"
+          }
+        }
+      ]
+    }
+  ],
+  "chains": [
+    "base"
+  ],
+  "walletTokenCombinations": [],
+  "thresholds": {
+    "250": {
+      "buyCount": 0,
+      "uniqueWallets": 0,
+      "intersectionCounts": {
+        "exactly1": 0,
+        "atLeast2": 0,
+        "atLeast3": 0,
+        "atLeast4": 0
+      },
+      "topWallets": []
+    },
+    "500": {
+      "buyCount": 0,
+      "uniqueWallets": 0,
+      "intersectionCounts": {
+        "exactly1": 0,
+        "atLeast2": 0,
+        "atLeast3": 0,
+        "atLeast4": 0
+      },
+      "topWallets": []
+    }
+  },
+  "blockBounds": {
+    "base": {
+      "fromBlock": 52384233,
+      "toBlock": 52643433,
+      "windowStart": "2026-10-09T14:56:52.670Z",
+      "windowEndExclusive": "2026-10-15T14:56:52.670Z"
+    }
+  },
+  "diagnostics": {
+    "poolsScanned": 1,
+    "swapEventsFetched": 11826,
+    "transferLogsFetched": 0,
+    "candidateProbeLogs": 7363,
+    "candidateContextLogs": 0,
+    "unrelatedContextLogsDiscarded": 0,
+    "duplicateContextLogs": 0,
+    "candidateBuys": 0,
+    "confirmedBuys": 0,
+    "unresolvedWalletTrades": 0,
+    "unpricedTrades": 0,
+    "skippedLiquidity": 0,
+    "skippedNoWalletFlow": 0,
+    "buyDirectionResolved": 0,
+    "walletResolved": 0,
+    "uncertainReasons": {},
+    "logs": 21959,
+    "transactions": 0,
+    "hypersyncQueries": 6,
+    "responsePages": 5,
+    "swapPages": 2,
+    "transferPages": 1,
+    "metadataPages": 2,
+    "candidateContextPages": 0,
+    "hypersyncServerMs": 13704,
+    "bytes": 0,
+    "responseBytes": 15283776,
+    "swapResponseBytes": 11251844,
+    "transferResponseBytes": 3829881,
+    "metadataResponseBytes": 109513,
+    "candidateContextResponseBytes": 0,
+    "boundaries": {
+      "base": {
+        "fromBlock": 52384233,
+        "toBlock": 52643433,
+        "windowStart": "2026-10-09T14:56:52.670Z",
+        "windowEndExclusive": "2026-10-15T14:56:52.670Z"
+      }
+    },
+    "attemptedChains": [
+      "base"
+    ],
+    "authVerified": true,
+    "memory": {
+      "start": {
+        "at": "2026-10-16T14:56:52.670Z",
+        "rssBytes": 86929408,
+        "heapUsedBytes": 20217528,
+        "heapTotalBytes": 31105024,
+        "externalBytes": 2603216,
+        "arrayBuffersBytes": 283092,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 85568
+      },
+      "peakRssBytes": 192827392,
+      "peakHeapUsedBytes": 46939072,
+      "peakExternalBytes": 22320267,
+      "peakArrayBuffersBytes": 12836510,
+      "samples": 22,
+      "boundaries": [
+        {
+          "phase": "scan-start",
+          "at": "2026-10-16T14:56:52.672Z",
+          "rssBytes": 87085056,
+          "heapUsedBytes": 20281608,
+          "heapTotalBytes": 31105024,
+          "externalBytes": 2603256,
+          "arrayBuffersBytes": 283092,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 85568
+        },
+        {
+          "phase": "discovery-complete",
+          "at": "2026-10-16T14:56:53.297Z",
+          "rssBytes": 115535872,
+          "heapUsedBytes": 27547240,
+          "heapTotalBytes": 54886400,
+          "externalBytes": 12578538,
+          "arrayBuffersBytes": 509487,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 119028
+        },
+        {
+          "phase": "retrieval-complete",
+          "at": "2026-10-16T14:57:09.169Z",
+          "rssBytes": 192770048,
+          "heapUsedBytes": 46567880,
+          "heapTotalBytes": 105406464,
+          "externalBytes": 20802512,
+          "arrayBuffersBytes": 12746364,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 196644
+        },
+        {
+          "phase": "aggregation-complete",
+          "at": "2026-10-16T14:57:09.446Z",
+          "rssBytes": 192827392,
+          "heapUsedBytes": 46900328,
+          "heapTotalBytes": 105406464,
+          "externalBytes": 20898015,
+          "arrayBuffersBytes": 12836510,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 196644
+        },
+        {
+          "phase": "scan-complete",
+          "at": "2026-10-16T14:57:09.447Z",
+          "rssBytes": 192827392,
+          "heapUsedBytes": 46939072,
+          "heapTotalBytes": 105406464,
+          "externalBytes": 20898015,
+          "arrayBuffersBytes": 12836510,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 196644
+        }
+      ]
+    },
+    "httpRequests": 1,
+    "uniqueLogsRetained": 0,
+    "newlyConfirmedBuys": 0,
+    "validationMs": 1,
+    "uncertainCandidateCount": 0
+  },
+  "timing": {
+    "coingeckoMs": 612,
+    "dexMs": 286,
+    "blockRangeResolutionMs": 793,
+    "swapQueryMs": 8107,
+    "transferQueryMs": 6679,
+    "txMetadataMs": 0,
+    "pricingMs": 276,
+    "walletResolutionMs": 0,
+    "aggregationMs": 0,
+    "totalMs": 16777,
+    "hypersyncMs": 15860,
+    "decodeAggregateMs": 1
+  },
+  "dataVolume": {
+    "approximateSerializedBytes": 0,
+    "responseBytes": 15283776,
+    "swapResponseBytes": 11251844,
+    "transferResponseBytes": 3829881,
+    "metadataResponseBytes": 109513
+  },
+  "validation": {
+    "attempted": 0,
+    "qualifiedAttempted": 0,
+    "supplementalAttempted": 0,
+    "valid": 0,
+    "invalid": 0,
+    "uncertain": 0,
+    "successRate": null
+  },
+  "warnings": [],
+  "tokenCoverage": [
+    {
+      "rank": 1,
+      "id": "dacity-coin",
+      "name": "Dacity Coin",
+      "symbol": "DACITY",
+      "marketCapRank": 773,
+      "chain": "robinhood",
+      "contract": "0x94fc9ed527fc12d3c25229c44922e210f7e9fef0",
+      "pools": [],
+      "status": "unsupported_chain",
+      "skipReason": "EVM contract je na nepodporovaném chainu robinhood."
+    },
+    {
+      "rank": 2,
+      "id": "quantus",
+      "name": "Quantus",
+      "symbol": "QTC",
+      "marketCapRank": 610,
+      "chain": "near-protocol",
+      "contract": null,
+      "pools": [],
+      "status": "non_evm",
+      "skipReason": "Contract je na nepodporované non-EVM platformě near-protocol."
+    },
+    {
+      "rank": 3,
+      "id": "celestia",
+      "name": "Celestia",
+      "symbol": "TIA",
+      "marketCapRank": 95,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #95"
+    },
+    {
+      "rank": 4,
+      "id": "pearl-2",
+      "name": "Pearl",
+      "symbol": "PRL",
+      "marketCapRank": 104,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "no_contract",
+      "skipReason": "CoinGecko nemá uvedený contract."
+    },
+    {
+      "rank": 5,
+      "id": "injective-protocol",
+      "name": "Injective",
+      "symbol": "INJ",
+      "marketCapRank": 85,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #85"
+    },
+    {
+      "rank": 6,
+      "id": "pudgy-penguins",
+      "name": "Pudgy Penguins",
+      "symbol": "PENGU",
+      "marketCapRank": 118,
+      "chain": "ethereum",
+      "contract": "0x6418c0dd099a9fda397c766304cdd918233e8847",
+      "pools": [
+        {
+          "pairAddress": "0x948f5d52713FA7fef212703678546B903895D807",
+          "dexId": "supernova",
+          "decoder": null,
+          "liquidityUsd": 21396.2,
+          "volume24hUsd": 12943.74
+        }
+      ],
+      "status": "unsupported_dex",
+      "skipReason": "Likvidní pooly používají nepodporovaný DEX: supernova"
+    },
+    {
+      "rank": 7,
+      "id": "bittensor",
+      "name": "Bittensor",
+      "symbol": "TAO",
+      "marketCapRank": 34,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #34"
+    },
+    {
+      "rank": 8,
+      "id": "layerzero",
+      "name": "LayerZero",
+      "symbol": "ZRO",
+      "marketCapRank": 86,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #86"
+    },
+    {
+      "rank": 9,
+      "id": "solana",
+      "name": "Solana",
+      "symbol": "SOL",
+      "marketCapRank": 7,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #7"
+    },
+    {
+      "rank": 10,
+      "id": "lighter",
+      "name": "Lighter",
+      "symbol": "LIT",
+      "marketCapRank": 90,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #90"
+    },
+    {
+      "rank": 11,
+      "id": "neosoul",
+      "name": "NeoSoul",
+      "symbol": "DNA",
+      "marketCapRank": 582,
+      "chain": "binance-smart-chain",
+      "contract": "0xa991f61940095aea0724ef54077223b048c5cf7b",
+      "pools": [],
+      "status": "unsupported_chain",
+      "skipReason": "EVM contract je na nepodporovaném chainu binance-smart-chain."
+    },
+    {
+      "rank": 12,
+      "id": "near",
+      "name": "NEAR Protocol",
+      "symbol": "NEAR",
+      "marketCapRank": 19,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #19"
+    },
+    {
+      "rank": 13,
+      "id": "aerodrome-finance",
+      "name": "Aerodrome Finance",
+      "symbol": "AERO",
+      "marketCapRank": 84,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #84"
+    },
+    {
+      "rank": 14,
+      "id": "sui",
+      "name": "Sui",
+      "symbol": "SUI",
+      "marketCapRank": 28,
+      "chain": null,
+      "contract": null,
+      "pools": [],
+      "status": "excluded_top_100",
+      "skipReason": "Vyloučen · Market cap #28"
+    },
+    {
+      "rank": 15,
+      "id": "derive",
+      "name": "Derive",
+      "symbol": "DRV",
+      "marketCapRank": 125,
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "pools": [
+        {
+          "pairAddress": "0x9011Cbf8D2900908286c9Bf4D5d1644ece7B684A",
+          "dexId": "uniswap",
+          "decoder": "uniswap-v3",
+          "liquidityUsd": 75722.94,
+          "volume24hUsd": 196688.74
+        }
+      ],
+      "status": "analyzed",
+      "skipReason": null
+    }
+  ]
+}

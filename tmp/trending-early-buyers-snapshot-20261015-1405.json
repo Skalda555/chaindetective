@@ -1,0 +1,2381 @@
+{
+  "schemaVersion": 1,
+  "snapshotAt": "2026-10-15T14:05:24.408Z",
+  "windowStart": "2026-10-12T14:05:24.408Z",
+  "excludeTop100": true,
+  "windowEnd": "2026-10-15T14:05:24.408Z",
+  "tokens": [
+    {
+      "rank": 14,
+      "id": "derive",
+      "name": "DRV",
+      "symbol": "DRV",
+      "marketCapRank": null,
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "pools": [
+        {
+          "pairAddress": "0x9011Cbf8D2900908286c9Bf4D5d1644ece7B684A",
+          "dexId": "uniswap",
+          "decoder": "uniswap-v3",
+          "liquidityUsd": 75449.7,
+          "volume24hUsd": 194047.81,
+          "quoteToken": {
+            "address": "0x4200000000000000000000000000000000000006",
+            "name": "Wrapped Ether",
+            "symbol": "WETH"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 15,
+      "id": "aerodrome-finance",
+      "name": "AERO",
+      "symbol": "AERO",
+      "marketCapRank": null,
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "pools": [
+        {
+          "pairAddress": "0x3d5D143381916280ff91407FeBEB52f2b60f33Cf",
+          "dexId": "uniswap",
+          "decoder": "uniswap-v3",
+          "liquidityUsd": 1562623.38,
+          "volume24hUsd": 648021.39,
+          "quoteToken": {
+            "address": "0x4200000000000000000000000000000000000006",
+            "name": "Wrapped Ether",
+            "symbol": "WETH"
+          }
+        }
+      ]
+    }
+  ],
+  "chains": [
+    "base"
+  ],
+  "walletTokenCombinations": [
+    {
+      "wallet": "0xd36fb770fa57bfd288c7ff5c30300a4fedbe2cef",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T15:09:51.000Z",
+      "lastBuyAt": "2026-10-15T14:01:09.000Z",
+      "buyCount": 201,
+      "totalUsdBought": 49492.70992759228,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 70.92594666666666,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T00:01:31.000Z",
+        "lastBuyAt": "2026-10-15T04:56:37.000Z",
+        "buyCount": 71,
+        "totalUsdBought": 34071.48620489591,
+        "leadTimeHours": 62.064835555555554
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-13T00:01:35.000Z",
+        "lastBuyAt": "2026-10-14T14:01:47.000Z",
+        "buyCount": 26,
+        "totalUsdBought": 18864.117130623443,
+        "leadTimeHours": 62.063724444444446
+      }
+    },
+    {
+      "wallet": "0x6110e7a229b945339218aee42c122794185c4112",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T15:07:33.000Z",
+      "lastBuyAt": "2026-10-13T15:37:25.000Z",
+      "buyCount": 6,
+      "totalUsdBought": 3207.471392719009,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 46.96428,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T15:07:33.000Z",
+        "lastBuyAt": "2026-10-13T15:37:25.000Z",
+        "buyCount": 6,
+        "totalUsdBought": 3207.471392719009,
+        "leadTimeHours": 46.96428
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-13T15:07:33.000Z",
+        "lastBuyAt": "2026-10-13T15:36:09.000Z",
+        "buyCount": 3,
+        "totalUsdBought": 2326.9890496196736,
+        "leadTimeHours": 46.96428
+      }
+    },
+    {
+      "wallet": "0xd0e2f1c6b4d604da32ae5831e616d6553efdcc7f",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-13T00:07:09.000Z",
+      "lastBuyAt": "2026-10-14T19:17:23.000Z",
+      "buyCount": 8,
+      "totalUsdBought": 2614.3477854384296,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 61.97094666666667,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T00:07:09.000Z",
+        "lastBuyAt": "2026-10-14T19:17:23.000Z",
+        "buyCount": 5,
+        "totalUsdBought": 2012.7368465801744,
+        "leadTimeHours": 61.97094666666667
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x5765cba56da7c51c30bb9da0ec058a2b993a4748",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T07:05:11.000Z",
+      "lastBuyAt": "2026-10-15T07:05:11.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 1767.1169985173665,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 7.003724444444445,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-15T07:05:11.000Z",
+        "lastBuyAt": "2026-10-15T07:05:11.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1767.1169985173665,
+        "leadTimeHours": 7.003724444444445
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-15T07:05:11.000Z",
+        "lastBuyAt": "2026-10-15T07:05:11.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1767.1169985173665,
+        "leadTimeHours": 7.003724444444445
+      }
+    },
+    {
+      "wallet": "0xba135cb16d64064b1994e25af20f8dc06bb3771f",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T23:53:35.000Z",
+      "lastBuyAt": "2026-10-12T23:53:35.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 1604.397159308987,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 62.19705777777778,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-12T23:53:35.000Z",
+        "lastBuyAt": "2026-10-12T23:53:35.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1604.397159308987,
+        "leadTimeHours": 62.19705777777778
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-12T23:53:35.000Z",
+        "lastBuyAt": "2026-10-12T23:53:35.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1604.397159308987,
+        "leadTimeHours": 62.19705777777778
+      }
+    },
+    {
+      "wallet": "0x643251b4e98c16f83c2439924a3991906d4ae400",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T00:34:51.000Z",
+      "lastBuyAt": "2026-10-15T00:34:51.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 1437.295630483257,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 13.50928,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-15T00:34:51.000Z",
+        "lastBuyAt": "2026-10-15T00:34:51.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1437.295630483257,
+        "leadTimeHours": 13.50928
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-15T00:34:51.000Z",
+        "lastBuyAt": "2026-10-15T00:34:51.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1437.295630483257,
+        "leadTimeHours": 13.50928
+      }
+    },
+    {
+      "wallet": "0xd3088974784cfa3b4e7938f28f16345eeff8036b",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T00:11:41.000Z",
+      "lastBuyAt": "2026-10-13T00:11:41.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 1388.650148268903,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 61.89539111111111,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T00:11:41.000Z",
+        "lastBuyAt": "2026-10-13T00:11:41.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1388.650148268903,
+        "leadTimeHours": 61.89539111111111
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-13T00:11:41.000Z",
+        "lastBuyAt": "2026-10-13T00:11:41.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1388.650148268903,
+        "leadTimeHours": 61.89539111111111
+      }
+    },
+    {
+      "wallet": "0x81d1eaaedc2c35db4e5a49667f72bfbd82011fb2",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T17:18:17.000Z",
+      "lastBuyAt": "2026-10-12T17:20:15.000Z",
+      "buyCount": 5,
+      "totalUsdBought": 1180.3919696299702,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 68.78539111111111,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x2437f2bcc76f745992b29c162a57c3d60f377ed0",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T10:01:57.000Z",
+      "lastBuyAt": "2026-10-14T10:01:57.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 1000.1035016141676,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 28.057613333333332,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-14T10:01:57.000Z",
+        "lastBuyAt": "2026-10-14T10:01:57.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1000.1035016141676,
+        "leadTimeHours": 28.057613333333332
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-14T10:01:57.000Z",
+        "lastBuyAt": "2026-10-14T10:01:57.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 1000.1035016141676,
+        "leadTimeHours": 28.057613333333332
+      }
+    },
+    {
+      "wallet": "0x8fd95c2a20b5d979de5a0e8ab00b36a5109ee9bc",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T16:03:07.000Z",
+      "lastBuyAt": "2026-10-12T16:03:43.000Z",
+      "buyCount": 3,
+      "totalUsdBought": 998.7675057477709,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 70.03816888888889,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-12T16:03:43.000Z",
+        "lastBuyAt": "2026-10-12T16:03:43.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 499.3251266558777,
+        "leadTimeHours": 70.02816888888889
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x85e056c2d8f2ebc174571c61f77f54d5d0e1ab37",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T21:44:27.000Z",
+      "lastBuyAt": "2026-10-14T00:00:43.000Z",
+      "buyCount": 11,
+      "totalUsdBought": 992.2989092901274,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 64.34928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xbb270795989f3762368947a431c1d1d6f3eb1887",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-15T12:29:07.000Z",
+      "lastBuyAt": "2026-10-15T12:29:07.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 929.8291171785056,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 1.6048355555555556,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-15T12:29:07.000Z",
+        "lastBuyAt": "2026-10-15T12:29:07.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 929.8291171785056,
+        "leadTimeHours": 1.6048355555555556
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-15T12:29:07.000Z",
+        "lastBuyAt": "2026-10-15T12:29:07.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 929.8291171785056,
+        "leadTimeHours": 1.6048355555555556
+      }
+    },
+    {
+      "wallet": "0x96949fd549d0da5ca279662264085a93138bdb17",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T02:39:03.000Z",
+      "lastBuyAt": "2026-10-14T21:44:41.000Z",
+      "buyCount": 17,
+      "totalUsdBought": 851.3306205422606,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 35.43928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x704660164adb882a1cb76089b0cb4ee582fa33e2",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T02:22:11.000Z",
+      "lastBuyAt": "2026-10-15T06:24:03.000Z",
+      "buyCount": 3,
+      "totalUsdBought": 728.032079353779,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 59.72039111111111,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x0cbb693e0199cb7ad4f3c846f43045cb95247fc5",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T01:30:01.000Z",
+      "lastBuyAt": "2026-10-13T01:30:01.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 725.9920427470408,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 60.58983555555555,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T01:30:01.000Z",
+        "lastBuyAt": "2026-10-13T01:30:01.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 725.9920427470408,
+        "leadTimeHours": 60.58983555555555
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-13T01:30:01.000Z",
+        "lastBuyAt": "2026-10-13T01:30:01.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 725.9920427470408,
+        "leadTimeHours": 60.58983555555555
+      }
+    },
+    {
+      "wallet": "0x2734eae33ef5295f3e6754b64d0e5a8e80711979",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T14:30:01.000Z",
+      "lastBuyAt": "2026-10-15T13:45:23.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 654.8692983415641,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 23.589835555555556,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-14T14:30:01.000Z",
+        "lastBuyAt": "2026-10-15T13:45:23.000Z",
+        "buyCount": 2,
+        "totalUsdBought": 654.8692983415641,
+        "leadTimeHours": 23.589835555555556
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xfbb2daf4ebfc4ce82263ab0301edb3f7d18bfcf7",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T10:00:03.000Z",
+      "lastBuyAt": "2026-10-15T10:00:03.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 640.7541182256278,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 4.08928,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-15T10:00:03.000Z",
+        "lastBuyAt": "2026-10-15T10:00:03.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 640.7541182256278,
+        "leadTimeHours": 4.08928
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-15T10:00:03.000Z",
+        "lastBuyAt": "2026-10-15T10:00:03.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 640.7541182256278,
+        "leadTimeHours": 4.08928
+      }
+    },
+    {
+      "wallet": "0x8671e394e5645feca75985b97163961a290a9328",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T15:14:43.000Z",
+      "lastBuyAt": "2026-10-13T15:33:55.000Z",
+      "buyCount": 4,
+      "totalUsdBought": 566.0243634210017,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 46.844835555555555,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T15:14:43.000Z",
+        "lastBuyAt": "2026-10-13T15:14:43.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 251.56638374266743,
+        "leadTimeHours": 46.844835555555555
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x13f8fbc12648320b2ddc82bd53f7d1c73b1d38c4",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T10:01:53.000Z",
+      "lastBuyAt": "2026-10-14T10:01:53.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 549.9326318045725,
+      "threshold250": true,
+      "threshold500": true,
+      "leadTimeHours": 28.058724444444444,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-14T10:01:53.000Z",
+        "lastBuyAt": "2026-10-14T10:01:53.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 549.9326318045725,
+        "leadTimeHours": 28.058724444444444
+      },
+      "threshold500Stats": {
+        "firstBuyAt": "2026-10-14T10:01:53.000Z",
+        "lastBuyAt": "2026-10-14T10:01:53.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 549.9326318045725,
+        "leadTimeHours": 28.058724444444444
+      }
+    },
+    {
+      "wallet": "0xd843b549839fd1134c9924f38fd2af0fb7929c5e",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T16:42:11.000Z",
+      "lastBuyAt": "2026-10-13T16:33:07.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 549.8574238213713,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 69.38705777777778,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-12T16:42:11.000Z",
+        "lastBuyAt": "2026-10-12T16:42:11.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 499.9011700054215,
+        "leadTimeHours": 69.38705777777778
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xa6dd144e8087a99fc237cc2343619d07f4fcdf14",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T15:56:53.000Z",
+      "lastBuyAt": "2026-10-12T15:56:53.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 498.6476507556907,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 70.14205777777778,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-12T15:56:53.000Z",
+        "lastBuyAt": "2026-10-12T15:56:53.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 498.6476507556907,
+        "leadTimeHours": 70.14205777777778
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x82c9f3f97532e15664c8820fbbde4a21d48b474c",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T20:42:51.000Z",
+      "lastBuyAt": "2026-10-12T20:42:51.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 477.9142241335409,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 65.37594666666666,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-12T20:42:51.000Z",
+        "lastBuyAt": "2026-10-12T20:42:51.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 477.9142241335409,
+        "leadTimeHours": 65.37594666666666
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xfe0ef1e334fb75a23a7daff8a7f1b4d1ebe67bc0",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T08:18:41.000Z",
+      "lastBuyAt": "2026-10-14T08:18:41.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 466.84297822152354,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 29.778724444444446,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-14T08:18:41.000Z",
+        "lastBuyAt": "2026-10-14T08:18:41.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 466.84297822152354,
+        "leadTimeHours": 29.778724444444446
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x462c88fde2d6a97591d80f085dd5d9941be768f6",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T10:01:15.000Z",
+      "lastBuyAt": "2026-10-15T10:01:15.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 438.1259809979774,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 4.06928,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-15T10:01:15.000Z",
+        "lastBuyAt": "2026-10-15T10:01:15.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 438.1259809979774,
+        "leadTimeHours": 4.06928
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x51502959533d6bac1969fe8dd701ddac159254a2",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T00:03:09.000Z",
+      "lastBuyAt": "2026-10-13T00:08:13.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 415.9947415757206,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 62.03761333333333,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T00:03:09.000Z",
+        "lastBuyAt": "2026-10-13T00:03:09.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 294.85521794572475,
+        "leadTimeHours": 62.03761333333333
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x91dcc60aeff97afe4e6cc6083cc385a889e8a143",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-15T02:24:05.000Z",
+      "lastBuyAt": "2026-10-15T02:24:05.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 407.0266571364277,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 11.688724444444444,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-15T02:24:05.000Z",
+        "lastBuyAt": "2026-10-15T02:24:05.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 407.0266571364277,
+        "leadTimeHours": 11.688724444444444
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x4b8ca66eaa686cdd9f28393945b2a9b1770b3db0",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T15:33:43.000Z",
+      "lastBuyAt": "2026-10-12T19:55:57.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 402.67516368738393,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 70.52816888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xe28d65e581a475d419308cd255947a0bccc63a33",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T17:23:21.000Z",
+      "lastBuyAt": "2026-10-13T17:23:21.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 381.1709571435415,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 44.70094666666667,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T17:23:21.000Z",
+        "lastBuyAt": "2026-10-13T17:23:21.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 381.1709571435415,
+        "leadTimeHours": 44.70094666666667
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xb68e62831c4fbeb602c992af9a19c28baac115ad",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T16:42:33.000Z",
+      "lastBuyAt": "2026-10-13T16:42:33.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 367.9968998664222,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 45.38094666666667,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T16:42:33.000Z",
+        "lastBuyAt": "2026-10-13T16:42:33.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 367.9968998664222,
+        "leadTimeHours": 45.38094666666667
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x2427a1d8ce83970cd96bd8c0428e13228e0f1e45",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T14:05:17.000Z",
+      "lastBuyAt": "2026-10-14T14:05:17.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 351.304980415121,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 24.00205777777778,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-14T14:05:17.000Z",
+        "lastBuyAt": "2026-10-14T14:05:17.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 351.304980415121,
+        "leadTimeHours": 24.00205777777778
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x0d01f4ca4357819fa6edc93560bdf4938fb49da7",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T15:52:31.000Z",
+      "lastBuyAt": "2026-10-13T15:52:31.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 350.9478194380681,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 46.21483555555555,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T15:52:31.000Z",
+        "lastBuyAt": "2026-10-13T15:52:31.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 350.9478194380681,
+        "leadTimeHours": 46.21483555555555
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x8f7ef7bedec88cbdb75ac56b8c0161d4fad7dd7d",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T17:09:53.000Z",
+      "lastBuyAt": "2026-10-13T17:09:53.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 326.49794921476166,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 44.92539111111111,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T17:09:53.000Z",
+        "lastBuyAt": "2026-10-13T17:09:53.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 326.49794921476166,
+        "leadTimeHours": 44.92539111111111
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xa79d0a9299d00d019e5a8650ccb704d8ccab101d",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T06:48:01.000Z",
+      "lastBuyAt": "2026-10-15T06:56:45.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 293.536194833203,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 7.289835555555555,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xb58e471263ea9a8c3495a20c02d73562501e872c",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T20:28:29.000Z",
+      "lastBuyAt": "2026-10-13T20:28:29.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 252.50257289440415,
+      "threshold250": true,
+      "threshold500": false,
+      "leadTimeHours": 41.61539111111111,
+      "threshold250Stats": {
+        "firstBuyAt": "2026-10-13T20:28:29.000Z",
+        "lastBuyAt": "2026-10-13T20:28:29.000Z",
+        "buyCount": 1,
+        "totalUsdBought": 252.50257289440415,
+        "leadTimeHours": 41.61539111111111
+      },
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x2fceb798ced795f8adbd05baad205206662ddfaf",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T23:28:27.000Z",
+      "lastBuyAt": "2026-10-15T03:59:41.000Z",
+      "buyCount": 9,
+      "totalUsdBought": 248.47133414000743,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 62.615946666666666,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x51afa1a0d2df175e6227a0d4a8511ac1ba9c52ff",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T19:22:29.000Z",
+      "lastBuyAt": "2026-10-12T19:22:29.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 247.05187591314137,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 66.71539111111112,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xe38f8dd897fade0532ea9a176abf788b7c67b327",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T00:13:01.000Z",
+      "lastBuyAt": "2026-10-14T21:52:31.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 222.89111149859164,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 61.87316888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xd7a0e25731634347a74f0ec9a0421f0806e8592b",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T12:41:33.000Z",
+      "lastBuyAt": "2026-10-14T12:41:33.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 210.2145878089283,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 25.397613333333332,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xa78ee8ffc49c33d6ae678e393986acff253c252e",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T17:23:15.000Z",
+      "lastBuyAt": "2026-10-12T17:23:15.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 193.5962871554687,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 68.70261333333333,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x9f49bee7ba27207f6cf0d46ac38be5f90aa99879",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T20:41:11.000Z",
+      "lastBuyAt": "2026-10-14T20:41:11.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 154.5754640176856,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 17.403724444444446,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xb1c069f2be32e55f572fec3f5750cc615da54daa",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-13T06:10:47.000Z",
+      "lastBuyAt": "2026-10-13T14:18:45.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 141.0781423998215,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 55.91039111111111,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xce1b64a957d6ec3aab279d94ae17dfdda917bbd7",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T21:36:53.000Z",
+      "lastBuyAt": "2026-10-12T21:36:53.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 121.61210753595343,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 64.47539111111111,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x0f0067cd819cb8f20bda62046daff7a2b5c88280",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T11:20:25.000Z",
+      "lastBuyAt": "2026-10-14T11:20:25.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 118.8571315086665,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 26.749835555555556,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xce94090458719c167af5477db61c9bc985961d1b",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-15T12:30:23.000Z",
+      "lastBuyAt": "2026-10-15T12:30:23.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 102.82513225267735,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 1.5837244444444445,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xfa1186b0fbf3430d1591a3609132fe41aeb538fc",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T20:59:01.000Z",
+      "lastBuyAt": "2026-10-14T20:59:01.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 100.32382409146445,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 17.106502222222222,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x4ada8b71163dfa93352b1a862fd6e0bce98a5cee",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T21:09:37.000Z",
+      "lastBuyAt": "2026-10-12T21:09:37.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 100.31611447014485,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 64.92983555555556,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xef6cb8f3bb4f3591abdaaabf29028bc95c1a925e",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T02:40:51.000Z",
+      "lastBuyAt": "2026-10-14T02:40:51.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 99.9556685340864,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 35.40928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x9b9142ecef7d9b026b7936b3ccc23d0558cf60bc",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T02:14:49.000Z",
+      "lastBuyAt": "2026-10-14T21:14:53.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 92.70043520690027,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 35.84316888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xfbb1d2128096ecf0b73ffecf4826d90cc08aad46",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T05:44:37.000Z",
+      "lastBuyAt": "2026-10-15T05:44:37.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 91.84428888985998,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 8.346502222222222,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xbaabec69b1934f39a09e23f5c9c7c93e2fc0e08d",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T05:34:15.000Z",
+      "lastBuyAt": "2026-10-15T05:34:15.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 91.65486015961564,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 8.51928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xc6cc7659cf49e40a51e0eb7e93386a02a7a46e42",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T16:07:45.000Z",
+      "lastBuyAt": "2026-10-14T01:38:53.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 83.25336645996761,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 45.960946666666665,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xf4aebe84d9b942c2f34640d81c7844b6631255b5",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-13T02:42:57.000Z",
+      "lastBuyAt": "2026-10-13T02:42:57.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 76.05859668379705,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 59.37428,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x01e560f3bbf8876dced501d266f7437eea981bf2",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-13T18:41:11.000Z",
+      "lastBuyAt": "2026-10-13T18:41:11.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 74.9600092267653,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 43.40372444444444,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x90a1334178ea59716e5e93fa2a8ddcb9e9e84a9d",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T19:44:27.000Z",
+      "lastBuyAt": "2026-10-12T19:44:27.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 74.86790491468406,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 66.34928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xc0ad5e491b83ffd64968040dc4034644bcf3c5f1",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T20:22:49.000Z",
+      "lastBuyAt": "2026-10-13T20:22:49.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 66.72727725990683,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 41.70983555555556,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x506ad0ad12c10313c79ed7e120ad778de0e2a812",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T19:22:19.000Z",
+      "lastBuyAt": "2026-10-14T19:22:19.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 54.525934592791344,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 18.71816888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x4f158c8b577cde3669d8f27d995fc11cc5406ce3",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T00:20:27.000Z",
+      "lastBuyAt": "2026-10-15T00:20:27.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 49.979261905220014,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 13.74928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x068d1d4bddf7ab47014cef312255f937f9c4c985",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-13T01:08:57.000Z",
+      "lastBuyAt": "2026-10-13T01:08:57.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 45.357247781959806,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 60.94094666666667,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xbe9306ddf2c0ddd69227adb2c7e7ef4d0b5697d5",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T15:23:47.000Z",
+      "lastBuyAt": "2026-10-13T15:23:47.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 42.125222030361996,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 46.69372444444444,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x1eb5c870f8b79fc04de9eb3f91882f8112da221a",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T17:18:17.000Z",
+      "lastBuyAt": "2026-10-14T17:18:17.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 39.43216489147208,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 20.78539111111111,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xe77b9e3c579a6cc981900dedefa8d95c1b9654f0",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T00:38:15.000Z",
+      "lastBuyAt": "2026-10-13T11:21:21.000Z",
+      "buyCount": 4,
+      "totalUsdBought": 38.73408226961757,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 61.45261333333333,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x844ef52a2cdbb475fbb90cf681a4f7edb4165869",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-15T12:16:35.000Z",
+      "lastBuyAt": "2026-10-15T12:16:35.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 33.53048971707883,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 1.8137244444444445,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xa2da709980effc0fa9413efec7f5f86a849ecb93",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T08:52:17.000Z",
+      "lastBuyAt": "2026-10-13T12:57:33.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 25.899300342945747,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 53.21872444444445,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x54f51cd7ad65cf96d0b7cd72610f46873a2d2590",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T10:37:43.000Z",
+      "lastBuyAt": "2026-10-14T10:37:43.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 23.60314012000028,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 27.461502222222222,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xf4bc8f7cfe5aa686932d4630ba4d99190eec1a37",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T16:05:19.000Z",
+      "lastBuyAt": "2026-10-12T16:05:19.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 22.935895816625056,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 70.00150222222223,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x13d185958622c14e5ab26d15354544a7e2e5e3db",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T01:27:21.000Z",
+      "lastBuyAt": "2026-10-13T01:27:21.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 19.80468364504154,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 60.63428,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x2a72971e10f8893bd2b5a4c5f21b212c90fed6dd",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-13T13:21:03.000Z",
+      "lastBuyAt": "2026-10-13T13:21:03.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 17.79424221055742,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 48.73928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x96882f3510eadbc7fd9f017a1a2092524cdafc20",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T08:24:55.000Z",
+      "lastBuyAt": "2026-10-13T08:24:55.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 15.963213526693846,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 53.67483555555555,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x3c7e9eafeefdb47bfb0635c07b0b7669ba28fd7d",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T10:31:43.000Z",
+      "lastBuyAt": "2026-10-15T09:31:19.000Z",
+      "buyCount": 3,
+      "totalUsdBought": 15.634994757682401,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 51.561502222222224,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x7abedb77e01f40278f6ab8a29bf2fc22300ecd21",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T16:32:21.000Z",
+      "lastBuyAt": "2026-10-13T16:32:21.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 12.066689947889383,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 45.55094666666667,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xade707354ad6c974271f3c9b23845279e75dc06b",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T18:13:21.000Z",
+      "lastBuyAt": "2026-10-12T18:13:21.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 11.539832091923616,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 67.86761333333334,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x4992440a525cac74210432f4410526d207cf757d",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T04:10:37.000Z",
+      "lastBuyAt": "2026-10-14T04:10:37.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 11.07744754317196,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 33.91316888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xb8c5bc6868f0517e3c18ca3eda96ba695ac7a032",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T07:49:19.000Z",
+      "lastBuyAt": "2026-10-15T07:49:19.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 9.93754016894431,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 6.268168888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x38c386cbe068822d418c0a8c929707fb1cb7fa54",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T08:51:09.000Z",
+      "lastBuyAt": "2026-10-14T08:51:09.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 8.338360438314545,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 29.237613333333332,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x608e45ee4de3239c84503cba54f267319241cdb9",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T12:56:31.000Z",
+      "lastBuyAt": "2026-10-14T12:56:31.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 8.24769283413319,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 25.14816888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x94a063807a3f519745e2dc24aa288fc61c029659",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T08:39:05.000Z",
+      "lastBuyAt": "2026-10-13T08:39:05.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 8.04382998565472,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 53.438724444444446,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x2b99b96d8c3476dac31df362ea62386629595c23",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T09:46:27.000Z",
+      "lastBuyAt": "2026-10-13T09:46:27.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.9399529797544135,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 52.31594666666667,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xac404e40bccce32afa1d1d86c025e5f38b3510ea",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T09:12:09.000Z",
+      "lastBuyAt": "2026-10-13T09:12:09.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.936488234073441,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 52.887613333333334,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x3522e6832669205dfa46e7b8b0d43c1c001b78e1",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T14:04:31.000Z",
+      "lastBuyAt": "2026-10-15T14:04:31.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.93616363033385,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 0.014835555555555555,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x2af797798806e936b6c365d1138d9ec503cfc4f1",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T10:43:49.000Z",
+      "lastBuyAt": "2026-10-13T10:43:49.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.775502567096032,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 51.359835555555556,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x0d76f5a3158fb8f45fa5e5fdd70056ead074d195",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T09:41:39.000Z",
+      "lastBuyAt": "2026-10-13T09:41:39.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.7277630177866765,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 52.39594666666667,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xe448d1fb1562c338cc20c36b4862f44597ae372c",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T14:02:17.000Z",
+      "lastBuyAt": "2026-10-15T14:02:17.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.714898843400442,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 0.05205777777777778,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x06f1bcb8559097e151a823f210bb2ddd13c82496",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T12:04:35.000Z",
+      "lastBuyAt": "2026-10-14T12:04:35.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.554688174123265,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 26.013724444444446,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x50168598a73d5cd6dde716d4d016f1d32eeecc3e",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-14T11:51:57.000Z",
+      "lastBuyAt": "2026-10-14T11:51:57.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.547287077997978,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 26.22428,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x343153caba83ba127c163883c9f398dbc219ded7",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T17:45:47.000Z",
+      "lastBuyAt": "2026-10-13T17:45:47.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.520114218260421,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 44.327057777777775,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x7124e183e37b50c5c2b632528b114816ef3d7400",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T17:37:35.000Z",
+      "lastBuyAt": "2026-10-13T17:37:35.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.512345504702881,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 44.463724444444445,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x7610d1d1c6c0d15abb1a463c6496bd6f804e4b93",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T07:47:55.000Z",
+      "lastBuyAt": "2026-10-15T07:47:55.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.463659125929223,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 6.291502222222222,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x5c581ac4654519193dd2a8ec8b91a6d3409348b0",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T07:36:19.000Z",
+      "lastBuyAt": "2026-10-14T07:36:19.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.424914116849997,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 30.484835555555556,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xf99c78a075ad0e381189b72fd771e91192aef9e9",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T14:14:29.000Z",
+      "lastBuyAt": "2026-10-14T14:14:29.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.158905403049866,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 23.848724444444443,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xeef086768c468f3f5fdb714e5153756e787282b1",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T15:04:01.000Z",
+      "lastBuyAt": "2026-10-14T15:04:01.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 7.038084648338452,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 23.02316888888889,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xe49e66d7bacfe51ab0ed64dab358a974dc741ec9",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T19:15:23.000Z",
+      "lastBuyAt": "2026-10-12T19:15:23.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 5.788343074839859,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 66.83372444444444,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x8b680f8460e24d2d9ec802f07e17e9dc1db10a31",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T15:53:03.000Z",
+      "lastBuyAt": "2026-10-12T15:53:03.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 4.995611091635512,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 70.20594666666666,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xc1d1e07ad4a865da2370ac0849a5fb10296b106b",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-13T20:57:23.000Z",
+      "lastBuyAt": "2026-10-13T20:57:23.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 4.534693217451192,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 41.13372444444445,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xffd08c7a49180017408a99ea453d9f9944253558",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-14T12:25:15.000Z",
+      "lastBuyAt": "2026-10-14T12:25:15.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 3.879833559403927,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 25.66928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xa27fe047124e8035eb1f55a31fd5b4f3c7b09a30",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T22:46:15.000Z",
+      "lastBuyAt": "2026-10-13T22:46:15.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 3.7648238448508664,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 39.31928,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x42963824efeeb1505a3deb88036b6e84a864a16f",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-15T11:05:05.000Z",
+      "lastBuyAt": "2026-10-15T11:05:05.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 2.941158071547903,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 3.005391111111111,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x4d1a6bf17e2170a24d7a353226f87cbba84da243",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T17:31:59.000Z",
+      "lastBuyAt": "2026-10-14T18:58:29.000Z",
+      "buyCount": 4,
+      "totalUsdBought": 2.396573734835119,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 68.55705777777777,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x681aa348865b1ee3b106e4b807684ac4e5dd6457",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-12T15:59:41.000Z",
+      "lastBuyAt": "2026-10-12T22:41:41.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 2.2548851212871743,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 70.09539111111111,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0xd3c47dadb325f47691cade3e0fdf2aa7b6d36c16",
+      "token": "AERO",
+      "chain": "base",
+      "contract": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "firstBuyAt": "2026-10-12T19:33:09.000Z",
+      "lastBuyAt": "2026-10-12T19:33:09.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 1.0647326306571188,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 66.53761333333334,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x2f8c03b906e9c556863cd11e28acff3bc5748723",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T04:34:41.000Z",
+      "lastBuyAt": "2026-10-13T04:34:41.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 0.9951428539805326,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 57.51205777777778,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x13588eb60caff1b87c852bf5470cc70dfd52b69f",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-15T00:34:17.000Z",
+      "lastBuyAt": "2026-10-15T00:35:05.000Z",
+      "buyCount": 2,
+      "totalUsdBought": 0.09424655973010918,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 13.518724444444445,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x4bca79c0b265bb2158144d2ae924e6bee3e6dd1b",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T17:41:37.000Z",
+      "lastBuyAt": "2026-10-13T17:41:37.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 0.03767284029401096,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 44.396502222222225,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    },
+    {
+      "wallet": "0x96bb169b3412416c40b2aeff75b1e7331726c100",
+      "token": "DRV",
+      "chain": "base",
+      "contract": "0x9d0e8f5b25384c7310cb8c6ae32c8fbeb645d083",
+      "firstBuyAt": "2026-10-13T17:36:49.000Z",
+      "lastBuyAt": "2026-10-13T17:36:49.000Z",
+      "buyCount": 1,
+      "totalUsdBought": 0.030138272235208766,
+      "threshold250": false,
+      "threshold500": false,
+      "leadTimeHours": 44.47650222222222,
+      "threshold250Stats": null,
+      "threshold500Stats": null
+    }
+  ],
+  "thresholds": {
+    "250": {
+      "buyCount": 108,
+      "uniqueWallets": 28,
+      "intersectionCounts": {
+        "exactly1": 28,
+        "atLeast2": 0,
+        "atLeast3": 0,
+        "atLeast4": 0
+      },
+      "topWallets": [
+        {
+          "wallet": "0xd36fb770fa57bfd288c7ff5c30300a4fedbe2cef",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 34071.48620489591,
+          "firstBuyAt": "2026-10-13T00:01:31.000Z",
+          "lastBuyAt": "2026-10-15T04:56:37.000Z",
+          "avgLeadTimeHours": 62.064835555555554
+        },
+        {
+          "wallet": "0x6110e7a229b945339218aee42c122794185c4112",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 3207.471392719009,
+          "firstBuyAt": "2026-10-13T15:07:33.000Z",
+          "lastBuyAt": "2026-10-13T15:37:25.000Z",
+          "avgLeadTimeHours": 46.96428
+        },
+        {
+          "wallet": "0xd0e2f1c6b4d604da32ae5831e616d6553efdcc7f",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "AERO"
+          ],
+          "totalUsdBought": 2012.7368465801744,
+          "firstBuyAt": "2026-10-13T00:07:09.000Z",
+          "lastBuyAt": "2026-10-14T19:17:23.000Z",
+          "avgLeadTimeHours": 61.97094666666667
+        },
+        {
+          "wallet": "0x5765cba56da7c51c30bb9da0ec058a2b993a4748",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1767.1169985173665,
+          "firstBuyAt": "2026-10-15T07:05:11.000Z",
+          "lastBuyAt": "2026-10-15T07:05:11.000Z",
+          "avgLeadTimeHours": 7.003724444444445
+        },
+        {
+          "wallet": "0xba135cb16d64064b1994e25af20f8dc06bb3771f",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "AERO"
+          ],
+          "totalUsdBought": 1604.397159308987,
+          "firstBuyAt": "2026-10-12T23:53:35.000Z",
+          "lastBuyAt": "2026-10-12T23:53:35.000Z",
+          "avgLeadTimeHours": 62.19705777777778
+        },
+        {
+          "wallet": "0x643251b4e98c16f83c2439924a3991906d4ae400",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1437.295630483257,
+          "firstBuyAt": "2026-10-15T00:34:51.000Z",
+          "lastBuyAt": "2026-10-15T00:34:51.000Z",
+          "avgLeadTimeHours": 13.50928
+        },
+        {
+          "wallet": "0xd3088974784cfa3b4e7938f28f16345eeff8036b",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1388.650148268903,
+          "firstBuyAt": "2026-10-13T00:11:41.000Z",
+          "lastBuyAt": "2026-10-13T00:11:41.000Z",
+          "avgLeadTimeHours": 61.89539111111111
+        },
+        {
+          "wallet": "0x2437f2bcc76f745992b29c162a57c3d60f377ed0",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1000.1035016141676,
+          "firstBuyAt": "2026-10-14T10:01:57.000Z",
+          "lastBuyAt": "2026-10-14T10:01:57.000Z",
+          "avgLeadTimeHours": 28.057613333333332
+        },
+        {
+          "wallet": "0xbb270795989f3762368947a431c1d1d6f3eb1887",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "AERO"
+          ],
+          "totalUsdBought": 929.8291171785056,
+          "firstBuyAt": "2026-10-15T12:29:07.000Z",
+          "lastBuyAt": "2026-10-15T12:29:07.000Z",
+          "avgLeadTimeHours": 1.6048355555555556
+        },
+        {
+          "wallet": "0x0cbb693e0199cb7ad4f3c846f43045cb95247fc5",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 725.9920427470408,
+          "firstBuyAt": "2026-10-13T01:30:01.000Z",
+          "lastBuyAt": "2026-10-13T01:30:01.000Z",
+          "avgLeadTimeHours": 60.58983555555555
+        },
+        {
+          "wallet": "0x2734eae33ef5295f3e6754b64d0e5a8e80711979",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "AERO"
+          ],
+          "totalUsdBought": 654.8692983415641,
+          "firstBuyAt": "2026-10-14T14:30:01.000Z",
+          "lastBuyAt": "2026-10-15T13:45:23.000Z",
+          "avgLeadTimeHours": 23.589835555555556
+        },
+        {
+          "wallet": "0xfbb2daf4ebfc4ce82263ab0301edb3f7d18bfcf7",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 640.7541182256278,
+          "firstBuyAt": "2026-10-15T10:00:03.000Z",
+          "lastBuyAt": "2026-10-15T10:00:03.000Z",
+          "avgLeadTimeHours": 4.08928
+        },
+        {
+          "wallet": "0x13f8fbc12648320b2ddc82bd53f7d1c73b1d38c4",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 549.9326318045725,
+          "firstBuyAt": "2026-10-14T10:01:53.000Z",
+          "lastBuyAt": "2026-10-14T10:01:53.000Z",
+          "avgLeadTimeHours": 28.058724444444444
+        },
+        {
+          "wallet": "0xd843b549839fd1134c9924f38fd2af0fb7929c5e",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 499.9011700054215,
+          "firstBuyAt": "2026-10-12T16:42:11.000Z",
+          "lastBuyAt": "2026-10-12T16:42:11.000Z",
+          "avgLeadTimeHours": 69.38705777777778
+        },
+        {
+          "wallet": "0x8fd95c2a20b5d979de5a0e8ab00b36a5109ee9bc",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 499.3251266558777,
+          "firstBuyAt": "2026-10-12T16:03:43.000Z",
+          "lastBuyAt": "2026-10-12T16:03:43.000Z",
+          "avgLeadTimeHours": 70.02816888888889
+        },
+        {
+          "wallet": "0xa6dd144e8087a99fc237cc2343619d07f4fcdf14",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 498.6476507556907,
+          "firstBuyAt": "2026-10-12T15:56:53.000Z",
+          "lastBuyAt": "2026-10-12T15:56:53.000Z",
+          "avgLeadTimeHours": 70.14205777777778
+        },
+        {
+          "wallet": "0x82c9f3f97532e15664c8820fbbde4a21d48b474c",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 477.9142241335409,
+          "firstBuyAt": "2026-10-12T20:42:51.000Z",
+          "lastBuyAt": "2026-10-12T20:42:51.000Z",
+          "avgLeadTimeHours": 65.37594666666666
+        },
+        {
+          "wallet": "0xfe0ef1e334fb75a23a7daff8a7f1b4d1ebe67bc0",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 466.84297822152354,
+          "firstBuyAt": "2026-10-14T08:18:41.000Z",
+          "lastBuyAt": "2026-10-14T08:18:41.000Z",
+          "avgLeadTimeHours": 29.778724444444446
+        },
+        {
+          "wallet": "0x462c88fde2d6a97591d80f085dd5d9941be768f6",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 438.1259809979774,
+          "firstBuyAt": "2026-10-15T10:01:15.000Z",
+          "lastBuyAt": "2026-10-15T10:01:15.000Z",
+          "avgLeadTimeHours": 4.06928
+        },
+        {
+          "wallet": "0x91dcc60aeff97afe4e6cc6083cc385a889e8a143",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "AERO"
+          ],
+          "totalUsdBought": 407.0266571364277,
+          "firstBuyAt": "2026-10-15T02:24:05.000Z",
+          "lastBuyAt": "2026-10-15T02:24:05.000Z",
+          "avgLeadTimeHours": 11.688724444444444
+        }
+      ]
+    },
+    "500": {
+      "buyCount": 38,
+      "uniqueWallets": 11,
+      "intersectionCounts": {
+        "exactly1": 11,
+        "atLeast2": 0,
+        "atLeast3": 0,
+        "atLeast4": 0
+      },
+      "topWallets": [
+        {
+          "wallet": "0xd36fb770fa57bfd288c7ff5c30300a4fedbe2cef",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 18864.117130623443,
+          "firstBuyAt": "2026-10-13T00:01:35.000Z",
+          "lastBuyAt": "2026-10-14T14:01:47.000Z",
+          "avgLeadTimeHours": 62.063724444444446
+        },
+        {
+          "wallet": "0x6110e7a229b945339218aee42c122794185c4112",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 2326.9890496196736,
+          "firstBuyAt": "2026-10-13T15:07:33.000Z",
+          "lastBuyAt": "2026-10-13T15:36:09.000Z",
+          "avgLeadTimeHours": 46.96428
+        },
+        {
+          "wallet": "0x5765cba56da7c51c30bb9da0ec058a2b993a4748",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1767.1169985173665,
+          "firstBuyAt": "2026-10-15T07:05:11.000Z",
+          "lastBuyAt": "2026-10-15T07:05:11.000Z",
+          "avgLeadTimeHours": 7.003724444444445
+        },
+        {
+          "wallet": "0xba135cb16d64064b1994e25af20f8dc06bb3771f",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "AERO"
+          ],
+          "totalUsdBought": 1604.397159308987,
+          "firstBuyAt": "2026-10-12T23:53:35.000Z",
+          "lastBuyAt": "2026-10-12T23:53:35.000Z",
+          "avgLeadTimeHours": 62.19705777777778
+        },
+        {
+          "wallet": "0x643251b4e98c16f83c2439924a3991906d4ae400",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1437.295630483257,
+          "firstBuyAt": "2026-10-15T00:34:51.000Z",
+          "lastBuyAt": "2026-10-15T00:34:51.000Z",
+          "avgLeadTimeHours": 13.50928
+        },
+        {
+          "wallet": "0xd3088974784cfa3b4e7938f28f16345eeff8036b",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1388.650148268903,
+          "firstBuyAt": "2026-10-13T00:11:41.000Z",
+          "lastBuyAt": "2026-10-13T00:11:41.000Z",
+          "avgLeadTimeHours": 61.89539111111111
+        },
+        {
+          "wallet": "0x2437f2bcc76f745992b29c162a57c3d60f377ed0",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 1000.1035016141676,
+          "firstBuyAt": "2026-10-14T10:01:57.000Z",
+          "lastBuyAt": "2026-10-14T10:01:57.000Z",
+          "avgLeadTimeHours": 28.057613333333332
+        },
+        {
+          "wallet": "0xbb270795989f3762368947a431c1d1d6f3eb1887",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "AERO"
+          ],
+          "totalUsdBought": 929.8291171785056,
+          "firstBuyAt": "2026-10-15T12:29:07.000Z",
+          "lastBuyAt": "2026-10-15T12:29:07.000Z",
+          "avgLeadTimeHours": 1.6048355555555556
+        },
+        {
+          "wallet": "0x0cbb693e0199cb7ad4f3c846f43045cb95247fc5",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 725.9920427470408,
+          "firstBuyAt": "2026-10-13T01:30:01.000Z",
+          "lastBuyAt": "2026-10-13T01:30:01.000Z",
+          "avgLeadTimeHours": 60.58983555555555
+        },
+        {
+          "wallet": "0xfbb2daf4ebfc4ce82263ab0301edb3f7d18bfcf7",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 640.7541182256278,
+          "firstBuyAt": "2026-10-15T10:00:03.000Z",
+          "lastBuyAt": "2026-10-15T10:00:03.000Z",
+          "avgLeadTimeHours": 4.08928
+        },
+        {
+          "wallet": "0x13f8fbc12648320b2ddc82bd53f7d1c73b1d38c4",
+          "trendingTokensCount": 1,
+          "tokens": [
+            "DRV"
+          ],
+          "totalUsdBought": 549.9326318045725,
+          "firstBuyAt": "2026-10-14T10:01:53.000Z",
+          "lastBuyAt": "2026-10-14T10:01:53.000Z",
+          "avgLeadTimeHours": 28.058724444444444
+        }
+      ]
+    }
+  },
+  "blockBounds": {
+    "base": {
+      "fromBlock": 52512289,
+      "toBlock": 52641889,
+      "windowStart": "2026-10-12T14:05:24.408Z",
+      "windowEndExclusive": "2026-10-15T14:05:24.408Z"
+    }
+  },
+  "diagnostics": {
+    "poolsScanned": 2,
+    "swapEventsFetched": 10258,
+    "transferLogsFetched": 20297,
+    "candidateProbeLogs": 5396,
+    "candidateContextLogs": 38117,
+    "unrelatedContextLogsDiscarded": 134885,
+    "duplicateContextLogs": 0,
+    "candidateBuys": 4130,
+    "confirmedBuys": 380,
+    "unresolvedWalletTrades": 3745,
+    "unpricedTrades": 5,
+    "skippedLiquidity": 18,
+    "skippedNoWalletFlow": 1,
+    "buyDirectionResolved": 4128,
+    "walletResolved": 594,
+    "uncertainReasons": {
+      "multihop_ambiguous": 3501,
+      "multiple_possible_recipients": 219,
+      "smart_account": 23,
+      "target_flow_not_resolved": 2
+    },
+    "logs": 191002,
+    "transactions": 4136,
+    "hypersyncQueries": 11,
+    "responsePages": 11,
+    "swapPages": 2,
+    "transferPages": 1,
+    "metadataPages": 0,
+    "candidateContextPages": 8,
+    "hypersyncServerMs": 20795,
+    "bytes": 19650824,
+    "responseBytes": 117696615,
+    "swapResponseBytes": 9722182,
+    "transferResponseBytes": 2807095,
+    "metadataResponseBytes": 0,
+    "candidateContextResponseBytes": 105167338,
+    "pageMetrics": {
+      "maxResponseBytes": 19399840,
+      "maxLogs": 32135,
+      "maxLogDataLength": 51010,
+      "last": {
+        "phase": "candidate-transaction-context",
+        "pageNumber": 11,
+        "cumulativeResponseBytes": 117696615,
+        "responseBytes": 11394236,
+        "logs": 19251
+      }
+    },
+    "activePhase": "candidate-metadata-fallback",
+    "boundaries": {
+      "base": {
+        "fromBlock": 52512289,
+        "toBlock": 52641889,
+        "windowStart": "2026-10-12T14:05:24.408Z",
+        "windowEndExclusive": "2026-10-15T14:05:24.408Z"
+      }
+    },
+    "attemptedChains": [
+      "base"
+    ],
+    "authVerified": true,
+    "memory": {
+      "start": {
+        "at": "2026-10-16T15:10:06.125Z",
+        "rssBytes": 86560768,
+        "heapUsedBytes": 19895264,
+        "heapTotalBytes": 31109120,
+        "externalBytes": 2493386,
+        "arrayBuffersBytes": 283092,
+        "heapLimitBytes": 4496293888,
+        "resourceMaxRss": 85152
+      },
+      "peakRssBytes": 366407680,
+      "peakHeapUsedBytes": 159720856,
+      "peakExternalBytes": 60095001,
+      "peakArrayBuffersBytes": 42329926,
+      "samples": 31,
+      "boundaries": [
+        {
+          "phase": "scan-start",
+          "at": "2026-10-16T15:10:06.127Z",
+          "rssBytes": 86659072,
+          "heapUsedBytes": 19959168,
+          "heapTotalBytes": 31109120,
+          "externalBytes": 2493426,
+          "arrayBuffersBytes": 283092,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 85152
+        },
+        {
+          "phase": "discovery-complete",
+          "at": "2026-10-16T15:10:06.529Z",
+          "rssBytes": 117182464,
+          "heapUsedBytes": 15289784,
+          "heapTotalBytes": 34418688,
+          "externalBytes": 4384406,
+          "arrayBuffersBytes": 284259,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 114436
+        },
+        {
+          "phase": "retrieval-complete",
+          "at": "2026-10-16T15:10:30.328Z",
+          "rssBytes": 357023744,
+          "heapUsedBytes": 138678992,
+          "heapTotalBytes": 266178560,
+          "externalBytes": 51603285,
+          "arrayBuffersBytes": 35855951,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 354744
+        },
+        {
+          "phase": "aggregation-complete",
+          "at": "2026-10-16T15:10:31.344Z",
+          "rssBytes": 366407680,
+          "heapUsedBytes": 159576600,
+          "heapTotalBytes": 272564224,
+          "externalBytes": 17258313,
+          "arrayBuffersBytes": 469749,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 367512
+        },
+        {
+          "phase": "scan-complete",
+          "at": "2026-10-16T15:10:31.345Z",
+          "rssBytes": 365658112,
+          "heapUsedBytes": 159659528,
+          "heapTotalBytes": 272564224,
+          "externalBytes": 17258313,
+          "arrayBuffersBytes": 469749,
+          "heapLimitBytes": 4496293888,
+          "resourceMaxRss": 367512
+        }
+      ]
+    },
+    "candidateProbeHashMatches": 4153,
+    "candidateContextClusters": 8,
+    "uniqueLogsRetained": 38117,
+    "newlyConfirmedBuys": 44,
+    "validationMs": 0,
+    "uncertainCandidateCount": 3745
+  },
+  "timing": {
+    "coingeckoMs": 123,
+    "dexMs": 399,
+    "blockRangeResolutionMs": 0,
+    "swapQueryMs": 7299,
+    "transferQueryMs": 5510,
+    "txMetadataMs": 10644,
+    "pricingMs": 124,
+    "walletResolutionMs": 33,
+    "aggregationMs": 2,
+    "totalMs": 25220,
+    "hypersyncMs": 23786,
+    "decodeAggregateMs": 892
+  },
+  "dataVolume": {
+    "approximateSerializedBytes": 19650824,
+    "responseBytes": 117696615,
+    "swapResponseBytes": 9722182,
+    "transferResponseBytes": 2807095,
+    "metadataResponseBytes": 0
+  },
+  "validation": null,
+  "warnings": [],
+  "tokenCoverage": []
+}
