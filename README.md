@@ -4,9 +4,9 @@ Analytický pracovní prostor pro Ethereum a L2 s českým rozhraním. Vyhledáv
 
 ## Roadmapa
 
-Hlavní pracovní plán je v [dist/roadmap.html](dist/roadmap.html), v běžící aplikaci přes **Roadmapa** v levém menu ([otevřít](http://127.0.0.1:4173/roadmap.html)). Závazný je směr a pořadí sedmi etap; jednotlivé funkce před implementací společně projednáváme a schvalujeme. Aktuálně **Etapa 1 – Udělat současnou aplikaci pohodlnou**, milestone **1.1 – Skeny a kontext výzkumu**, čeká na projednání a výslovný souhlas s implementací. Pracujeme vždy na jednom milestonu, po implementaci následuje ověření a případná oprava.
+Hlavní pracovní plán po technickém a produktovém auditu je v [dist/roadmap.html](dist/roadmap.html), v běžící aplikaci přes **Roadmapa** v levém menu ([otevřít](http://127.0.0.1:4173/roadmap.html)). Aktuální závazné pořadí sedmi etap začíná **Etapou 1 – Správnost výsledků a řízení úloh**. Jednotlivé kroky před implementací společně projednáváme a schvalujeme; roadmapa sama není souhlasem s implementací. Pracujeme vždy na jednom milestonu, po implementaci následuje ověření a případná oprava.
 
-Původní detailní roadmapa je beze změny obsahu archivována v [dist/roadmap-v2-audit.html](dist/roadmap-v2-audit.html). Je zásobníkem návrhů, nikoli aktuálním pracovním plánem ani souhlasem k jejich implementaci. Pravidla další práce jsou také v [AGENTS.md](AGENTS.md). Ceny DexScreener / DeFiLlama zůstávají na přání uživatele odložené.
+Původní plánovací část je zachována v archivu na stránce roadmapy a původní detailní audit zůstává v [dist/roadmap-v2-audit.html](dist/roadmap-v2-audit.html). Archivní návrhy nejsou aktuálním pracovním plánem ani souhlasem k implementaci. Pravidla další práce jsou také v [AGENTS.md](AGENTS.md). Cenová analytika zůstává odložená.
 
 ## Spuštění
 
@@ -46,11 +46,11 @@ Cache v SQLite: profil a Smarts 24 hodin, zmínky hodinu. Souběžné stejné do
 ## Funkce
 
 - Tokeny → peněženky: až 5 kontraktů s vlastní sítí, průnik AND nebo sjednocení OR.
-- Peněženky → tokeny: až 20 adres, agregace podle kontraktu a sítě, řazení podle hodnoty či počtu držitelů.
+- Peněženky → tokeny: až 500 adres, agregace podle kontraktu a sítě, popularity podle počtu držitelů/podílu a řazení podle hodnoty.
 - Filtrování, řazení, stránkování výsledků, navazující analýza a CSV export.
 - Detail pozic, kopírování adres a odkazy do exploreru.
 - Watchlist a uložené dotazy v prohlížeči.
-- Serverová historie živých skenů, pozastavení se zobrazením uložených výsledků a pokračování od poslední uložené stránky.
+- Serverová historie živých skenů, pause/resume, průběžné výsledky a pokračování od uložených kurzorů.
 - Opětovné použití dokončeného stejného dotazu po dobu 15 minut; tlačítko nového skenu vynutí nové načítání.
 - Smart wallets: ruční a hromadná evidence adres v SQLite, poznámky, štítky, zdroj a ruční hodnocení.
 - Navigace pro budoucí toky kapitálu a upozornění.
@@ -61,7 +61,7 @@ V levé navigaci otevřete **Smart wallets → Přidat peněženky**. Vložte je
 
 Stavy jsou **Kandidát**, **Prověřená ručně**, **Vyřazená**. Hodnocení je uživatelské, ne automaticky vypočtená ziskovost. Vyřazení záznam nemaže a lze ho vrátit mezi kandidáty. Každá EVM adresa má jeden záznam s více sítěmi. Nabídka sítí pro evidenci je širší než aktuální pokrytí živé analýzy.
 
-Seznam lze filtrovat podle textu, stavu a štítku. Vyberte nejvýše 20 adres a předejte je do analýzy tokenů; síťový sken následně spustíte tlačítkem Analyzovat peněženky. Předají se pouze podporované živé sítě. Ve výsledcích Live screeneru i v detailu adresy je tlačítko **+ Smart wallets** pro předvyplnění formuláře. Demo adresy se tímto způsobem nepřenášejí.
+Seznam lze filtrovat podle textu, více štítků, počtu štítků, stavu a sítě. Vybrané adresy lze předat do analýzy tokenů; aktuální scan přijímá nejvýše 500 unikátních wallets a síťový sken se spustí až tlačítkem Analyzovat peněženky. Předají se pouze podporované živé sítě. Ve výsledcích Live screeneru i v detailu adresy je tlačítko **+ Smart wallets** pro předvyplnění formuláře.
 
 Tlačítko **Z Live watchlistu** předvyplní adresy ze skutečných uložených snapshotů; poznámky doplníte před uložením. Původní watchlist zůstává beze změny v prohlížeči. **Export JSON** stáhne celou evidenci včetně poznámek a hodnocení; automatický import tohoto JSON zatím není implementovaný.
 

@@ -70,12 +70,12 @@ const spamGroup=aggregateHoldings([{address:A,holdings:[holding({...baseWeth,nam
  const previous=globalThis.fetch;const routes=[];const job={id:'fixture',status:'complete',message:'Done',query:{kind:'holders'},revision:7};
  const json=body=>({ok:true,headers:{get:()=> 'application/json'},json:async()=>body});
  globalThis.fetch=async(route,options={})=>{routes.push(route);assert.ok(route.startsWith('/api/scans'),'live browser requests must stay on the local server');
-  if(route==='/api/scans'){const body=JSON.parse(options.body);assert.equal(body.kind,'holders');assert.equal(body.provider,'blockscout');return json(job);}
+  if(route==='/api/scans'){const body=JSON.parse(options.body);assert.equal(body.kind,'holders');assert.equal(body.provider,'blockscout');assert.equal(body.minPositionUsd,500);return json(job);}
   if(route==='/api/scans/fixture')return json(job);
   const offset=Number(new URL(route,'http://localhost').searchParams.get('offset'));
   return json({wallets:Array.from({length:offset===0?500:101},(_,i)=>({address:'0x'+(offset+i+1).toString(16).padStart(40,'0')})),tokens:[baseWeth],coverage:{complete:true},warnings:[],pagination:{revision:7,total:601,nextOffset:offset===0?500:null}});
  };
- try{const r=await searchHolders({tokens:[baseWeth],chainIds:['base'],source:'live',provider:'blockscout'});assert.equal(r.wallets.length,601);assert.equal(new Set(r.wallets.map(w=>w.address)).size,601);assert.equal(routes.filter(r=>r.includes('/result?')).length,2);assert.ok(routes.some(r=>r.includes('revision=7')));}finally{globalThis.fetch=previous;}
+ try{const r=await searchHolders({tokens:[baseWeth],chainIds:['base'],source:'live',provider:'blockscout',minPositionUsd:500});assert.equal(r.wallets.length,601);assert.equal(new Set(r.wallets.map(w=>w.address)).size,601);assert.equal(routes.filter(r=>r.includes('/result?')).length,2);assert.ok(routes.some(r=>r.includes('revision=7')));}finally{globalThis.fetch=previous;}
 }
 // A running scan's stored result can be read without changing its server-side state.
 {

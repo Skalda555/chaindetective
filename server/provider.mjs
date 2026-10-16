@@ -1,3 +1,4 @@
+import './load-env.mjs';
 import {setTimeout as delay} from 'node:timers/promises';
 import {getNetwork, getToken, isAddress} from '../dist/data.js';
 
@@ -25,8 +26,16 @@ export class BlockscoutProvider{
  supports(operation,chainId){return ['wallets','holders'].includes(operation)&&!!getNetwork(chainId)?.live;}
  async request(chainId,route,cursor,signal){
   const n=getNetwork(chainId);if(!n?.live)throw new Error(`${n?.name||chainId}: živý adaptér zatím není dostupný.`);
-  const url=new URL(`${n.api}/${route}`);
-  if(cursor){if(typeof cursor!=='object'||Array.isArray(cursor)||JSON.stringify(cursor).length>4096)throw new Error('Neplatný kurzor indexeru.');for(const [k,v]of Object.entries(cursor)){if(v!==null){if(!['string','number','boolean'].includes(typeof v))throw new Error('Neplatná položka kurzoru.');url.searchParams.set(k,String(v));}}}
+  if(cursor&&(typeof cursor!=='object'||Array.isArray(cursor)||JSON.stringify(cursor).length>4096))throw new Error('Neplatný kurzor indexeru.');
+  const directPro=n.chainId===4663&&!!this.proApiKey;
+  const makeUrl=pro=>{
+   const url=new URL(pro?`https://api.blockscout.com/${n.chainId}/api/v2/${route}`:`${n.api}/${route}`);
+   if(cursor)for(const [k,v]of Object.entries(cursor)){if(v!==null){if(!['string','number','boolean'].includes(typeof v))throw new Error('Neplatná položka kurzoru.');url.searchParams.set(k,String(v));}}
+   if(pro)url.searchParams.set('apikey',this.proApiKey);
+   return url;
+  };
+  // Robinhood's public explorer host returns an HTML 403 challenge; with a Pro key use its verified API directly.
+  const url=makeUrl(directPro);
   for(let attempt=0;attempt<=this.retries;attempt++){
    signal?.throwIfAborted();
    const now=Date.now(),wait=Math.max(0,this.nextRequest-now);this.nextRequest=Math.max(now,this.nextRequest)+this.intervalMs;
@@ -34,11 +43,9 @@ export class BlockscoutProvider{
    try{
     const timeout=AbortSignal.timeout(this.timeoutMs),combined=signal?AbortSignal.any([signal,timeout]):timeout;
     let response=await this.fetchImpl(url,{signal:combined,headers:{Accept:'application/json'},redirect:'error'});
-    if(response.status===403&&this.proApiKey){
+    if(response.status===403&&this.proApiKey&&!directPro){
      await response.body?.cancel();
-     const proUrl=new URL(`https://api.blockscout.com/${n.chainId}/api/v2/${route}`);
-     if(cursor)for(const [k,v]of Object.entries(cursor)){if(v!==null)proUrl.searchParams.set(k,String(v));}
-     proUrl.searchParams.set('apikey',this.proApiKey);
+     const proUrl=makeUrl(true);
      response=await this.fetchImpl(proUrl,{signal:combined,headers:{Accept:'application/json'},redirect:'error'});
     }
     if(!response.ok){const htmlChallenge=response.status===403&&/text\/html/i.test(response.headers?.get?.('content-type')||'');const error=new Error(response.status===429?'Limit indexeru (HTTP 429).':htmlChallenge?'Indexer odpověděl HTTP 403 (HTML challenge místo JSON).':`Indexer odpověděl HTTP ${response.status}.`);error.retryable=response.status===429||response.status>=500||htmlChallenge;const retryHeader=response.headers?.get?.('retry-after'),seconds=Number(retryHeader),retryDate=Date.parse(retryHeader||'');const retryMs=Number.isFinite(seconds)?seconds*1000:Number.isFinite(retryDate)?retryDate-Date.now():0;error.retryMs=Math.min(10000,Math.max(0,retryMs));throw error;}

@@ -1,3 +1,4 @@
+import './load-env.mjs';
 import {setTimeout as delay} from 'node:timers/promises';
 import {NETWORKS,getNetwork,isAddress} from '../dist/data.js';
 import {BlockscoutProvider} from './provider.mjs';

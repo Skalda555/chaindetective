@@ -78,6 +78,15 @@ export const DEMO_WALLETS = Array.from({length:24},(_,i)=>{
  return {address,label:`${labels[i]} · demo`,chainIds:chainList(holdings),holdings,value:sumKnown(holdings),matchedTokens:[],matchCount:0,isDemo:true};
 });
 export const isAddress = value => /^0x[0-9a-fA-F]{40}$/.test(value||'');
+/** Selects an optional source-provided AIXBT translation without fetching or inventing text. */
+export function resolveAixbtTopicText(topic={},language='en'){
+ const row=topic&&typeof topic==='object'?topic:{};
+ const translations=row.translations&&typeof row.translations==='object'?row.translations:{};
+ const localized=language==='cz'?(translations.cz||row.translation?.cs||row.translation?.cz):null;
+ const name=String(localized?.name||row.name||'');
+ const summary=String(localized?.summary||row.summary||'');
+ return {name,summary,translated:!!(localized&&(localized.name||localized.summary))};
+}
 export const debankProfileUrl = value => isAddress(value)?`https://debank.com/profile/${value}`:null;
 export const normalizeAddress = value => isAddress(value)?value.toLowerCase():null;
 export const getToken = (address,chainId) => TOKENS.find(t=>t.chainId===chainId&&t.address===String(address).toLowerCase());
@@ -109,7 +118,7 @@ function walletResult(w,selected,chainIds,match,minValue){
  return {...w,holdings,chainIds:chainList(holdings),value,matchedTokens,matchCount:matchedTokens.length};
 }
 /** AND/OR across exact (network, contract) identities; wallet.value sums matching selected positions. */
-export async function searchHolders({tokens,chainIds,match='all',minValue=0,source='demo',onProgress,signal,refresh=false,provider='auto'}={}){
+export async function searchHolders({tokens,chainIds,match='all',minValue=0,minPositionUsd=0,holderCap=20000,source='demo',onProgress,signal,refresh=false,provider='auto'}={}){
  abort(signal);const selectedChains=chains(chainIds);const selected=inputs(tokens,selectedChains);
  if(!['all','any'].includes(match))throw new Error('Neznámý režim průniku.');
  if(!['demo','live'].includes(source))throw new Error('Neznámý zdroj dat.');
@@ -119,7 +128,7 @@ export async function searchHolders({tokens,chainIds,match='all',minValue=0,sour
   progress(onProgress,'Ukázkový dataset je připravený.',selected.length,selected.length);
   return {wallets,tokens:selected,source,warnings:unknown.map(t=>`Kontrakt ${t.address} na síti ${getNetwork(t.chainId).name} není součástí demo datasetu. Pro vlastní kontrakty přepněte na Live API.`),coverage:makeCoverage(source,`Syntetický dataset: ${DEMO_WALLETS.length} ukázkových peněženek. Kontrakty slouží pro orientaci; zůstatky, adresy, štítky i ceny jsou ilustrační.`)};
  }
- return runServerScan('holders',{tokens:selected,chainIds:selectedChains,match,refresh,onProgress,signal,provider});
+ return runServerScan('holders',{tokens:selected,chainIds:selectedChains,match,minPositionUsd,holderCap,refresh,onProgress,signal,provider});
 }
 /** Group by exact network+contract, not ticker; caller supplies the successfully analyzed denominator (0..1). */
 export function aggregateHoldings(wallets,addressCount=wallets.length){
@@ -154,10 +163,23 @@ async function scanApi(route,{method='GET',body,signal,keepalive=false}={}){
  const result=await response.json();if(!response.ok)throw new Error(result.error||'Serverový sken se nepodařilo načíst.');return result;
 }
 export const listServerScans=()=>scanApi('');
+export const deleteAllServerScans=()=>scanApi('',{method:'DELETE'});
 export const getServerScan=id=>scanApi('/'+encodeURIComponent(id));
 export const deleteServerScan=id=>scanApi('/'+encodeURIComponent(id),{method:'DELETE'});
+export const repeatServerScan=id=>scanApi('/'+encodeURIComponent(id)+'/repeat',{method:'POST',body:{}});
 export const pauseServerScan=id=>scanApi('/'+encodeURIComponent(id)+'/pause',{method:'POST',body:{}});
 export const resumeServerScan=id=>scanApi('/'+encodeURIComponent(id)+'/resume',{method:'POST',body:{}});
+async function dashboardApi(route,options={}){
+ if(globalThis.location?.protocol==='file:')throw new Error('Dashboard vyžaduje lokální server.');
+ const response=await fetch('/api/dashboard'+route,{headers:{Accept:'application/json',...(options.body?{'Content-Type':'application/json'}:{})},credentials:'same-origin',method:options.body?'POST':'GET',body:options.body?JSON.stringify(options.body):undefined});
+ const result=await response.json();if(!response.ok)throw new Error(result.error||'Dashboard se nepodařilo načíst.');return result;
+}
+const dashboardMoniQuery=view=>`?view=${encodeURIComponent(['growing','top','new'].includes(view)?view:'growing')}`;
+const dashboardMoniFilters=view=>({endpointMode:'curated',feedTimeframe:'D7',changesTimeframe:'H24',orderBy:({growing:'SCORE_CHANGE',top:'SCORE',new:'CREATED_AT'})[view]||'SCORE_CHANGE',orderByDirection:'DESC',limit:10,offset:0});
+export const getDashboard=view=>dashboardApi(dashboardMoniQuery(view));
+export const loadDashboardMoniProjects=filters=>dashboardApi('/moni/projects',{body:{filters}});
+export const getDashboardTopics=()=>dashboardApi('/topics?limit=25');
+export const getDashboardTopic=id=>dashboardApi('/topics/'+encodeURIComponent(id));
 function pollingDelay(signal,interval=3000){return new Promise((resolve,reject)=>{const finish=()=>{signal?.removeEventListener('abort',cancel);resolve();};const timer=setTimeout(finish,interval);const cancel=()=>{clearTimeout(timer);reject(signal.reason||new DOMException('Zrušeno','AbortError'));};if(signal?.aborted)cancel();else signal?.addEventListener('abort',cancel,{once:true});});}
 async function readServerResult(job,{onProgress,signal}={}){
  if(job.query.kind==='wallets'){
@@ -182,9 +204,10 @@ export async function readServerScanResult(job,{onProgress,signal}={}){return re
 export async function openServerScan(id,{onProgress,signal}={}){
  for(;;){abort(signal);const job=await scanApi('/'+encodeURIComponent(id),{signal});onProgress?.({message:job.message,job});if(job.status!=='running')return await readServerResult(job,{onProgress,signal});await pollingDelay(signal);}
 }
-async function runServerScan(kind,{tokens,addresses,chainIds,match='all',walletMetadata,refresh=false,onProgress,signal,provider='auto'}){
+async function runServerScan(kind,{tokens,addresses,chainIds,match='all',minPositionUsd=0,holderCap=20000,walletMetadata,refresh=false,onProgress,signal,provider='auto'}){
  // Keep the creation response so cancellation can pause the accepted job by id.
- abort(signal);const job=await scanApi('',{method:'POST',body:{kind,tokens,addresses,chainIds,match,walletMetadata,refresh,provider}});
+ abort(signal);const job=await scanApi('',{method:'POST',body:{kind,tokens,addresses,chainIds,match,minPositionUsd,holderCap,walletMetadata,refresh,provider}});
+ if(job.duplicateActive){onProgress?.({message:'Stejný scan už existuje.',job,duplicateActive:true});return {...job,duplicateActive:true,wallets:[],tokens:[],warnings:[],coverage:makeCoverage('live','Stejný aktivní dotaz už má uložený serverový sken.')}};
  if(signal?.aborted){await scanApi('/'+job.id+'/pause',{method:'POST',body:{},keepalive:true});abort(signal);}
  onProgress?.({message:job.cached?'Načítám uložený dokončený sken.':job.message,job});
  return openServerScan(job.id,{onProgress,signal});

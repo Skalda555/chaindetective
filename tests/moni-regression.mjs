@@ -41,8 +41,33 @@ console.log('Moni regressions passed: cache, concurrent deduplication, restart, 
 
 {
  const db=new DatabaseSync(':memory:');let calls=0;
- const s=new MoniService(db,{apiKey:secret,budget:20,intervalMs:0,fetchImpl:async url=>{calls++;assert.equal(url.pathname,'/api/v3/projects/');assert.equal(url.searchParams.get('limit'),'10');assert.equal(url.searchParams.get('feedTimeframe'),'D7');return response({items:[payload,payload]});}});
- try{assert.equal((await s.get('all','projects')).data.items.length,2);assert.equal(s.status().estimatedPoints,2);await s.get('all','projects');assert.equal(calls,1);await s.get('base','projects');assert.equal(calls,2);assert.equal(s.status().estimatedPoints,4);await assert.rejects(()=>s.get('bogus','projects'),/filtr/);
+ const s=new MoniService(db,{apiKey:secret,budget:30,intervalMs:0,fetchImpl:async url=>{calls++;assert.equal(url.pathname,'/api/v3/projects/');assert.equal(url.searchParams.get('limit'),'10');assert.equal(url.searchParams.get('feedTimeframe'),'D7');assert.equal(url.searchParams.get('orderBy'),'SCORE');return response({items:[{...payload,smartEngagement:{...payload.smartEngagement,smartMentionsCountChange:2,smartFollowersCountChange:99}},{...payload,meta:{userUrl:'https://x.com/other'}}]});}});
+ try{const feed=await s.get('all','projects');assert.equal(feed.data.items.length,2);assert.equal(feed.filters.orderBy,'SCORE');assert.equal(feed.data.items[0].score,123);assert.equal(feed.data.items[0].smartsCount,8);assert.equal(feed.data.items[0].scoreChange,null,'Projects Feed fixture does not expose Moni Score change');assert.equal(feed.data.items[0].smartsChange,null,'Smart follower count change is not Smarts change');assert.equal(feed.data.items[0].smartMentionsChange,2);assert.equal(s.status().estimatedPoints,2);assert.equal(s.projectCache('all').cacheStatus,'fresh');await s.get('all','projects');assert.equal(calls,1);await s.get('base','projects');assert.equal(calls,2);assert.equal(s.status().estimatedPoints,4);await assert.rejects(()=>s.get('bogus','projects'),/filtr/);
  s.watch('@Ethereum');s.watch('ethereum');assert.equal(s.watchlist().length,1);assert.equal(new MoniService(db,{apiKey:''}).watchlist()[0].handle,'ethereum');assert.throws(()=>s.watch('../bad'),/Neplatný/);s.unwatch('ethereum');assert.equal(s.watchlist().length,0);
  }finally{await s.close();db.close();}
+}
+
+{
+ const db=new DatabaseSync(':memory:');let calls=0,now=Date.now();const raw={...payload,smartEngagement:{...payload.smartEngagement,smartMentionsCountChange:3}};
+ const service=new MoniService(db,{apiKey:secret,intervalMs:0,now:()=>now,fetchImpl:async url=>{calls++;assert.equal(url.searchParams.get('orderBy'),'SCORE_CHANGE');return response({items:[raw]});}});
+ try{
+  const filters={feedTimeframe:'D7',changesTimeframe:'H24',orderBy:'SCORE_CHANGE',orderByDirection:'DESC'};
+  const missing=service.projectCache('all',filters);assert.equal(missing.cacheStatus,'missing');assert.equal(calls,0,'cache lookup never triggers a paid request');
+  const loaded=await service.get('all','projects',{filters,force:true});assert.equal(calls,1);assert.equal(loaded.data.items[0].scoreChange,null);assert.equal(loaded.data.items[0].smartMentionsChange,3);
+  assert.equal(service.projectCache('all',filters).cacheStatus,'fresh');assert.equal(service.projectCache('base',filters).cacheStatus,'missing','chain has its own cache identity');
+  assert.equal(service.projectCache('all',{...filters,orderBy:'SCORE'}).cacheStatus,'missing','sort mode has its own cache identity');
+  now+=6*60*60*1000+1;const stale=service.projectCache('all',filters);assert.equal(stale.cacheStatus,'stale');assert.equal(stale.data.items.length,1);assert.equal(calls,1,'stale cache is served without auto-refresh');
+ }finally{await service.close();db.close();}
+}
+
+{
+ let calls=0,requestUrl=null;const app=createApp({dbPath:':memory:',moniOptions:{apiKey:secret,intervalMs:0,fetchImpl:async url=>{calls++;requestUrl=url;return response({items:[payload]});}}});
+ await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));const origin=`http://127.0.0.1:${app.server.address().port}`;
+ try{
+  const filters={endpointMode:'curated',feedTimeframe:'D7',changesTimeframe:'H24',orderBy:'SCORE_CHANGE',orderByDirection:'DESC',limit:10,offset:0},query=new URLSearchParams({...filters});
+  const missing=await fetch(origin+'/api/socials/moni/projects?'+query).then(r=>r.json());assert.equal(missing.cacheStatus,'missing');assert.equal(calls,0,'reading selected Socials cache must not spend Moni points');
+  const loaded=await fetch(origin+'/api/socials/moni/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:filters})}).then(r=>r.json());assert.equal(loaded.data.items.length,1);assert.equal(requestUrl.searchParams.get('orderBy'),'SCORE_CHANGE');assert.equal(calls,1);
+  const saved=await fetch(origin+'/api/socials/moni/projects?'+query).then(r=>r.json());assert.equal(saved.cacheStatus,'fresh');assert.equal(saved.data.items[0].score,123);assert.equal(calls,1,'reload serves matching SQLite cache without another request');
+  const different=await fetch(origin+'/api/socials/moni/projects?'+new URLSearchParams({...filters,orderBy:'SCORE'})).then(r=>r.json());assert.equal(different.cacheStatus,'missing');assert.equal(calls,1,'different sort mode cannot use another query cache');
+ }finally{await app.close();}
 }

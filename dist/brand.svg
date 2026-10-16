@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 158" fill="none">
+  <g stroke="#ecf0ed" stroke-width="4.4">
+    <circle cx="200" cy="32" r="22"/>
+    <circle cx="200" cy="32" r="14.2"/>
+  </g>
+  <text x="200" y="125" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="42" font-weight="650" letter-spacing="-1.1" fill="#c3f26b"><tspan fill="#ecf0ed">C</tspan>haindetective<tspan dx="7" font-size="23.6" font-weight="500" letter-spacing="0" fill="#ecf0ed">β</tspan></text>
+</svg>
