@@ -5,6 +5,7 @@ import {
   seedFactoryCursor, upsertGeckoTrendingObservation, upsertTokenObservation, upsertTrendingObservation,
 } from './onchain-discovery-longitudinal-store.mjs';
 import { normalizeGeckoTrending, recordGeckoFirstSeen, saveDexToken, summarizeBenchmark } from './onchain-discovery-longitudinal.mjs';
+import { resolveFirstBlockAtOrAfter, resolveTimestampWindow, unixSecondAtOrAfter } from './onchain-discovery-block-bounds.mjs';
 
 const db = new DatabaseSync(':memory:');
 createPilotSchema(db);
@@ -166,6 +167,56 @@ assert.equal(enriched.pool_created_at, dexPool.created_at);
 const dexObservation = db.prepare('SELECT * FROM token_observations WHERE chain=? AND contract=?').get('base', dexPool.target_contract);
 assert.equal(dexObservation.vol_accel_ratio, 2.5, 'Dex enrichment persists volume acceleration');
 assert.equal(dexObservation.quality_json !== null, true, 'Dex enrichment persists quality-profile results');
+
+async function resolveSynthetic(target, estimate, head, timestampAt, waitForNextHead = async (current) => current + 1) {
+  return resolveFirstBlockAtOrAfter({ targetTimestamp: target, initialEstimate: estimate, headBlock: head,
+    getBlockTimestamp: timestampAt, waitForNextHead });
+}
+assert.equal(unixSecondAtOrAfter(12_000), 12, 'exact second timestamps remain exact');
+assert.equal(unixSecondAtOrAfter(12_001), 13, 'sub-second target rounds up to preserve at-or-after semantics');
+assert.equal(await resolveSynthetic(120, 9, 30, (block) => block * 12), 10, 'exact timestamp hit resolves to its first block');
+assert.equal(await resolveSynthetic(121, 9, 30, (block) => block * 12), 11, 'target between blocks resolves to the first later block');
+assert.equal(await resolveSynthetic(1000, 1, 100, (block) => block * 12), 84, 'too-low initial estimate expands toward the target');
+assert.equal(await resolveSynthetic(1000, 150, 150, (block) => block * 12), 84, 'too-high initial estimate expands backward toward the target');
+
+const driftTimestamps = (block) => block < 150_000 ? block * 12 : (150_000 * 12) + ((block - 150_000) * 6);
+const driftHead = 300_000;
+const driftTarget = driftTimestamps(driftHead) - 14 * 86_400;
+const driftEstimate = Math.round(driftHead - (driftTimestamps(driftHead) - driftTarget) / 6);
+let legacyPadding = Math.max(200, Math.ceil((driftHead - driftEstimate) * 0.002));
+let legacyBracketed = false;
+for (let attempt = 0; attempt < 5; attempt += 1) {
+  const from = Math.max(0, driftEstimate - legacyPadding); const to = Math.min(driftHead, driftEstimate + legacyPadding);
+  legacyBracketed ||= driftTimestamps(from) <= driftTarget && driftTimestamps(to) >= driftTarget;
+  legacyPadding *= 2;
+}
+assert.equal(legacyBracketed, false, 'large historical block-time drift defeats the old five local expansions');
+assert.equal(await resolveSynthetic(driftTarget, driftEstimate, driftHead, driftTimestamps),
+  Math.ceil(driftTarget / 12),
+  'adaptive expansion and binary refinement resolve drift beyond the old five attempts');
+
+for (const [chain, secondsPerBlock] of [['ethereum-like', 12], ['base-like', 2]]) {
+  const snapshot = 2_000_000_000;
+  const start = snapshot - 14 * 86_400;
+  let head = Math.floor(snapshot / secondsPerBlock);
+  const timestampAt = (block) => {
+    if (block > head) throw new Error(`block ${block} is not available for ${chain}`);
+    return block * secondsPerBlock;
+  };
+  const bounds = await resolveTimestampWindow(start, snapshot, {
+    initialEstimate: (target) => Math.floor(target / secondsPerBlock), headBlock: head,
+    getBlockTimestamp: timestampAt,
+    waitForNextHead: async (current) => { head = Math.max(head, current + 1); return head; },
+  });
+  assert.ok(bounds.fromBlock <= bounds.toBlock, `${chain} 14-day window boundaries are ordered`);
+  assert.ok(timestampAt(bounds.fromBlock - 1) < start && timestampAt(bounds.fromBlock) >= start,
+    `${chain} 14-day start is the first block at-or-after its timestamp`);
+  assert.ok(timestampAt(bounds.toBlock - 1) < snapshot && timestampAt(bounds.toBlock) >= snapshot,
+    `${chain} 14-day end is the first block at-or-after its exclusive timestamp`);
+}
+await assert.rejects(resolveTimestampWindow(200, 100, {
+  initialEstimate: 0, headBlock: 10, getBlockTimestamp: (block) => block, waitForNextHead: async (head) => head + 1,
+}), /end precedes its start/, 'reversed timestamp windows are rejected');
 
 db.close();
 console.log('On-chain Discovery longitudinal worker fixtures passed (atomic cursor resume, idempotent events and observations, stable polling buckets).');

@@ -5,6 +5,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getHeapStatistics } from 'node:v8';
 import { decodeSwap, inferTargetSideFromOutput, quoteInputRaw, resolvePositiveTokenRecipients, sumBlockscoutTransfers, swapEventFor } from '../scripts/trending-early-buyers-decode.mjs';
+import { resolveTimestampWindow, unixSecondAtOrAfter } from '../scripts/onchain-discovery-block-bounds.mjs';
 import { clusterCandidateBlocks, indexPoolOutCandidates, retainCandidatePage } from './early-buyers-retrieval.mjs';
 
 const CG = 'https://api.coingecko.com/api/v3';
@@ -352,8 +353,8 @@ async function getBlockBounds(chain, apiToken) {
   }
   const phaseStart = Date.now();
   console.log(`Resolving ${chain} block range for ${new Date(WINDOW_START).toISOString()}..${new Date(WINDOW_END).toISOString()}.`);
-  const start = Math.floor(WINDOW_START / 1000);
-  const end = Math.floor(WINDOW_END / 1000);
+  const start = unixSecondAtOrAfter(WINDOW_START);
+  const end = unixSecondAtOrAfter(WINDOW_END);
   const height = await hyperSyncHeight(chain, apiToken);
   const recent = await hyperSyncGet(chain, apiToken, {
     from_block: Math.max(0, height - 2048), to_block: height, blocks: [{}], include_all_blocks: true,
@@ -366,55 +367,49 @@ async function getBlockBounds(chain, apiToken) {
   if (!(avgBlockSeconds > 0)) throw new Error(`Invalid recent block-time estimate for ${chain}.`);
   const headBlock = Number(recentBlocks.at(-1).number);
   const headTimestamp = Number(recentBlocks.at(-1).timestamp);
-  const estimatedStart = Math.max(0, Math.round(headBlock - (headTimestamp - start) / avgBlockSeconds));
-  const estimatedEnd = Math.max(0, Math.round(headBlock - (headTimestamp - end) / avgBlockSeconds));
-  const readBlockSlice = async (center, padding, label) => {
-    const from = Math.max(0, center - padding);
-    const to = Math.min(height, center + padding + 1);
-    const blocks = [];
-    let cursor = from;
-    while (cursor < to) {
-      const response = await hyperSyncGet(chain, apiToken, {
-        from_block: cursor, to_block: to, blocks: [{}], include_all_blocks: true,
-        field_selection: { block: ['number', 'timestamp'] }, join_mode: 'JoinNothing', max_num_blocks: 50_000,
-      });
-      diagnostics.hypersyncServerMs += response.totalExecutionTime || 0;
-      diagnostics.responsePages += 1;
-      diagnostics.metadataPages += 1;
-      diagnostics.metadataResponseBytes += response.responseBytes ?? 0;
-      blocks.push(...response.data.blocks);
-      const next = response.nextBlock;
-      if (!Number.isInteger(next) || next <= cursor) throw new Error(`HyperSync ${label} timestamp pagination stopped at block ${cursor} (${chain}).`);
-      cursor = next;
-      console.log(`Block timestamp ${label} (${chain}): ${blocks.length} headers, next ${cursor}/${to}.`);
-    }
-    return blocks.sort((a, b) => Number(a.number) - Number(b.number));
+  const estimate = (target) => Math.max(0, Math.round(headBlock - (headTimestamp - target) / avgBlockSeconds));
+  const timestampCache = new Map(recentBlocks.map((block) => [Number(block.number), Number(block.timestamp)]));
+  const getBlockTimestamp = async (blockNumber) => {
+    if (timestampCache.has(blockNumber)) return timestampCache.get(blockNumber);
+    const response = await hyperSyncGet(chain, apiToken, {
+      from_block: blockNumber, to_block: blockNumber + 1, blocks: [{}], include_all_blocks: true,
+      field_selection: { block: ['number', 'timestamp'] }, join_mode: 'JoinNothing', max_num_blocks: 2,
+    });
+    diagnostics.hypersyncServerMs += response.totalExecutionTime || 0;
+    diagnostics.responsePages += 1;
+    diagnostics.metadataPages += 1;
+    diagnostics.metadataResponseBytes += response.responseBytes ?? 0;
+    const found = response.data.blocks.find((block) => Number(block.number) === blockNumber);
+    if (!found) throw new Error(`HyperSync did not return block ${blockNumber} while resolving ${chain} timestamp boundary.`);
+    const timestamp = Number(found.timestamp);
+    timestampCache.set(blockNumber, timestamp);
+    console.log(`Block timestamp probe (${chain}): block ${blockNumber} = ${timestamp}.`);
+    return timestamp;
   };
-  const bracket = (blocks, target) => blocks.length >= 2
-    && Number(blocks[0].timestamp) <= target && Number(blocks.at(-1).timestamp) >= target;
-  let padding = Math.max(200, Math.ceil((headBlock - estimatedStart) * 0.002));
-  let startSamples; let endSamples;
-  for (let attempt = 1; attempt <= 5; attempt += 1) {
-    [startSamples, endSamples] = await Promise.all([
-      readBlockSlice(estimatedStart, padding, `window-start attempt ${attempt}`),
-      readBlockSlice(estimatedEnd, padding, `window-end attempt ${attempt}`),
-    ]);
-    if (bracket(startSamples, start) && bracket(endSamples, end)) break;
-    if (attempt === 5) throw new Error(`Recent block-time estimates did not bracket the ${chain} time window after 5 expansions.`);
-    padding *= 2;
+  const waitForNextHead = async (currentHead) => {
+    const deadline = Date.now() + 120_000;
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 2_000));
+      const nextHead = (await hyperSyncHeight(chain, apiToken)) - 1;
+      if (nextHead > currentHead) return nextHead;
+    }
+    throw new Error(`HyperSync ${chain} head did not advance enough to bracket timestamp ${end} within 120 seconds.`);
+  };
+  const blockBounds = await resolveTimestampWindow(start, end, {
+    initialEstimate: estimate, headBlock, getBlockTimestamp, waitForNextHead,
+  });
+  const { fromBlock, toBlock } = blockBounds;
+  const [fromTimestamp, fromPreviousTimestamp, toTimestamp, toPreviousTimestamp] = await Promise.all([
+    getBlockTimestamp(fromBlock), fromBlock > 0 ? getBlockTimestamp(fromBlock - 1) : Promise.resolve(null),
+    getBlockTimestamp(toBlock), toBlock > 0 ? getBlockTimestamp(toBlock - 1) : Promise.resolve(null),
+  ]);
+  if (!(fromPreviousTimestamp === null || fromPreviousTimestamp < start)
+    || !(fromTimestamp >= start) || !(toPreviousTimestamp === null || toPreviousTimestamp < end) || !(toTimestamp >= end)) {
+    throw new Error(`Resolved ${chain} timestamp boundaries failed first-at-or-after validation.`);
   }
-  const firstAtOrAfter = (blocks, target) => {
-    let low = 0; let high = blocks.length;
-    while (low < high) {
-      const middle = Math.floor((low + high) / 2);
-      if (Number(blocks[middle].timestamp) >= target) high = middle;
-      else low = middle + 1;
-    }
-    return Number(blocks[low]?.number);
-  };
-  const fromBlock = firstAtOrAfter(startSamples, start);
-  const toBlock = firstAtOrAfter(endSamples, end);
-  diagnostics.boundaries[chain] = { fromBlock, toBlock, windowStart: new Date(WINDOW_START).toISOString(), windowEndExclusive: new Date(WINDOW_END).toISOString() };
+  if (fromBlock > toBlock) throw new Error(`Resolved ${chain} block window is reversed (${fromBlock} > ${toBlock}).`);
+  diagnostics.boundaries[chain] = { fromBlock, toBlock, fromTimestamp, fromPreviousTimestamp, toTimestamp, toPreviousTimestamp,
+    windowStart: new Date(WINDOW_START).toISOString(), windowEndExclusive: new Date(WINDOW_END).toISOString() };
   timing.blockRangeResolutionMs += Date.now() - phaseStart;
   console.log(`Block range ${chain}: ${fromBlock}..${toBlock} resolved in ${Date.now() - phaseStart} ms (${diagnostics.hypersyncQueries} query calls so far).`);
   return { fromBlock, toBlock };
