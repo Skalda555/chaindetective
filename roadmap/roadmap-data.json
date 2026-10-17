@@ -1,0 +1,707 @@
+{
+  "schema_version": 1,
+  "phases": [
+    {
+      "id": "phase-1",
+      "number": 1,
+      "title": "Etapa 1 · Správnost výsledků a řízení úloh",
+      "description": "Spolehlivé výsledky pro Token Screener a Wallet Analyzer.",
+      "done_definition": "Výsledkům lze metodicky věřit a důležité edge cases jsou pokryté regresními testy.",
+      "priority": 1
+    },
+    {
+      "id": "phase-2",
+      "number": 2,
+      "title": "Etapa 2 · Souvislý research workflow",
+      "description": "Propojit existující obrazovky a zachovat výzkumný kontext při navigaci.",
+      "done_definition": "Celý research flow funguje bez kopírování adres a bez ztráty rozpracované analýzy.",
+      "priority": 2
+    },
+    {
+      "id": "phase-3",
+      "number": 3,
+      "title": "Etapa 3 · Datový a výkonový základ",
+      "description": "Změřit skutečné náklady a odstranit opakovanou práci dřív, než dataset dál poroste.",
+      "done_definition": "Velké datasety nevyžadují opakované parsování všech uložených positions. SQLite není nutné měnit; značná část současného přibližně 1GB souboru je znovupoužitelný freelist.",
+      "priority": 3
+    },
+    {
+      "id": "phase-4",
+      "number": 4,
+      "title": "Etapa 4 · Sdílené Wallet Snapshots / Wallet Index",
+      "description": "Oddělit načtení wallet/network od jedné konkrétní analýzy. ScanEngine zůstane ingestion a refresh enginem.",
+      "done_definition": "Opakovaný scan stejné wallet není nutný a skupinový výsledek se sestaví hlavně z lokálních dat.",
+      "priority": 4
+    },
+    {
+      "id": "phase-5",
+      "number": 5,
+      "title": "Etapa 5 · Porovnání Smart-wallet skupin",
+      "description": "Analytika podle tags a datasetů, například Token | Moni Wizards | AlfaDAO | DeWhales | overlap.",
+      "done_definition": "Lze rychle porovnat, co preferují různé sledované skupiny.",
+      "priority": 5
+    },
+    {
+      "id": "phase-6",
+      "number": 6,
+      "title": "Etapa 6 · Historická pozorování a změny",
+      "description": "Odpovědět na otázku „Co se od minula změnilo?“ bez falešných závěrů o transakcích.",
+      "done_definition": "ChainDetective bezpečně ukáže změny mezi důvěryhodnými pozorováními.",
+      "priority": 6
+    },
+    {
+      "id": "phase-7",
+      "number": 7,
+      "title": "Etapa 7 · Projektový a Social kontext",
+      "description": "Propojit on-chain identitu projektu s ověřitelným off-chain kontextem.",
+      "done_definition": "Uživatel vidí u projektu použitelné a časově označené sociální souvislosti.",
+      "priority": 7
+    }
+  ],
+  "tasks": [
+    {
+      "id": "m1-fallback-exclusive-owner",
+      "phase_id": "phase-1",
+      "title": "Opravit dvojí převzetí tasku při provider fallbacku.",
+      "description": "Přepnutí provideru musí zůstat uvnitř jednoho atomicky převzatého tasku a nesmí otevřít cestu k souběžnému zpracování.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Task je claimnut právě jedním workerem a během fallbacku se nevrací do pending.",
+        "Primary failure a fallback success zůstávají v provenance téhož tasku.",
+        "Regresní race test pro dva workers prokáže jediné execution a jediné dokončení."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/wallet-provider-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Aktuální implementace a race regression test ověřují single-owner claim i fallback uvnitř tasku. Historické datum a konkrétní implementační commit nelze z pracovního stromu spolehlivě přiřadit."
+      }
+    },
+    {
+      "id": "m1-invalid-rows-coverage",
+      "phase_id": "phase-1",
+      "title": "Rozlišit kompletní portfolio od portfolia s invalid_rows.",
+      "description": "Dokončená stránkovace může obsahovat warning kvůli neinterpretovaným řádkům; tento stav se musí oddělit od skutečně partial scanů.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Dokončený scan s invalid_rows má status complete_with_warnings, nikoli partial.",
+        "Coverage a data quality jsou vykazovány odděleně.",
+        "Kompletní prázdné portfolio zůstává validním complete výsledkem."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/server-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Fixture pokrývá complete_with_warnings, partial, validní empty portfolio a mixed-network kvalitu. Historické datum a konkrétní implementační commit nejsou doloženy."
+      }
+    },
+    {
+      "id": "m1-holder-progress-denominator",
+      "phase_id": "phase-1",
+      "title": "Počítat popularitu tokenů se správným denominator; opravit průběžné holder výsledky.",
+      "description": "Popularity musí používat pouze spolehlivě analyzované wallets v relevantní síti a správně reprezentovat částečné/průběžné výsledky.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Warning nebo neúspěšný wallet/network task není považován za důkaz, že wallet token nedrží.",
+        "Share tokenu je holderCount dělený reliableWalletCount v relevantní síti.",
+        "Mixed-network warning nevyřadí použitelná data z jiné sítě."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/server-regression.mjs",
+          "tests/large-wallet-scan-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Regresní fixtures ověřují reliable denominator včetně warning tasků a oddělené coverage podle sítě. Historické datum a konkrétní implementační commit nejsou doloženy."
+      }
+    },
+    {
+      "id": "m1-filtered-result-summary",
+      "phase_id": "phase-1",
+      "title": "Počítat souhrny nad celým filtrovaným výsledkem, ne pouze aktuální stránkou.",
+      "description": "Summary a počty odpovídají celému aktuálně filtrovanému výsledku a zůstávají stabilní při stránkování a řazení.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Summary se nemění při změně stránky ani sortu.",
+        "Změna filtru přepočítá summary i filteredTotal.",
+        "pageRows odpovídá pouze počtu položek vrácených na aktuální stránce."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/server-regression.mjs",
+          "tests/app-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Serverové regresní testy ověřují stránkování, filtry, změnu sortu i stabilní summary; UI test pokrývá práci s celým filtrovaným exportem. Historické datum/commit nejsou přiřazovány odhadem."
+      }
+    },
+    {
+      "id": "m1-provider-provenance-csv",
+      "phase_id": "phase-1",
+      "title": "Opravit provider provenance a fallback warnings; sjednotit CSV export fieldy.",
+      "description": "Výsledek i export musí vysvětlit skutečnou posloupnost providerů, jejich stav a kvalitu dat bez záměny fallbacku za nový task nebo data warning.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Provenance uvádí primary failure a provider, který dodal použitelná data.",
+        "Úspěšný fallback sám o sobě nevytváří data-quality warning.",
+        "CSV export používá stabilní sjednocená pole včetně provenance a data quality."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/wallet-provider-regression.mjs",
+          "tests/app-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Provider regressions a app CSV assertions pokrývají success/failure/fallback provenance, kvalitativní warningy i export fieldy."
+      }
+    },
+    {
+      "id": "m1-success-attempt-timestamps",
+      "phase_id": "phase-1",
+      "title": "Oddělit lastSuccessAt a lastAttemptAt.",
+      "description": "Čas posledního pokusu se aktualizuje při každém skutečném requestu, zatímco freshness/as_of se mění pouze při úspěšném načtení použitelných dat.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Success zaznamená attempt i success timestamp.",
+        "Pozdější failure posune lastAttemptAt, ale zachová lastSuccessAt a as_of.",
+        "Fallback success nastaví freshness podle úspěšného fallbacku; selhání všech providerů freshness neposune."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/wallet-provider-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Regression fixtures ověřují success, success→failure, primary failure→fallback success a failure obou providerů. Historické datum/commit nejsou bezpečně dohledatelné."
+      }
+    },
+    {
+      "id": "m1-env-before-provider-init",
+      "phase_id": "phase-1",
+      "title": "Načítat .env před inicializací providerů a scan modulů.",
+      "description": "Konfigurace se načte před importem modulů, které čtou env proměnné během inicializace.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Standardní entrypoint načítá .env před env-dependent moduly.",
+        "Test override, výchozí hodnoty a neplatné hodnoty jsou pokryté izolovanými procesy.",
+        "API credentials nejsou testovacím výstupem odhaleny jako hodnoty."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/env-bootstrap-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Entry point importuje load-env jako první a testuje bootstrap i CLI start."
+      }
+    },
+    {
+      "id": "m1-regression-tests",
+      "phase_id": "phase-1",
+      "title": "Doplnit reprodukční regresní testy pro zjištěné okrajové případy.",
+      "description": "Ověřit correctness hranové stavy ScanEngine/providerů a popularity reprodukovatelnými fixtures místo spoléhání na ruční kontrolu.",
+      "priority": 1,
+      "status": "done",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Race ownership/fallback, partial a warning coverage, provider provenance a freshness mají reprodukční testy.",
+        "Popularity denominator, průběžné výsledky a server-side summary mají regresní pokrytí.",
+        "Relevantní kontrolní sada npm test proběhne úspěšně."
+      ],
+      "evidence": {
+        "verified": true,
+        "tests": [
+          "tests/wallet-provider-regression.mjs",
+          "tests/server-regression.mjs",
+          "tests/large-wallet-scan-regression.mjs",
+          "tests/app-regression.mjs"
+        ],
+        "completed_at": null,
+        "notes": "Aktuální test suite obsahuje cílené fixtures pro všechny body Etapy 1."
+      }
+    },
+    {
+      "id": "m2-preserve-research-context",
+      "phase_id": "phase-2",
+      "title": "Zachovat otevřený scan, stránku, filtry a výběr při přechodu mezi sekcemi.",
+      "description": "Navigace mezi výzkumnými sekcemi má zachovat aktuální kontext analýzy.",
+      "priority": 2,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Přechod mezi sekcemi zachová otevřený scan, stránku, filtry a výběr.",
+        "Návrat obnoví stejný výzkumný kontext bez opakovaného zadávání."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Stav nebylo možné rekonstruovat z repository-tracked evidence; původní browser localStorage se nepřebírá."
+      }
+    },
+    {
+      "id": "m2-token-to-wallets-context",
+      "phase_id": "phase-2",
+      "title": "Token → holders v datasetu → konkrétní wallets; zachovat Smart-wallet name, tags a status.",
+      "description": "Předání výsledku Token Screeneru do wallet workflow zachová identitu a metadata uložených Smart wallets.",
+      "priority": 2,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Z výsledku tokenu lze otevřít dataset nalezených holders.",
+        "Smart-wallet name, tags a status zůstávají viditelné a analyzované adresy se deduplikují."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Stav nebylo možné rekonstruovat z repository-tracked evidence; browser-local stav se ignoruje."
+      }
+    },
+    {
+      "id": "m2-return-to-analysis",
+      "phase_id": "phase-2",
+      "title": "Vrátit se do původní analýzy bez ztráty kontextu a sjednotit předávání datasetů.",
+      "description": "Návazné kroky mají uživateli umožnit návrat ke zdrojové analýze se zachovanými parametry a datasetem.",
+      "priority": 2,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Návrat otevře původní analýzu a zachová její scan/query identitu.",
+        "Předávání datasetů mezi relevantními obrazovkami používá konzistentní formát."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Stav nebylo možné rekonstruovat z repository-tracked evidence; browser-local stav se ignoruje."
+      }
+    },
+    {
+      "id": "m2-remove-workflow-limit-normalize-tags",
+      "phase_id": "phase-2",
+      "title": "Odstranit případné zbylé limity 20 adres v navazujících workflow; sjednotit normalizaci tags.",
+      "description": "Navazující workflow mají respektovat dataset až 500 wallets a tags porovnávat konzistentně.",
+      "priority": 2,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Wallet Analyzer workflow nemá zbylý limit 20 adres.",
+        "Tag matching je case-insensitive a výběr deduplikuje adresy."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Stav roadmapy nebylo možné rekonstruovat z repository-tracked evidence; item ponechán not-started k výslovnému přezkoumání."
+      }
+    },
+    {
+      "id": "m2-dialogs-browser-e2e",
+      "phase_id": "phase-2",
+      "title": "Dokončit konzistentní chování dialogů a ověřit kritické cesty browser end-to-end testy.",
+      "description": "Důležité dialogy mají předvídatelné zavírání a klíčové výzkumné cesty mají browser-level coverage.",
+      "priority": 2,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Smart-wallet dialogy mají konzistentní explicitní zavírání.",
+        "Kritické workflow jsou ověřené v browser end-to-end testech."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Stav nebylo možné bezpečně rekonstruovat z repository-tracked evidence; browser-local stav se nepřebírá."
+      }
+    },
+    {
+      "id": "m3-versioned-migrations-backup",
+      "phase_id": "phase-3",
+      "title": "Verzované DB migrace a ověřená obnova zálohy.",
+      "description": "Změny SQLite schématu mají být verzované a záloha musí být skutečně obnovitelná.",
+      "priority": 3,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Migrace jsou verzované a opakovatelné.",
+        "Zálohu lze obnovit do čistého datového adresáře a ověřit integritu."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Aktuální roadmap status nebyl repository-tracked; zůstává not-started do dalšího auditu."
+      }
+    },
+    {
+      "id": "m3-history-progress-polling",
+      "phase_id": "phase-3",
+      "title": "Stránkovaná historie skenů a kompaktní progress API s menšími polling payloady.",
+      "description": "Historie a průběh velkých scanů mají vracet pouze potřebnou část dat.",
+      "priority": 3,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Historie serverových scanů podporuje stránkování.",
+        "Progress polling nevrací nadbytečné výsledkové payloady a zachová stavy running/paused/partial/complete."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status nebyl migrován z browser storage a tento bod nebyl v tomto zadání auditován."
+      }
+    },
+    {
+      "id": "m3-aggregate-holder-pagination",
+      "phase_id": "phase-3",
+      "title": "Nepřepočítávat všechna positions při každém requestu; server-side stránkovat holders.",
+      "description": "Token holder výsledky mají využívat efektivní server-side filtry, řazení a stránkování.",
+      "priority": 3,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Změna stránky neagreguje znovu celý dataset.",
+        "Summary odpovídá celému filtrovanému výsledku a tabulka vrací jen požadovanou stránku."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; etapa 3 nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m3-measure-sql-response-event-loop",
+      "phase_id": "phase-3",
+      "title": "Změřit SQL, agregaci, velikost odpovědí a event-loop lag; kompakci SQLite řešit podle měření.",
+      "description": "Nejdřív získat měření skutečných nákladů a teprve podle nich rozhodnout o optimalizacích a SQLite compaction.",
+      "priority": 3,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Existuje reprodukovatelný benchmark SQL, agregace, velikosti response a event-loop lag.",
+        "Případná SQLite kompakce je podložena výsledky a ověřenou zálohou."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started, protože etapa 3 nebyla auditována a roadmapa nemá dřívější canonical status."
+      }
+    },
+    {
+      "id": "m4-shared-wallet-snapshots",
+      "phase_id": "phase-4",
+      "title": "Poslední použitelný snapshot a základ observations s klíčem wallet + network.",
+      "description": "Oddělit poslední použitelná wallet/network data od jednotlivých scanů a připravit základ historických observations.",
+      "priority": 4,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Snapshot je adresován kombinací wallet a network.",
+        "Uloží se poslední použitelný výsledek a základ observations bez přepisování scan historie."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Budoucí plán; canonical status ani důkaz dokončení nejsou v repository zaznamenány."
+      }
+    },
+    {
+      "id": "m4-provenance-freshness-quality",
+      "phase_id": "phase-4",
+      "title": "Uložit provider provenance, freshness a quality/coverage.",
+      "description": "Sdílené snapshoty musí uchovat provider původ, stáří dat a jejich kvalitu/coverage.",
+      "priority": 4,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Každý snapshot nese provider provenance.",
+        "Freshness a data quality jsou samostatně čitelné a partial data se neprezentují jako spolehlivá."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Některé metadata existují pro scan tasky, ale sdílené snapshoty nebyly v rámci tohoto status auditu posuzovány."
+      }
+    },
+    {
+      "id": "m4-deduplicated-refresh-shared-snapshot",
+      "phase_id": "phase-4",
+      "title": "Deduplikovat refresh frontu a sdílet snapshot napříč skupinovými analýzami.",
+      "description": "Souběžné požadavky na stejnou wallet/network mají sdílet jeden refresh a výsledek znovu použít napříč analýzami.",
+      "priority": 4,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Souběžný refresh stejné wallet/network se provede nejvýše jednou.",
+        "Výsledek je znovupoužitelný ve více skupinových analýzách."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m4-stale-while-revalidate",
+      "phase_id": "phase-4",
+      "title": "Použít stale-while-revalidate.",
+      "description": "Starší použitelný snapshot lze zobrazit okamžitě a obnovit na pozadí bez blokování výzkumného workflow.",
+      "priority": 4,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Existující snapshot se vrátí bez čekání na refresh.",
+        "Refresh běží odděleně a stav stale/fresh je uživateli zřejmý.",
+        "Chyba refresh ponechá poslední úspěšná data nedotčená."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m5-group-holder-share-coverage",
+      "phase_id": "phase-5",
+      "title": "Počet holders, podíl skupiny, coverage a stáří dat.",
+      "description": "Pro každou Smart-wallet skupinu shrnout držení tokenů, podíl a kvalitu/stáří podkladových dat.",
+      "priority": 5,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Výsledek ukazuje unikátní holders a podíl z použitelné skupiny.",
+        "Coverage a stáří dat jsou viditelné pro každou síť/skupinu.",
+        "Neúplné wallets se nepočítají jako negativní důkaz držení."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m5-group-wallet-overlap",
+      "phase_id": "phase-5",
+      "title": "Překryv stejných wallets mezi skupinami.",
+      "description": "Ukázat překrývající se wallets mezi tagy nebo datasety jako průnik skupin.",
+      "priority": 5,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Uživatel může porovnat členství a průnik alespoň dvou skupin.",
+        "Jedna adresa je v průniku započtena pouze jednou."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m5-tags-not-independent-investors",
+      "phase_id": "phase-5",
+      "title": "Jedna wallet s více tags se nesmí počítat jako několik nezávislých investorů.",
+      "description": "Skupinové souhrny musí rozlišovat štítky od unikátních investorů.",
+      "priority": 5,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Více tagů jedné adresy nezvyšuje počet unikátních wallets.",
+        "Skupinový overlap i souhrny používají normalizovanou identitu adresy."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m6-reliable-position-entries-exits",
+      "phase_id": "phase-6",
+      "title": "Detekovat nové a zmizelé pozice pouze mezi spolehlivými snapshoty.",
+      "description": "Historická změna tokenové pozice se vyhodnocuje pouze mezi úplnými a kvalitativně spolehlivými observations.",
+      "priority": 6,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Nové a zmizelé pozice jsou odvozeny z porovnání spolehlivých snapshotů.",
+        "Neznámá nebo warning data nevytvoří falešný entry/exit."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; historická observations fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m6-raw-amount-and-membership-history",
+      "phase_id": "phase-6",
+      "title": "Sledovat změny rawAmount, počtu holders ve skupině a historického členství tagů/datasetů.",
+      "description": "Historická data zachovají přesné zůstatky i změny členství a skupinových počtů.",
+      "priority": 6,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Observations uchovávají rawAmount bez ztráty přesnosti.",
+        "Historické členství tags/datasetů lze rekonstruovat k času pozorování.",
+        "Počet holders ve skupině je časově reprodukovatelný."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; historická observations fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m6-partial-snapshot-no-false-exit",
+      "phase_id": "phase-6",
+      "title": "Partial/error snapshot nesmí vyvolat falešný exit.",
+      "description": "Neúplné snapshoty se nesmí interpretovat jako zánik pozice.",
+      "priority": 6,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Partial/error snapshot nevytvoří event zmizelé pozice.",
+        "Pozice se označí jako neznámá do dalšího spolehlivého snapshotu."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m6-balance-change-not-trade",
+      "phase_id": "phase-6",
+      "title": "Samotná změna zůstatku není důkaz nákupu ani prodeje.",
+      "description": "Historické balance diffs se popisují jako pozorovaná změna, nikoli jako prokázaný obchod.",
+      "priority": 6,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Balance delta není klasifikována jako buy/sell bez transakčního důkazu.",
+        "UI a API rozlišují observation od transakční události."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m7-project-identity-links",
+      "phase_id": "phase-7",
+      "title": "Vazba network + contract ↔ project ↔ X account včetně zdroje a stavu potvrzení.",
+      "description": "Identita tokenu/projektu/social účtu má být propojena ověřitelnými vazbami a zdroji.",
+      "priority": 7,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Projektová vazba používá network+contract identitu.",
+        "Každá vazba uvádí zdroj a stav ověření.",
+        "X účet se nepřipojuje pouze podle tickeru."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m7-moni-context-provenance",
+      "phase_id": "phase-7",
+      "title": "Zobrazit Moni data přímo u tokenu/projektu; uvádět období, čas aktualizace a provenance.",
+      "description": "Social data doplní on-chain research kontext s jasným obdobím, freshness a původem.",
+      "priority": 7,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Moni kontext je přiřazen ke konkrétnímu tokenu/projektu.",
+        "UI ukazuje období, čas poslední úspěšné aktualizace a provenance.",
+        "Chybějící social data se nezamění za nulovou aktivitu."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m7-social-failure-isolated",
+      "phase_id": "phase-7",
+      "title": "Výpadek Socials nesmí blokovat on-chain část.",
+      "description": "Externí social provider chyby se izolují tak, aby základní on-chain workflow dál fungoval.",
+      "priority": 7,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Výpadek social provideru nezablokuje on-chain analýzu.",
+        "UI zobrazí social chybu odděleně a zachová dostupná on-chain data."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; tato fáze nebyla v tomto zadání auditována."
+      }
+    },
+    {
+      "id": "m7-databot-gap-only",
+      "phase_id": "phase-7",
+      "title": "DataBot přidat jen pro konkrétní hodnotná data, která Moni neposkytuje.",
+      "description": "Další social datasource se přidá jen při prokázané datové mezeře a konkrétní přidané hodnotě.",
+      "priority": 7,
+      "status": "not-started",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Existuje zdokumentovaná mezera oproti Moni.",
+        "Datový zdroj je prověřen na pokrytí, cenu, limity a provenance.",
+        "Integrace se spustí až po explicitním produktovém rozhodnutí."
+      ],
+      "evidence": {
+        "verified": false,
+        "tests": [],
+        "completed_at": null,
+        "notes": "Status ponechán not-started; případné PoC samo o sobě neznamená production readiness."
+      }
+    }
+  ]
+}

@@ -1,200 +1,123 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { runInNewContext } from 'node:vm';
+import {readFile} from 'node:fs/promises';
+import {runInNewContext} from 'node:vm';
 
-const html = await readFile(new URL('../dist/roadmap.html', import.meta.url), 'utf8');
-const script = await readFile(new URL('../dist/roadmap.js', import.meta.url), 'utf8');
+const [html,script,data,standaloneHtml,standaloneScript]=await Promise.all([
+ readFile(new URL('../dist/roadmap.html',import.meta.url),'utf8'),
+ readFile(new URL('../dist/roadmap.js',import.meta.url),'utf8'),
+ readFile(new URL('../roadmap/roadmap-data.json',import.meta.url),'utf8').then(JSON.parse),
+ readFile(new URL('../standalone/roadmap.html',import.meta.url),'utf8'),
+ readFile(new URL('../standalone/roadmap.js',import.meta.url),'utf8'),
+]);
 new Function(script);
-
-const taskMatches = [...html.matchAll(/data-roadmap-item="([^"]+)" data-roadmap-stage="([1-7])"/g)];
-const ids = taskMatches.map(match => match[1]);
-assert.equal(ids.length, 32, 'all current implementation points should have a status');
-assert.equal(new Set(ids).size, ids.length, 'roadmap task IDs must be unique');
-assert.ok(!html.slice(html.indexOf('id="foundation"')).includes('data-roadmap-item='), 'completed foundation stays a historical list');
-assert.match(html, /<script src="\.\/roadmap\.js"><\/script>/, 'served roadmap loads its state manager');
+assert.equal(data.phases.length,7);
+assert.equal(data.tasks.length,32);
+assert.deepEqual(data.tasks.slice(0,8).map(task=>task.id),[
+ 'm1-fallback-exclusive-owner','m1-invalid-rows-coverage','m1-holder-progress-denominator','m1-filtered-result-summary',
+ 'm1-provider-provenance-csv','m1-success-attempt-timestamps','m1-env-before-provider-init','m1-regression-tests',
+],'current stable Etapa 1 IDs remain unchanged and in order');
+assert.equal(new Set(data.tasks.map(task=>task.id)).size,data.tasks.length);
+assert.ok(data.tasks.filter(task=>task.status==='done').every(task=>task.evidence.verified&&task.evidence.tests.length),'done tasks retain verified status and real test evidence');
+assert.match(html,/roadmap-data-error/,'UI has a canonical-data load failure state');
+assert.match(html,/<script src="\.\/roadmap\.js"><\/script>/,'served roadmap loads its renderer');
+assert.match(html,/grid-template-columns:repeat\(auto-fit,minmax\(min\(100%,320px\),1fr\)\)/,'stage cards keep a readable minimum width and auto-fit available columns');
+assert.match(html,/\.roadmap-task-label\{[^}]*font-size:14px/,'task titles are more prominent than secondary metadata');
+assert.match(html,/\.roadmap-task-id\{[^}]*font:10px/,'task IDs are subdued metadata');
+assert.match(html,/@media\(max-width:700px\)[\s\S]*?\.roadmap-grid\{grid-template-columns:minmax\(0,1fr\)/,'mobile viewport switches to one column');
+assert.doesNotMatch(html,/id="now-done-definition"/,'current phase does not repeat the full phase completion definition');
+assert.doesNotMatch(html,/id="roadmap-reset"/,'read-only UI does not offer browser-only status reset');
+assert.doesNotMatch(script,/localStorage|chaindetective\.roadmap\.state\.v1/,'UI does not read or write legacy localStorage state');
+assert.doesNotMatch(standaloneScript,/localStorage|chaindetective\.roadmap\.state\.v1/,'standalone UI also does not use localStorage');
+const embeddedRoadmap=standaloneHtml.match(/<script type="application\/json" id="roadmap-canonical-data">([\s\S]*?)<\/script>/)?.[1];
+assert.ok(embeddedRoadmap,'standalone roadmap embeds the canonical data for file-based use');
+assert.deepEqual(JSON.parse(embeddedRoadmap),data,'standalone roadmap embeds the same canonical data');
 
 class Element {
-  constructor({ id = '', dataset = {}, textContent = '' } = {}) {
-    this.id = id;
-    this.dataset = dataset;
-    this.textContent = textContent;
-    this.value = '';
-    this.hidden = false;
-    this.style = {};
-    this.listeners = {};
-    this.children = [];
-    this.attributes = {};
-    this.className = '';
-    this.parentElement = null;
-    this.classList = { add() {} };
-  }
-  append(...children) { this.children.push(...children); }
-  replaceChildren(...children) { this.children = children; }
-  addEventListener(type, listener) { this.listeners[type] = listener; }
-  setAttribute(name, value) { this.attributes[name] = value; }
-  querySelector(selector) {
-    if (selector === 'select') return this.select ?? null;
-    if (selector === '.roadmap-badge') return this.badge ?? null;
-    if (selector === 'h3') return this.heading ?? null;
-    return null;
-  }
-  querySelectorAll(selector) { return selector === 'p' ? this.paragraphs ?? [] : []; }
-  dispatch(type) { this.listeners[type]?.({ target: this }); }
+ constructor({id='',dataset={},textContent='',tag='div'}={}){
+  this.id=id;this.tagName=tag.toUpperCase();this.dataset={...dataset};this.textContent=textContent;this.value='';this.hidden=false;this.style={};this.children=[];this.attributes={};this.listeners={};this.parentElement=null;this.className='';
+  this.classList={add:name=>{const names=new Set(this.className.split(/\s+/).filter(Boolean));names.add(name);this.className=[...names].join(' ');}};
+ }
+ append(...children){for(const child of children){this.children.push(child);if(child&&typeof child==='object')child.parentElement=this;}}
+ replaceChildren(...children){this.children=[];this.textContent='';this.append(...children);}
+ addEventListener(type,listener){this.listeners[type]=listener;}
+ setAttribute(name,value){this.attributes[name]=String(value);}
+ querySelector(selector){
+  if(selector==='h3')return this.heading||null;
+  if(selector==='[data-roadmap-stage-tasks]')return this.taskList||null;
+  if(selector==='.roadmap-badge')return this.badge||null;
+  return null;
+ }
+ querySelectorAll(selector){return selector==='p'?this.paragraphs||[]:[];}
+ dispatch(type){return this.listeners[type]?.({target:this});}
 }
 
-const stageMatches = [...html.matchAll(/<article id="stage-(\d)"[\s\S]*?<\/article>/g)];
-const stageModels = stageMatches.map(match => {
-  const source = match[0];
-  const heading = source.match(/<h3>([\s\S]*?)<\/h3>/)?.[1] ?? '';
-  const paragraphs = [...source.matchAll(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/g)]
-    .map(paragraph => paragraph[1].replace(/<[^>]+>/g, '').trim());
-  return { stage: match[1], heading, paragraphs };
-});
-
-function createPage(storage = new Map(), confirmation = true) {
-  const items = taskMatches.map(match => new Element({
-    dataset: { roadmapItem: match[1], roadmapStage: match[2] },
-    textContent: match[1],
-  }));
-  const elements = new Map();
-  const add = (id, element = new Element({ id })) => (elements.set(id, element), element);
-  add('roadmap-total-label');
-  add('roadmap-status-filter').value = 'all';
-  add('roadmap-reset');
-  const totalBar = add('roadmap-total-bar');
-  totalBar.parentElement = new Element();
-  add('roadmap-footer-status');
-  add('now-title');
-  add('now-description');
-  add('now-tasks');
-  add('now-done-definition');
-  const now = add('now');
-  now.badge = new Element({ textContent: 'PRÁVĚ TEĎ' });
-
-  const stageCards = new Map();
-  const stageLabels = new Map();
-  for (const model of stageModels) {
-    const card = new Element();
-    card.badge = new Element();
-    card.heading = new Element({ textContent: model.heading.replace(/<[^>]+>/g, '') });
-    card.paragraphs = model.paragraphs.map(text => new Element({ textContent: text }));
-    stageCards.set(model.stage, card);
-    stageLabels.set(model.stage, add('roadmap-stage-' + model.stage + '-label'));
-    const bar = add('roadmap-stage-' + model.stage + '-bar');
-    bar.parentElement = new Element();
-  }
-  const document = {
-    querySelectorAll: selector => selector === '[data-roadmap-item]' ? items : [],
-    getElementById: id => elements.get(id) ?? null,
-    querySelector: selector => {
-      const card = selector.match(/^\[data-roadmap-stage-card="(\d+)"\]$/);
-      if (card) return stageCards.get(card[1]);
-      const heading = selector.match(/^\[data-roadmap-stage-card="(\d+)"\] h3$/);
-      return heading ? stageCards.get(heading[1])?.heading ?? null : null;
-    },
-    createElement: () => new Element(),
-  };
-  const localStorage = {
-    getItem: key => storage.get(key) ?? null,
-    setItem: (key, value) => storage.set(key, value),
-  };
-  const window = { confirm: () => confirmation };
-  runInNewContext(script, { document, localStorage, window, Set, Map, JSON, Math, Number });
-  for (const item of items) item.select = item.children[0].children[0];
-  return {
-    items, elements, stageCards, stageLabels, storage,
-    setConfirmation: value => { confirmation = value; },
-  };
+const elements=new Map();
+const add=(id,element=new Element({id}))=>(elements.set(id,element),element);
+const phaseCards=new Map();
+for(const phase of data.phases){
+ const card=new Element({dataset:{roadmapStageCard:String(phase.number)}});
+ card.badge=new Element({textContent:'ETAPA'});
+ card.heading=new Element({tag:'h3'});
+ card.paragraphs=[new Element({tag:'p'}),new Element({tag:'p'})];
+ card.taskList=new Element({tag:'ul',dataset:{roadmapStageTasks:String(phase.number)}});
+ phaseCards.set(String(phase.number),card);
+ add(`roadmap-stage-${phase.number}-label`);
+ const bar=add(`roadmap-stage-${phase.number}-bar`);bar.parentElement=new Element();
 }
-
-const stateKey = 'chaindetective.roadmap.state.v1';
-const byStage = stage => taskMatches.filter(match => match[2] === String(stage)).map(match => match[1]);
-const savedState = (completedStages = [], partial = {}) => {
-  const state = {};
-  for (const stage of completedStages) for (const id of byStage(stage)) state[id] = 'done';
-  for (const [id, value] of Object.entries(partial)) state[id] = value;
-  return new Map([[stateKey, JSON.stringify(state)]]);
+const now=add('now');now.badge=new Element({textContent:'PRÁVĚ TEĎ'});
+for(const id of ['roadmap-total-label','roadmap-footer-status','now-title','now-description','now-tasks','roadmap-data-error'])add(id);
+const statusFilter=add('roadmap-status-filter');statusFilter.value='all';
+const totalBar=add('roadmap-total-bar');totalBar.parentElement=new Element();
+const docListeners={};
+const document={
+ getElementById:id=>elements.get(id)||null,
+ createElement:tag=>new Element({tag}),
+ createTextNode:text=>({textContent:String(text)}),
+ addEventListener:(type,listener)=>{docListeners[type]=listener;},
+ querySelector:selector=>{const match=selector.match(/^\[data-roadmap-stage-card="(\d+)"\]$/);return match?phaseCards.get(match[1])||null:null;},
+ querySelectorAll:selector=>selector==='[data-roadmap-item]'?data.tasks.flatMap(task=>{
+  const list=phaseCards.get(String(data.phases.find(phase=>phase.id===task.phase_id).number)).taskList;
+  return list.children.filter(row=>row.dataset.roadmapItem===task.id);
+ }):[],
 };
-const activeTitle = page => page.elements.get('now-title').textContent;
-const activeControls = page => page.elements.get('now-tasks').children
-  .map(row => row.children[1].children[0]);
+let fetchedUrl='';
+const context={
+ document,
+ fetch:async(url,options)=>{fetchedUrl=url;assert.equal(options.cache,'no-store');return {ok:true,json:async()=>data};},
+ Date,Map,Set,Math,Number,Boolean,Array,String,
+};
+runInNewContext(script,context);
+assert.equal(typeof docListeners.DOMContentLoaded,'function','roadmap initializes after HTML parsing');
+await docListeners.DOMContentLoaded();
+assert.equal(fetchedUrl,'./roadmap-data.json');
+assert.equal(elements.get('roadmap-data-error').textContent,'','canonical roadmap loads and renders without a UI error');
+assert.equal(elements.get('roadmap-total-label').textContent,'8 / 32 hotovo · 25 %');
+assert.equal(elements.get('roadmap-stage-1-label').textContent,'8 / 8 hotovo · 100 %');
+assert.equal(elements.get('roadmap-stage-2-label').textContent,'0 / 5 hotovo · 0 %');
+assert.equal(elements.get('now-title').textContent,data.phases[1].title,'first incomplete phase is derived from canonical status');
+assert.equal(phaseCards.get('1').badge.textContent,'DOKONČENO');
+assert.equal(phaseCards.get('2').badge.textContent,'AKTUÁLNÍ · NEJVYŠŠÍ PRIORITA');
+const allTaskRows=data.phases.flatMap(phase=>phaseCards.get(String(phase.number)).taskList.children);
+assert.equal(allTaskRows.length,32);
+assert.ok(allTaskRows.every(row=>row.children.length===1&&row.children[0].tagName==='DETAILS'),'each phase task uses a native disclosure row');
+const firstTaskRow=allTaskRows.find(row=>row.dataset.roadmapItem==='m1-fallback-exclusive-owner');
+const firstTaskDetails=firstTaskRow.children[0];
+assert.equal(firstTaskDetails.attributes.open,undefined,'task details are collapsed by default');
+assert.equal(firstTaskDetails.children[0].tagName,'SUMMARY','the whole title/status row is the disclosure affordance');
+const summaryMain=firstTaskDetails.children[0].children[0];
+assert.equal(summaryMain.children[0].textContent,data.tasks[0].title,'collapsed task row prioritizes its title');
+assert.equal(summaryMain.children[1].textContent,'HOTOVO','status badges use the compact uppercase labels');
+assert.equal(firstTaskDetails.children[1].children[0].textContent,data.tasks[0].id,'stable ID is inside the collapsed detail');
+assert.ok(firstTaskDetails.children[1].children[2].children.some(child=>child.textContent.includes('race test')),'acceptance criteria are rendered from canonical data');
+assert.ok(elements.get('now-tasks').children.every(row=>row.children.length===1&&row.children[0].children.length===2),'current phase shows only task title and status');
 
-// A: 7/8 keeps stage 1 current.
-const sevenOfEight = savedState([], Object.fromEntries(byStage(1).slice(0, 7).map(id => [id, 'done'])));
-const stageOne = createPage(sevenOfEight);
-assert.equal(activeTitle(stageOne), 'Etapa 1 · Správnost výsledků a řízení úloh');
-assert.equal(stageOne.stageLabels.get('1').textContent, '7 / 8 hotovo · 88 %');
-
-// B: completing stage 1 immediately advances the active panel and relative badges.
-const eightOfEight = savedState([1]);
-const stageTwo = createPage(eightOfEight);
-assert.equal(activeTitle(stageTwo), 'Etapa 2 · Souvislý research workflow');
-assert.equal(stageTwo.elements.get('now-tasks').children.length, 5);
-assert.equal(activeControls(stageTwo).length, 5, 'each active-stage task has its own status select');
-assert.ok(activeControls(stageTwo).every(select =>
-  select.children.map(option => option.value).join(',') === 'not-started,in-progress,done'));
-assert.ok(activeControls(stageTwo).every(select => select.value === 'not-started'));
-assert.equal(stageTwo.elements.get('now-description').textContent, 'Propojit existující obrazovky a zachovat výzkumný kontext při navigaci.');
-assert.equal(stageTwo.elements.get('now-done-definition').textContent, 'Hotovo znamená: celý research flow funguje bez kopírování adres a bez ztráty rozpracované analýzy.');
-assert.equal(stageTwo.stageLabels.get('1').textContent, '8 / 8 hotovo · 100 %');
-assert.equal(stageTwo.stageCards.get('1').badge.textContent, 'DOKONČENO');
-assert.equal(stageTwo.stageCards.get('1').badge.className, 'roadmap-badge done');
-assert.equal(stageTwo.stageCards.get('2').badge.textContent, 'AKTUÁLNÍ · NEJVYŠŠÍ PRIORITA');
-assert.equal(stageTwo.stageCards.get('3').badge.textContent, 'DALŠÍ');
-assert.equal(stageTwo.elements.get('roadmap-total-label').textContent, '8 / 32 hotovo · 25 %');
-
-// B/C: active-stage controls share the existing persisted task state and update progress live.
-let firstStageTwoControl = activeControls(stageTwo)[0];
-firstStageTwoControl.value = 'in-progress';
-firstStageTwoControl.dispatch('change');
-assert.equal(stageTwo.stageLabels.get('2').textContent, '0 / 5 hotovo · 0 %', 'progress counts completed tasks only');
-assert.equal(JSON.parse(stageTwo.storage.get(stateKey))[byStage(2)[0]], 'in-progress');
-firstStageTwoControl = activeControls(stageTwo)[0];
-firstStageTwoControl.value = 'done';
-firstStageTwoControl.dispatch('change');
-assert.equal(stageTwo.stageLabels.get('2').textContent, '1 / 5 hotovo · 20 %');
-assert.equal(stageTwo.elements.get('roadmap-total-label').textContent, '9 / 32 hotovo · 28 %');
-assert.equal(stageTwo.items.find(item => item.dataset.roadmapItem === byStage(2)[0]).select.value, 'done',
-  'the stage card select mirrors the active-panel select');
-
-// C: all of stages 1 and 2 plus one task in stage 3 advances to stage 3.
-const stageThree = createPage(savedState([1, 2], { [byStage(3)[0]]: 'done' }));
-assert.equal(activeTitle(stageThree), 'Etapa 3 · Datový a výkonový základ');
-
-// D: a reload restores saved states before the initial stage calculation.
-const reloaded = createPage(new Map([[stateKey, stageTwo.storage.get(stateKey)]]));
-assert.equal(activeTitle(reloaded), 'Etapa 2 · Souvislý research workflow');
-assert.equal(reloaded.elements.get('roadmap-total-label').textContent, '9 / 32 hotovo · 28 %');
-assert.equal(activeControls(reloaded)[0].value, 'done', 'active-panel state survives reload');
-assert.equal(reloaded.items.find(item => item.dataset.roadmapItem === byStage(2)[0]).select.value, 'done');
-
-// E: completing the last stage-2 task advances to stage 3 without reload.
-for (const item of reloaded.items.filter(item => item.dataset.roadmapStage === '2').slice(1, 4)) {
-  item.select.value = 'done';
-  item.select.dispatch('change');
-}
-const finalStageTwoControl = activeControls(reloaded)[4];
-finalStageTwoControl.value = 'done';
-finalStageTwoControl.dispatch('change');
-assert.equal(reloaded.stageLabels.get('2').textContent, '5 / 5 hotovo · 100 %');
-assert.equal(reloaded.stageCards.get('2').badge.textContent, 'DOKONČENO');
-assert.equal(activeTitle(reloaded), 'Etapa 3 · Datový a výkonový základ');
-
-// F: returning a stage-2 task from done to in-progress derives stage 2 again.
-const reversedItem = reloaded.items.find(item => item.dataset.roadmapStage === '2');
-reversedItem.select.value = 'in-progress';
-reversedItem.select.dispatch('change');
-assert.equal(activeTitle(reloaded), 'Etapa 2 · Souvislý research workflow');
-assert.equal(reloaded.stageCards.get('2').badge.textContent, 'AKTUÁLNÍ · NEJVYŠŠÍ PRIORITA');
-reversedItem.select.value = 'done';
-reversedItem.select.dispatch('change');
-assert.equal(activeTitle(reloaded), 'Etapa 3 · Datový a výkonový základ');
-
-// F: every task complete renders the terminal roadmap state.
-const allDoneState = {};
-for (const match of taskMatches) allDoneState[match[1]] = 'done';
-const completed = createPage(new Map([[stateKey, JSON.stringify(allDoneState)]]));
-assert.equal(activeTitle(completed), 'ROADMAP DOKONČENA');
-assert.ok(stageModels.every(model => completed.stageCards.get(model.stage).badge.textContent === 'DOKONČENO'));
-
-console.log('Roadmap regression checks passed: active-stage controls, shared state, live progress, reload, stage transitions, and completion.');
+statusFilter.value='done';statusFilter.dispatch('change');
+assert.equal(phaseCards.get('1').hidden,false);
+assert.equal(phaseCards.get('2').hidden,true);
+assert.equal(now.hidden,true,'current-phase panel hides when its tasks do not match the selected status');
+statusFilter.value='not-started';statusFilter.dispatch('change');
+assert.equal(phaseCards.get('1').hidden,true);
+assert.equal(phaseCards.get('2').hidden,false);
+assert.ok(phaseCards.get('2').taskList.children.every(row=>!row.hidden));
+assert.equal(elements.get('roadmap-total-label').textContent,'8 / 32 hotovo · 25 %','filtering does not change canonical progress');
+console.log('Roadmap regressions passed: canonical JSON load, stable IDs, read-only status, evidence details, progress, active phase and status filters.');
