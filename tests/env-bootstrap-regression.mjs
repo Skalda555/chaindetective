@@ -68,7 +68,27 @@ try{
  assert.match(output,/Listening: http:\/\/127\.0\.0\.1:/,'default HOST keeps the standard server loopback-only');
  assert.ok((await stat(path.join(isolatedProject,'.data','chaindetective.sqlite'))).size>0,'default SQLite storage creates .data and preserves the production path when it does not exist');
  child.kill('SIGTERM');await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('isolated server did not stop')),5000);child.once('exit',()=>{clearTimeout(timer);resolve();});});
- console.log('Env bootstrap regressions passed: dotenv-before-import overrides, provider credentials (boolean only), defaults, invalid-value fallback, and isolated standard server startup/health/shutdown.');
+
+ // Exercise the actual configurable Docker/LAN bind and API origin guard through
+ // the CLI entrypoint, not only through createApp() with a synthetic Host header.
+ const lanPort=await freePort();
+ const lanChild=spawn(process.execPath,['server.mjs'],{cwd:isolatedProject,env:{...cleanEnv,CHAINDETECTIVE_ENV_FILE:startupEnv,HOST:'0.0.0.0',CHAINDETECTIVE_ALLOW_LAN:'1',PORT:String(lanPort)},stdio:['ignore','pipe','pipe']});
+ let lanOutput='';lanChild.stdout.setEncoding('utf8');lanChild.stderr.setEncoding('utf8');lanChild.stdout.on('data',chunk=>lanOutput+=chunk);lanChild.stderr.on('data',chunk=>lanOutput+=chunk);
+ try{
+  const lanDeadline=Date.now()+10000;let lanHealth;
+  while(Date.now()<lanDeadline){
+   if(lanChild.exitCode!==null)throw new Error(`LAN server exited early (${lanChild.exitCode}): ${lanOutput}`);
+   try{const response=await fetch(`http://127.0.0.1:${lanPort}/api/health`,{headers:{Origin:`http://127.0.0.1:${lanPort}`}});if(response.ok){lanHealth=await response.json();break;}}catch{}
+   await new Promise(resolve=>setTimeout(resolve,50));
+  }
+  assert.deepEqual(lanHealth,{service:'chaindetective',backendVersion:2},`HOST=0.0.0.0 accepts same-origin LAN API traffic: ${lanOutput}`);
+  assert.match(lanOutput,/Listening: http:\/\/0\.0\.0\.0:/,'CLI applies the configurable Docker bind host');
+  const crossOrigin=await fetch(`http://127.0.0.1:${lanPort}/api/health`,{headers:{Origin:'http://attacker.example'}});
+  assert.equal(crossOrigin.status,403,'LAN mode still rejects cross-origin API requests');
+ }finally{
+  lanChild.kill('SIGTERM');await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('isolated LAN server did not stop')),5000);lanChild.once('exit',()=>{clearTimeout(timer);resolve();});});
+ }
+ console.log('Env bootstrap regressions passed: dotenv-before-import overrides, provider credentials (boolean only), defaults, invalid-value fallback, default loopback and configurable 0.0.0.0 CLI startup, LAN same-origin access, cross-origin rejection, SQLite path and shutdown.');
 }finally{
  const resolved=path.resolve(temporaryRoot);assert.ok(resolved.startsWith(path.resolve(os.tmpdir())+path.sep+'chaindetective-env-'));await rm(resolved,{recursive:true,force:true});
 }
